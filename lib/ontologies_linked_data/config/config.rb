@@ -28,10 +28,12 @@ module LinkedData
     @settings.search_server_url             ||= 'http://localhost:8983/solr/term_search_core1'
     @settings.property_search_server_url    ||= 'http://localhost:8983/solr/prop_search_core1'
     @settings.repository_folder             ||= './test/data/ontology_files/repo'
-    @settings.rest_url_prefix                ||= DEFAULT_PREFIX
+    @settings.rest_url_prefix                ||= 'http://data.bioontology.org/'
     @settings.enable_security               ||= false
     @settings.enable_slices                 ||= false
 
+    # Java/JVM options
+    @settings.java_max_heap_size            ||= '10240M'
     ### these params should be not ussed any more
     # removed so that dependencies shout
     #
@@ -40,8 +42,9 @@ module LinkedData
     # ###
 
     @settings.ui_host                       ||= 'bioportal.bioontology.org'
-    @settings.replace_url_prefix             ||= false
-    @settings.id_url_prefix                  ||= DEFAULT_PREFIX
+    @settings.replace_url_prefix            ||= false
+    @settings.id_url_prefix                 ||= 'http://data.bioontology.org/'
+
     @settings.queries_debug                 ||= false
     @settings.enable_monitoring             ||= false
     @settings.cube_host                     ||= 'localhost'
@@ -67,10 +70,10 @@ module LinkedData
     @settings.purl_username                 ||= ''
     @settings.purl_password                 ||= ''
     @settings.purl_maintainers              ||= ''
-    @settings.purl_target_url_prefix         ||= 'http://bioportal.bioontology.org'
+    @settings.purl_target_url_prefix        ||= 'http://bioportal.bioontology.org'
 
     # Email settings
-    @settings.enable_notifications           ||= false
+    @settings.enable_notifications          ||= false
     @settings.email_sender                  ||= 'admin@example.org' # Default sender for emails
     @settings.email_override                ||= 'test.email@example.org' # By default, all email gets sent here. Disable with email_override_disable.
     @settings.email_disable_override        ||= false
@@ -94,17 +97,17 @@ module LinkedData
     unless @settings.redis_host.nil?
       puts "Error: 'redis_host' is not a valid conf parameter."
       puts '        Redis databases were split into multiple hosts (09/22/13).'
-      raise StandardError, 'redis_host is not a valid conf parameter.'
     end
-
     # Check to make sure url prefix has trailing slash
     @settings.rest_url_prefix = "#{@settings.rest_url_prefix}/" unless @settings.rest_url_prefix[-1].eql?('/')
 
     puts "(LD) >> Using rdf store #{@settings.goo_host}:#{@settings.goo_port}"
     puts "(LD) >> Using term search server at #{@settings.search_server_url}"
     puts "(LD) >> Using property search server at #{@settings.property_search_server_url}"
-    puts "(LD) >> Using HTTP Redis instance at #{@settings.http_redis_host}:#{@settings.http_redis_port}"
-    puts "(LD) >> Using Goo Redis instance at #{@settings.goo_redis_host}:#{@settings.goo_redis_port}"
+    puts '(LD) >> Using HTTP Redis instance at '+
+            "#{@settings.http_redis_host}:#{@settings.http_redis_port}"
+    puts '(LD) >> Using Goo Redis instance at '+
+            "#{@settings.goo_redis_host}:#{@settings.goo_redis_port}"
 
     connect_goo unless overide_connect_goo
   end
