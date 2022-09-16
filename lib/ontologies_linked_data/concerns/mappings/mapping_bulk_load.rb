@@ -145,6 +145,12 @@ module LinkedData
           c = LinkedData::Models::Class.find(RDF::URI.new(class_id))
                                        .in(submission)
                                        .first
+          if c
+            sub = c.submission
+            sub.bring :ontology if sub.bring? :ontology
+            sub.ontology.bring :acronym if sub.ontology.bring? :acronym
+          end
+          
           raise ArgumentError, "Class ID `#{class_id}` not found in `#{submission.id}`" if c.nil?
 
           [c, submission]
