@@ -18,6 +18,9 @@ module LinkedData
       attribute :role, enforce: [:role, :list], :default => lambda {|x| [LinkedData::Models::Users::Role.default]}
       attribute :firstName
       attribute :lastName
+      attribute :github_id, enforce: [:unique]
+      attribute :orcid_id, enforce: [:unique]
+      attribute :is_subscribe, enforce: [:existence], :default => lambda {|x| false}
       attribute :created, enforce: [:date_time], :default => lambda { |record| DateTime.now }
       attribute :passwordHash, enforce: [:existence]
       attribute :apikey, enforce: [:unique], :default => lambda {|x| SecureRandom.uuid}
