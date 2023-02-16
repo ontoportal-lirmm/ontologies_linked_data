@@ -19,6 +19,8 @@ module LinkedData
       attribute :firstName
       attribute :lastName
       attribute :subscribed, default: false
+      attribute :githubId, enforce: [:unique]
+      attribute :orcidId, enforce: [:unique]
       attribute :created, enforce: [:date_time], :default => lambda { |record| DateTime.now }
       attribute :passwordHash, enforce: [:existence]
       attribute :apikey, enforce: [:unique], :default => lambda {|x| SecureRandom.uuid}
