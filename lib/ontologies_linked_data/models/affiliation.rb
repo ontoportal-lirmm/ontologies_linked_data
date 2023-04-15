@@ -6,6 +6,7 @@ module LinkedData
       attribute :affiliationIdentifierScheme, enforce: [:existence], enforcedValues: AFFILIATION_IDENTIFIER_SCHEMES.keys
       attribute :affiliationIdentifier, enforce: [:existence]
       attribute :affiliation, enforce: [:existence]
+      attribute :acronym
 
       attribute :schemeURI, handler: :scheme_uri_infer
 
