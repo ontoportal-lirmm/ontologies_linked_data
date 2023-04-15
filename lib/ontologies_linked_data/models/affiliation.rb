@@ -8,6 +8,7 @@ module LinkedData
       attribute :affiliation, enforce: [:existence]
       attribute :acronym
       attribute :homepage, enforce: [:uri]
+      attribute :email
 
       attribute :schemeURI, handler: :scheme_uri_infer
 
