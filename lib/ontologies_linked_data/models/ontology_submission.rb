@@ -128,9 +128,8 @@ module LinkedData
                 metadataMappings: ["dc:contributor", "dct:contributor", "doap:helper", "schema:contributor", "pav:contributedBy"],
                 helpText: "Contributors to the creation of the ontology."
 
-      attribute :hasCreator, namespace: :omv, enforce: [:concatenate], extractedMetadata: true, label: "Creators",
-                metadataMappings: ["dc:creator", "dct:creator", "foaf:maker", "prov:wasAttributedTo", "doap:maintainer", "pav:authoredBy", "pav:createdBy", "schema:author", "schema:creator"],
-                helpText: "Main responsible for the creation of the ontology."
+      attribute :creators, namespace: :datacite, enforce: [:existence, :creator, :list], extractedMetadata: true, label: "Creators", metadataMappings: ["dc:creator", "dct:creator", "omv:hasCreator", "foaf:maker", "prov:wasAttributedTo", "doap:maintainer", "pav:authoredBy", "pav:createdBy", "schema:author", "schema:creator"],
+                helpText: "The main researchers involved working on the data, or the authors of the publication in priority order."
 
       attribute :designedForOntologyTask, namespace: :omv, enforce: [:list], extractedMetadata: true, display: "usage",
                 helpText: "The purpose for which the ontology was originally designed.", enforcedValues: {
