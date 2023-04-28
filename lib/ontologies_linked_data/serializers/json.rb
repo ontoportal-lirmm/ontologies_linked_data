@@ -7,7 +7,8 @@ module LinkedData
 
       def self.serialize(obj, options = {})
         
-        result_lang = self.get_languages(obj&.submission, options[:lang])
+        submission = obj.respond_to?(:submission) ? obj.submission : nil
+        result_lang = self.get_languages(submission, options[:lang])
 
         hash = obj.to_flex_hash(options) do |hash, hashed_obj|
           current_cls = hashed_obj.respond_to?(:klass) ? hashed_obj.klass : hashed_obj.class
