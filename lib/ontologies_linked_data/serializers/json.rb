@@ -43,7 +43,7 @@ module LinkedData
             context = {"@context" => context_hash}
             hash.merge!(context)
           end
-          hash['@context']['@language'] = result_lang
+          hash['@context']['@language'] = result_lang if hash['@context']
         end
         MultiJson.dump(hash)
       end
