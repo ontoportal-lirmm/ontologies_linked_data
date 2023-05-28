@@ -464,6 +464,7 @@ module LinkedData
       # Link to ontology
       attribute :ontology, enforce: [:existence, :ontology]
 
+      attribute :identifierRequests, inverse: {on: :identifier_request, attribute: :submission}
       #Link to metrics
       attribute :metrics, enforce: [:metrics]
 
