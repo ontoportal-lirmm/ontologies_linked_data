@@ -9,6 +9,7 @@ module LinkedData
       attribute :parentCategory, enforce: [:category]
       attribute :ontologies, inverse: { on: :ontology, attribute: :hasDomain }
 
+      serialize_default :acronym, :name, :description, :created, :parentCategory, :ontologies
       cache_timeout 86400
     end
   end
