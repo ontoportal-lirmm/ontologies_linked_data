@@ -996,7 +996,7 @@ eos
                      run_metrics: true, reasoning: true)
 
     sub = LinkedData::Models::Ontology.find("BROTEST-ISFLAT").first
-      .latest_submission(status: [:rdf, :metrics])
+                                      .latest_submission(status: [:rdf, :metrics])
     sub.bring(:metrics)
     metrics = sub.metrics
     metrics.bring_remaining
@@ -1028,21 +1028,45 @@ eos
   # To test extraction of metadata when parsing a submission (we extract the submission attributes that have the
   # extractedMetadata on true)
   def test_submission_extract_metadata
-    submission_parse("AGROOE", "AGROOE Test extract metadata ontology",
-                     "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", 1,
-                     process_rdf: true, index_search: false,
-                     run_metrics: true, reasoning: true)
-    sub = LinkedData::Models::Ontology.find("AGROOE").first.latest_submission()
-    sub.bring_remaining
-    
-    assert_equal false, sub.deprecated
-    assert_equal " LIRMM (default name) ", sub.publisher
-    assert_equal " URI DC terms identifiers ", sub.identifier
-    assert_equal ["http://lexvo.org/id/iso639-3/fra", "http://lexvo.org/id/iso639-3/eng"].sort, sub.naturalLanguage.sort
-    assert_equal "Vincent Emonet, Anne Toulet, Benjamine Dessay, Léontine Dessaiterm, Augustine Doap", sub.hasContributor
-    assert_equal [RDF::URI.new("http://lirmm.fr/2015/ontology/door-relation.owl"), RDF::URI.new("http://lirmm.fr/2015/ontology/dc-relation.owl"),
-                  RDF::URI.new("http://lirmm.fr/2015/ontology/dcterms-relation.owl"), RDF::URI.new("http://lirmm.fr/2015/ontology/voaf-relation.owl")].sort, sub.ontologyRelatedTo.sort
-    assert_equal 13, sub.numberOfClasses
+    2.times.each do |i|
+      submission_parse("AGROOE", "AGROOE Test extract metadata ontology",
+                       "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", 1,
+                       process_rdf: true, index_search: false,
+                       run_metrics: true, reasoning: false)
+      sub = LinkedData::Models::Ontology.find("AGROOE").first.latest_submission()
+      sub.bring_remaining
+      assert_equal false, sub.deprecated
+      assert_equal  " AGROOE is an ontology used to test the metadata extraction,  AGROOE is an ontology to illustrate how to describe their ontologies", sub.description
+      assert_equal " LIRMM (default name) ", sub.publisher
+      assert_equal " URI DC terms identifiers ", sub.identifier
+      assert_equal ["http://lexvo.org/id/iso639-3/fra", "http://lexvo.org/id/iso639-3/eng"].sort, sub.naturalLanguage.sort
+      assert_equal "Vincent Emonet, Anne Toulet, Benjamine Dessay, Léontine Dessaiterm, Augustine Doap", sub.hasContributor
+      assert_equal [RDF::URI.new("http://lirmm.fr/2015/ontology/door-relation.owl"), RDF::URI.new("http://lirmm.fr/2015/ontology/dc-relation.owl"),
+                    RDF::URI.new("http://lirmm.fr/2015/ontology/dcterms-relation.owl"), RDF::URI.new("http://lirmm.fr/2015/ontology/voaf-relation.owl")].sort, sub.ontologyRelatedTo.sort
+      assert_equal 18, sub.numberOfClasses
+
+
+      sub.description = "test changed value"
+      sub.save
+    end
   end
 
+
+  def test_submission_delete_remove_files
+    #This one has resources wih accents.
+    submission_parse("ONTOMATEST",
+                     "OntoMA TEST",
+                     "./test/data/ontology_files/OntoMA.1.1_vVersion_1.1_Date__11-2011.OWL", 15,
+                     process_rdf: true, index_search: true,
+                     run_metrics: false, reasoning: true)
+
+    sub = LinkedData::Models::OntologySubmission.where(ontology: [acronym: "ONTOMATEST"],
+                                                       submissionId: 15)
+                                                .first
+
+    data_folder = sub.data_folder
+    assert Dir.exist? data_folder
+    sub.delete
+    assert !Dir.exist?(data_folder)
+  end
 end

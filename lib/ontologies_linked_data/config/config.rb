@@ -3,31 +3,37 @@ require 'ostruct'
 
 module LinkedData
   extend self
+
   attr_reader :settings
 
   @settings = OpenStruct.new
   @settings_run = false
 
+  DEFAULT_PREFIX = 'http://data.bioontology.org/'.freeze
+
   def config(&block)
     return if @settings_run
+
     @settings_run = true
 
     overide_connect_goo = false
 
     # Set defaults
-    @settings.goo_backend_name              ||= "4store"
+    @settings.goo_backend_name              ||= '4store'
     @settings.goo_port                      ||= 9000
-    @settings.goo_host                      ||= "localhost"
-    @settings.goo_path_query                ||= "/sparql/"
-    @settings.goo_path_data                 ||= "/data/"
-    @settings.goo_path_update               ||= "/update/"
-    @settings.search_server_url             ||= "http://localhost:8983/solr/term_search_core1"
-    @settings.property_search_server_url    ||= "http://localhost:8983/solr/prop_search_core1"
-    @settings.repository_folder             ||= "./test/data/ontology_files/repo"
-    @settings.rest_url_prefix               ||= "http://data.bioontology.org/"
+    @settings.goo_host                      ||= 'localhost'
+    @settings.goo_path_query                ||= '/sparql/'
+    @settings.goo_path_data                 ||= '/data/'
+    @settings.goo_path_update               ||= '/update/'
+    @settings.search_server_url             ||= 'http://localhost:8983/solr/term_search_core1'
+    @settings.property_search_server_url    ||= 'http://localhost:8983/solr/prop_search_core1'
+    @settings.repository_folder             ||= './test/data/ontology_files/repo'
+    @settings.rest_url_prefix                ||= DEFAULT_PREFIX
     @settings.enable_security               ||= false
     @settings.enable_slices                 ||= false
 
+    # Java/JVM options
+    @settings.java_max_heap_size            ||= '10240M'
     ### these params should be not ussed any more
     # removed so that dependencies shout
     #
@@ -35,47 +41,48 @@ module LinkedData
     # @settings.redis_port                    ||= 6379
     # ###
 
-    @settings.ui_host                       ||= "bioportal.bioontology.org"
-    @settings.replace_url_prefix            ||= false
-    @settings.id_url_prefix                 ||= "http://data.bioontology.org/"
+    @settings.ui_name                       ||= 'Bioportal'
+    @settings.ui_host                       ||= 'bioportal.bioontology.org'
+    @settings.replace_url_prefix             ||= false
+    @settings.id_url_prefix                  ||= DEFAULT_PREFIX
     @settings.queries_debug                 ||= false
     @settings.enable_monitoring             ||= false
-    @settings.cube_host                     ||= "localhost"
+    @settings.cube_host                     ||= 'localhost'
     @settings.cube_port                     ||= 1180
 
     # Caching http
     @settings.enable_http_cache             ||= false
-    @settings.http_redis_host               ||= "localhost"
+    @settings.http_redis_host               ||= 'localhost'
     @settings.http_redis_port               ||= 6379
 
     #Caching goo
-    @settings.goo_redis_host                ||= "localhost"
+    @settings.goo_redis_host                ||= 'localhost'
     @settings.goo_redis_port                ||= 6379
 
     #Ontology Analytics Redis
-    @settings.ontology_analytics_redis_host ||= "localhost"
+    @settings.ontology_analytics_redis_host ||= 'localhost'
     @settings.ontology_analytics_redis_port ||= 6379
 
     # PURL server config parameters
     @settings.enable_purl                   ||= false
-    @settings.purl_host                     ||= "purl.bioontology.org"
+    @settings.purl_host                     ||= 'purl.bioontology.org'
     @settings.purl_port                     ||= 80
-    @settings.purl_username                 ||= ""
-    @settings.purl_password                 ||= ""
-    @settings.purl_maintainers              ||= ""
-    @settings.purl_target_url_prefix        ||= "http://bioportal.bioontology.org"
+    @settings.purl_username                 ||= ''
+    @settings.purl_password                 ||= ''
+    @settings.purl_maintainers              ||= ''
+    @settings.purl_target_url_prefix         ||= 'http://bioportal.bioontology.org'
 
     # Email settings
-    @settings.enable_notifications          ||= false
-    @settings.email_sender                  ||= "admin@example.org" # Default sender for emails
-    @settings.email_override                ||= "test.email@example.org" # By default, all email gets sent here. Disable with email_override_disable.
+    @settings.enable_notifications           ||= false
+    @settings.email_sender                  ||= 'admin@example.org' # Default sender for emails
+    @settings.email_override                ||= 'test.email@example.org' # By default, all email gets sent here. Disable with email_override_disable.
     @settings.email_disable_override        ||= false
-    @settings.smtp_host                     ||= "localhost"
+    @settings.smtp_host                     ||= 'localhost'
     @settings.smtp_port                     ||= 25
-    @settings.smtp_user                     ||= "user"
-    @settings.smtp_password                 ||= "password"
+    @settings.smtp_user                     ||= 'user'
+    @settings.smtp_password                 ||= 'password'
     @settings.smtp_auth_type                ||= :none # :none, :plain, :login, :cram_md5
-    @settings.smtp_domain                   ||= "localhost.localhost"
+    @settings.smtp_domain                   ||= 'localhost.localhost'
     @settings.enable_starttls_auto          ||= false # set to true for use with gmail
     # email of the instance administrator to get mail notifications when new user
     @settings.admin_emails                  ||= []
@@ -93,20 +100,18 @@ module LinkedData
 
     unless @settings.redis_host.nil?
       puts "Error: 'redis_host' is not a valid conf parameter."
-      puts "        Redis databases were split into multiple hosts (09/22/13)."
-      raise Exception, "redis_host is not a valid conf parameter."
+      puts '        Redis databases were split into multiple hosts (09/22/13).'
+      raise StandardError, 'redis_host is not a valid conf parameter.'
     end
 
     # Check to make sure url prefix has trailing slash
-    @settings.rest_url_prefix = @settings.rest_url_prefix + "/" unless @settings.rest_url_prefix[-1].eql?("/")
+    @settings.rest_url_prefix = "#{@settings.rest_url_prefix}/" unless @settings.rest_url_prefix[-1].eql?('/')
 
-    puts "(LD) >> Using rdf store #{@settings.goo_host}:#{@settings.goo_port}"
+    puts "(LD) >> Using rdf store #{@settings.goo_host}:#{@settings.goo_port}#{@settings.goo_path_query}"
     puts "(LD) >> Using term search server at #{@settings.search_server_url}"
     puts "(LD) >> Using property search server at #{@settings.property_search_server_url}"
-    puts "(LD) >> Using HTTP Redis instance at "+
-            "#{@settings.http_redis_host}:#{@settings.http_redis_port}"
-    puts "(LD) >> Using Goo Redis instance at "+
-            "#{@settings.goo_redis_host}:#{@settings.goo_redis_port}"
+    puts "(LD) >> Using HTTP Redis instance at #{@settings.http_redis_host}:#{@settings.http_redis_port}"
+    puts "(LD) >> Using Goo Redis instance at #{@settings.goo_redis_host}:#{@settings.goo_redis_port}"
 
     connect_goo unless overide_connect_goo
   end
@@ -136,15 +141,14 @@ module LinkedData
                                port: @settings.goo_redis_port)
 
         if @settings.enable_monitoring
-          puts "(LD) >> Enable SPARQL monitoring with cube #{@settings.cube_host}:"+
-                    "#{@settings.cube_port}"
+          puts "(LD) >> Enable SPARQL monitoring with cube #{@settings.cube_host}:#{@settings.cube_port}"
           conf.enable_cube do |opts|
             opts[:host] = @settings.cube_host
             opts[:port] = @settings.cube_port
           end
         end
       end
-    rescue Exception => e
+    rescue StandardError => e
       abort("EXITING: Cannot connect to triplestore and/or search server:\n  #{e}\n#{e.backtrace.join("\n")}")
     end
   end
@@ -190,12 +194,15 @@ module LinkedData
 
       conf.add_namespace(:cclicense, RDF::Vocabulary.new("http://creativecommons.org/licenses/"))
       conf.add_namespace(:nkos, RDF::Vocabulary.new("http://w3id.org/nkos#"))
+      conf.add_namespace(:skosxl, RDF::Vocabulary.new("http://www.w3.org/2008/05/skos-xl#"))
+      conf.add_namespace(:dcterms, RDF::Vocabulary.new("http://purl.org/dc/terms/"))
+      conf.add_namespace(:uneskos, RDF::Vocabulary.new("http://purl.org/umu/uneskos#"))
 
 
-      conf.id_prefix = "http://data.bioontology.org/"
+      conf.id_prefix = DEFAULT_PREFIX
       conf.pluralize_models(true)
     end
   end
-  self.goo_namespaces
+  goo_namespaces
 
 end

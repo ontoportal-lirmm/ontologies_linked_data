@@ -12,6 +12,11 @@ module LinkedData
 
     class OntologySubmission < LinkedData::Models::Base
 
+      include LinkedData::Concerns::OntologySubmission::MetadataExtractor
+
+      include SKOS::ConceptSchemes
+      include SKOS::RootsFetcher
+
       FILES_TO_DELETE = ['labels.ttl', 'mappings.ttl', 'obsolete.ttl', 'owlapi.xrdf', 'errors.log']
       FLAT_ROOTS_LIMIT = 1000
 
@@ -30,17 +35,6 @@ module LinkedData
 
       # Ontology metadata
       attribute :hasOntologyLanguage, namespace: :omv, enforce: [:existence, :ontology_format]
-      #attribute :homepage
-      #attribute :publication
-      #attribute :uri, namespace: :omv
-      #attribute :naturalLanguage, namespace: :omv
-      #attribute :documentation, namespace: :omv
-      #attribute :version, namespace: :omv
-      #attribute :creationDate, namespace: :omv, enforce: [:date_time], default: lambda { |record| DateTime.now }
-      #attribute :description, namespace: :omv
-      #attribute :status, namespace: :omv
-      #attribute :contact, enforce: [:existence, :contact, :list]
-      #attribute :released, enforce: [:date_time, :existence]
 
       attribute :homepage, namespace: :foaf, extractedMetadata: true, metadataMappings: ["cc:attributionURL", "mod:homepage", "doap:blog", "schema:mainEntityOfPage"],
                 helpText: "The URL of the homepage for the ontology."
@@ -57,12 +51,12 @@ module LinkedData
                 metadataMappings: ["dc:language", "dct:language", "doap:language", "schema:inLanguage"],
                 helpText: "The language of the content of the ontology.&lt;br&gt;Consider using a &lt;a target=&quot;_blank&quot; href=&quot;http://www.lexvo.org/&quot;&gt;Lexvo URI&lt;/a&gt; with ISO639-3 code.&lt;br&gt;e.g.: http://lexvo.org/id/iso639-3/eng",
                 enforcedValues: {
-                    "http://lexvo.org/id/iso639-3/eng" => "English",
-                    "http://lexvo.org/id/iso639-3/fra" => "French",
-                    "http://lexvo.org/id/iso639-3/spa" => "Spanish",
-                    "http://lexvo.org/id/iso639-3/por" => "Portuguese",
-                    "http://lexvo.org/id/iso639-3/ita" => "Italian",
-                    "http://lexvo.org/id/iso639-3/deu" => "German"
+                  "http://lexvo.org/id/iso639-3/eng" => "English",
+                  "http://lexvo.org/id/iso639-3/fra" => "French",
+                  "http://lexvo.org/id/iso639-3/spa" => "Spanish",
+                  "http://lexvo.org/id/iso639-3/por" => "Portuguese",
+                  "http://lexvo.org/id/iso639-3/ita" => "Italian",
+                  "http://lexvo.org/id/iso639-3/deu" => "German"
                 }
 
       attribute :documentation, namespace: :omv, extractedMetadata: true,
@@ -79,7 +73,7 @@ module LinkedData
                 helpText: "Information about the ontology status (alpha, beta, production, retired)."
       # Pas de limitation ici, mais seulement 4 possibilité dans l'UI (alpha, beta, production, retired)
 
-      attribute :contact, enforce: [:existence, :contact, :list],  # Careful its special
+      attribute :contact, enforce: [:existence, :contact, :list], # Careful its special
                 helpText: "The people to contact when questions about the ontology. Composed of the contacts name and email."
 
       attribute :creationDate, namespace: :omv, enforce: [:date_time], metadataMappings: ["dct:dateSubmitted", "schema:datePublished"],
@@ -87,11 +81,11 @@ module LinkedData
       attribute :released, enforce: [:date_time, :existence], extractedMetadata: true, label: "Release date", helpText: "Date of the ontology release.",
                 metadataMappings: ["omv:creationDate", "dc:date", "dct:date", "dct:issued", "mod:creationDate", "doap:created", "schema:dateCreated",
                                    "prov:generatedAtTime", "pav:createdOn", "pav:authoredOn", "pav:contributedOn", "oboInOwl:date", "oboInOwl:hasDate"]
-                # date de release de l'ontologie par ses développeurs
+      # date de release de l'ontologie par ses développeurs
 
       # Metrics metadata
       # LES metrics sont auto calculés par BioPortal (utilisant OWLAPI)
-      attribute :numberOfClasses, namespace: :omv, enforce: [:integer], metadataMappings: ["void:classes", "voaf:classNumber" ,"mod:noOfClasses"], display: "metrics",
+      attribute :numberOfClasses, namespace: :omv, enforce: [:integer], metadataMappings: ["void:classes", "voaf:classNumber", "mod:noOfClasses"], display: "metrics",
                 helpText: "Number of classes in this ontology. Automatically computed by OWLAPI."
       attribute :numberOfIndividuals, namespace: :omv, enforce: [:integer], metadataMappings: ["mod:noOfIndividuals"], display: "metrics",
                 helpText: "Number of individuals in this ontology. Automatically computed by OWLAPI."
@@ -103,7 +97,6 @@ module LinkedData
       attribute :classesWithOneChild, enforce: [:integer]
       attribute :classesWithMoreThan25Children, enforce: [:integer]
       attribute :classesWithNoDefinition, enforce: [:integer]
-
 
       # Complementary omv metadata
       attribute :modificationDate, namespace: :omv, enforce: [:date_time], extractedMetadata: true,
@@ -141,18 +134,18 @@ module LinkedData
 
       attribute :designedForOntologyTask, namespace: :omv, enforce: [:list], extractedMetadata: true, display: "usage",
                 helpText: "The purpose for which the ontology was originally designed.", enforcedValues: {
-                    "http://omv.ontoware.org/2005/05/ontology#AnnotationTask" => "Annotation Task",
-                    "http://omv.ontoware.org/2005/05/ontology#ConfigurationTask" => "Configuration Task",
-                    "http://omv.ontoware.org/2005/05/ontology#FilteringTask" => "Filtering Task",
-                    "http://omv.ontoware.org/2005/05/ontology#IndexingTask" => "Indexing Task",
-                    "http://omv.ontoware.org/2005/05/ontology#IntegrationTask" => "Integration Task",
-                    "http://omv.ontoware.org/2005/05/ontology#MatchingTask" => "Matching Task",
-                    "http://omv.ontoware.org/2005/05/ontology#MediationTask" => "Mediation Task",
-                    "http://omv.ontoware.org/2005/05/ontology#PersonalizationTask" => "Personalization Task",
-                    "http://omv.ontoware.org/2005/05/ontology#QueryFormulationTask" => "Query Formulation Task",
-                    "http://omv.ontoware.org/2005/05/ontology#QueryRewritingTask" => "Query Rewriting Task",
-                    "http://omv.ontoware.org/2005/05/ontology#SearchTask" => "Search Task"
-                }
+          "http://omv.ontoware.org/2005/05/ontology#AnnotationTask" => "Annotation Task",
+          "http://omv.ontoware.org/2005/05/ontology#ConfigurationTask" => "Configuration Task",
+          "http://omv.ontoware.org/2005/05/ontology#FilteringTask" => "Filtering Task",
+          "http://omv.ontoware.org/2005/05/ontology#IndexingTask" => "Indexing Task",
+          "http://omv.ontoware.org/2005/05/ontology#IntegrationTask" => "Integration Task",
+          "http://omv.ontoware.org/2005/05/ontology#MatchingTask" => "Matching Task",
+          "http://omv.ontoware.org/2005/05/ontology#MediationTask" => "Mediation Task",
+          "http://omv.ontoware.org/2005/05/ontology#PersonalizationTask" => "Personalization Task",
+          "http://omv.ontoware.org/2005/05/ontology#QueryFormulationTask" => "Query Formulation Task",
+          "http://omv.ontoware.org/2005/05/ontology#QueryRewritingTask" => "Query Rewriting Task",
+          "http://omv.ontoware.org/2005/05/ontology#SearchTask" => "Search Task"
+        }
 
       attribute :wasGeneratedBy, namespace: :prov, enforce: [:concatenate], extractedMetadata: true, display: "people",
                 helpText: "People who generated the ontology."
@@ -178,71 +171,69 @@ module LinkedData
 
       attribute :hasFormalityLevel, namespace: :omv, extractedMetadata: true, metadataMappings: ["mod:ontologyFormalityLevel"],
                 helpText: "Level of formality of the ontology.", enforcedValues: {
-              "http://w3id.org/nkos/nkostype#classification_schema" => "Classification scheme",
-              "http://w3id.org/nkos/nkostype#dictionary" => "Dictionary",
-              "http://w3id.org/nkos/nkostype#gazetteer" => "Gazetteer",
-              "http://w3id.org/nkos/nkostype#glossary" => "Glossary",
-              "http://w3id.org/nkos/nkostype#list" => "List",
-              "http://w3id.org/nkos/nkostype#name_authority_list" => "Name authority list",
-              "http://w3id.org/nkos/nkostype#ontology" => "Ontology",
-              "http://w3id.org/nkos/nkostype#semantic_network" => "Semantic network",
-              "http://w3id.org/nkos/nkostype#subject_heading_scheme" => "Subject heading scheme",
-              "http://w3id.org/nkos/nkostype#synonym_ring" => "Synonym ring",
-              "http://w3id.org/nkos/nkostype#taxonomy" => "Taxonomy",
-              "http://w3id.org/nkos/nkostype#terminology" => "Terminology",
-              "http://w3id.org/nkos/nkostype#thesaurus" => "Thesaurus"
-          }
+          "http://w3id.org/nkos/nkostype#classification_schema" => "Classification scheme",
+          "http://w3id.org/nkos/nkostype#dictionary" => "Dictionary",
+          "http://w3id.org/nkos/nkostype#gazetteer" => "Gazetteer",
+          "http://w3id.org/nkos/nkostype#glossary" => "Glossary",
+          "http://w3id.org/nkos/nkostype#list" => "List",
+          "http://w3id.org/nkos/nkostype#name_authority_list" => "Name authority list",
+          "http://w3id.org/nkos/nkostype#ontology" => "Ontology",
+          "http://w3id.org/nkos/nkostype#semantic_network" => "Semantic network",
+          "http://w3id.org/nkos/nkostype#subject_heading_scheme" => "Subject heading scheme",
+          "http://w3id.org/nkos/nkostype#synonym_ring" => "Synonym ring",
+          "http://w3id.org/nkos/nkostype#taxonomy" => "Taxonomy",
+          "http://w3id.org/nkos/nkostype#terminology" => "Terminology",
+          "http://w3id.org/nkos/nkostype#thesaurus" => "Thesaurus"
+        }
 
       attribute :hasLicense, namespace: :omv, extractedMetadata: true,
                 metadataMappings: ["dc:rights", "dct:rights", "dct:license", "cc:license", "schema:license"],
                 helpText: "Underlying license model.&lt;br&gt;Consider using a &lt;a target=&quot;_blank&quot; href=&quot;http://rdflicense.appspot.com/&quot;&gt;URI to describe your License&lt;/a&gt;&lt;br&gt;Consider using a &lt;a target=&quot;_blank&quot; href=&quot;http://licentia.inria.fr/&quot;&gt;INRIA licentia&lt;/a&gt; to choose your license",
                 enforcedValues: {
-                    "https://creativecommons.org/licenses/by/4.0/" => "CC Attribution 4.0 International",
-                    "https://creativecommons.org/licenses/by/3.0/" => "CC Attribution 3.0",
-                    "https://creativecommons.org/publicdomain/zero/1.0/" => "CC Public Domain Dedication",
-                    "http://www.gnu.org/licenses/gpl-3.0" => "GNU General Public License 3.0",
-                    "http://www.gnu.org/licenses/gpl-2.0" => "GNU General Public License 2.0",
-                    "https://opensource.org/licenses/Artistic-2.0" => "Open Source Artistic license 2.0",
-                    "https://opensource.org/licenses/MIT" => "MIT License",
-                    "https://opensource.org/licenses/BSD-3-Clause" => "BSD 3-Clause License",
-                    "http://www.apache.org/licenses/LICENSE-2.0" => "Apache License 2.0"
+                  "https://creativecommons.org/licenses/by/4.0/" => "CC Attribution 4.0 International",
+                  "https://creativecommons.org/licenses/by/3.0/" => "CC Attribution 3.0",
+                  "https://creativecommons.org/publicdomain/zero/1.0/" => "CC Public Domain Dedication",
+                  "http://www.gnu.org/licenses/gpl-3.0" => "GNU General Public License 3.0",
+                  "http://www.gnu.org/licenses/gpl-2.0" => "GNU General Public License 2.0",
+                  "https://opensource.org/licenses/Artistic-2.0" => "Open Source Artistic license 2.0",
+                  "https://opensource.org/licenses/MIT" => "MIT License",
+                  "https://opensource.org/licenses/BSD-3-Clause" => "BSD 3-Clause License",
+                  "http://www.apache.org/licenses/LICENSE-2.0" => "Apache License 2.0"
                 }
 
       attribute :hasOntologySyntax, namespace: :omv, extractedMetadata: true, metadataMappings: ["mod:syntax", "dc:format", "dct:format"], label: "Ontology Syntax",
                 helpText: "The presentation syntax for the ontology langage.&lt;br&gt;Properties taken from &lt;a target=&quot;_blank&quot; href=&quot;https://www.w3.org/ns/formats/&quot;&gt;W3C URIs for file format&lt;/a&gt;",
                 enforcedValues: {
-                    "http://www.w3.org/ns/formats/JSON-LD" => "JSON-LD",
-                    "http://www.w3.org/ns/formats/N3" => "N3",
-                    "http://www.w3.org/ns/formats/N-Quads" => "N-Quads",
-                    "http://www.w3.org/ns/formats/LD_Patch" => "LD Patch",
-                    "http://www.w3.org/ns/formats/microdata" => "Microdata",
-                    "http://www.w3.org/ns/formats/OWL_XML" => "OWL XML Serialization",
-                    "http://www.w3.org/ns/formats/OWL_Functional" => "OWL Functional Syntax",
-                    "http://www.w3.org/ns/formats/OWL_Manchester" => "OWL Manchester Syntax",
-                    "http://www.w3.org/ns/formats/POWDER" => "POWDER",
-                    "http://www.w3.org/ns/formats/POWDER-S" => "POWDER-S",
-                    "http://www.w3.org/ns/formats/PROV-N" => "PROV-N",
-                    "http://www.w3.org/ns/formats/PROV-XML" => "PROV-XML",
-                    "http://www.w3.org/ns/formats/RDFa" => "RDFa",
-                    "http://www.w3.org/ns/formats/RDF_JSON" => "RDF/JSON",
-                    "http://www.w3.org/ns/formats/RDF_XML" => "RDF/XML",
-                    "http://www.w3.org/ns/formats/RIF_XML" => "RIF XML Syntax",
-                    "http://www.w3.org/ns/formats/Turtle" => "Turtle",
-                    "http://www.w3.org/ns/formats/TriG" => "TriG",
-                    "http://purl.obolibrary.org/obo/oboformat/spec.html" => "OBO"
+                  "http://www.w3.org/ns/formats/JSON-LD" => "JSON-LD",
+                  "http://www.w3.org/ns/formats/N3" => "N3",
+                  "http://www.w3.org/ns/formats/N-Quads" => "N-Quads",
+                  "http://www.w3.org/ns/formats/LD_Patch" => "LD Patch",
+                  "http://www.w3.org/ns/formats/microdata" => "Microdata",
+                  "http://www.w3.org/ns/formats/OWL_XML" => "OWL XML Serialization",
+                  "http://www.w3.org/ns/formats/OWL_Functional" => "OWL Functional Syntax",
+                  "http://www.w3.org/ns/formats/OWL_Manchester" => "OWL Manchester Syntax",
+                  "http://www.w3.org/ns/formats/POWDER" => "POWDER",
+                  "http://www.w3.org/ns/formats/POWDER-S" => "POWDER-S",
+                  "http://www.w3.org/ns/formats/PROV-N" => "PROV-N",
+                  "http://www.w3.org/ns/formats/PROV-XML" => "PROV-XML",
+                  "http://www.w3.org/ns/formats/RDFa" => "RDFa",
+                  "http://www.w3.org/ns/formats/RDF_JSON" => "RDF/JSON",
+                  "http://www.w3.org/ns/formats/RDF_XML" => "RDF/XML",
+                  "http://www.w3.org/ns/formats/RIF_XML" => "RIF XML Syntax",
+                  "http://www.w3.org/ns/formats/Turtle" => "Turtle",
+                  "http://www.w3.org/ns/formats/TriG" => "TriG",
+                  "http://purl.obolibrary.org/obo/oboformat/spec.html" => "OBO"
                 }
-
-
 
       attribute :isOfType, namespace: :omv, extractedMetadata: true, metadataMappings: ["dc:type", "dct:type"],
                 helpText: "The nature of the content of the ontology.&lt;br&gt;Properties taken from &lt;a target=&quot;_blank&quot; href=&quot;http://wiki.dublincore.org/index.php/NKOS_Vocabularies#KOS_Types_Vocabulary&quot;&gt;DCMI KOS type vocabularies&lt;/a&gt;",
                 enforcedValues: {
-                    "http://omv.ontoware.org/2005/05/ontology#ApplicationOntology" => "Application Ontology",
-                    "http://omv.ontoware.org/2005/05/ontology#CoreOntology" => "Core Ontology",
-                    "http://omv.ontoware.org/2005/05/ontology#DomainOntology" => "Domain Ontology",
-                    "http://omv.ontoware.org/2005/05/ontology#TaskOntology" => "Task Ontology",
-                    "http://omv.ontoware.org/2005/05/ontology#UpperLevelOntology" => "Upper Level Ontology",
-                    "http://omv.ontoware.org/2005/05/ontology#Vocabulary" => "Vocabulary"
+                  "http://omv.ontoware.org/2005/05/ontology#ApplicationOntology" => "Application Ontology",
+                  "http://omv.ontoware.org/2005/05/ontology#CoreOntology" => "Core Ontology",
+                  "http://omv.ontoware.org/2005/05/ontology#DomainOntology" => "Domain Ontology",
+                  "http://omv.ontoware.org/2005/05/ontology#TaskOntology" => "Task Ontology",
+                  "http://omv.ontoware.org/2005/05/ontology#UpperLevelOntology" => "Upper Level Ontology",
+                  "http://omv.ontoware.org/2005/05/ontology#Vocabulary" => "Vocabulary"
                 }
 
       attribute :usedOntologyEngineeringMethodology, namespace: :omv, enforce: [:concatenate], extractedMetadata: true,
@@ -252,22 +243,22 @@ module LinkedData
       attribute :usedOntologyEngineeringTool, namespace: :omv, extractedMetadata: true,
                 metadataMappings: ["mod:toolUsed", "pav:createdWith", "oboInOwl:auto-generated-by"],
                 helpText: "Information about the tool used to create the ontology", enforcedValues: {
-                    "http://protege.stanford.edu" => "Protégé",
-                    "OWL API" => "OWL API",
-                    "http://oboedit.org/" => "OBO-Edit",
-                    "SWOOP" => "SWOOP",
-                    "OntoStudio" => "OntoStudio",
-                    "Altova" => "Altova",
-                    "SemanticWorks" => "SemanticWorks",
-                    "OilEd" => "OilEd",
-                    "IsaViz" => "IsaViz",
-                    "WebODE" => "WebODE",
-                    "OntoBuilder" => "OntoBuilder",
-                    "WSMO Studio" => "WSMO Studio",
-                    "VocBench" => "VocBench",
-                    "TopBraid" => "TopBraid",
-                    "NeOn-Toolkit" => "NeOn-Toolkit"
-                }
+          "http://protege.stanford.edu" => "Protégé",
+          "OWL API" => "OWL API",
+          "http://oboedit.org/" => "OBO-Edit",
+          "SWOOP" => "SWOOP",
+          "OntoStudio" => "OntoStudio",
+          "Altova" => "Altova",
+          "SemanticWorks" => "SemanticWorks",
+          "OilEd" => "OilEd",
+          "IsaViz" => "IsaViz",
+          "WebODE" => "WebODE",
+          "OntoBuilder" => "OntoBuilder",
+          "WSMO Studio" => "WSMO Studio",
+          "VocBench" => "VocBench",
+          "TopBraid" => "TopBraid",
+          "NeOn-Toolkit" => "NeOn-Toolkit"
+        }
 
       attribute :useImports, namespace: :omv, enforce: [:list, :uri], extractedMetadata: true,
                 metadataMappings: ["owl:imports", "door:imports", "void:vocabulary", "voaf:extends", "dct:requires", "oboInOwl:import"],
@@ -388,13 +379,12 @@ module LinkedData
       attribute :logo, namespace: :foaf, enforce: [:uri], extractedMetadata: true, metadataMappings: ["schema:logo"], display: "images",
                 helpText: "The URL of the ontology logo."
 
-
       # New metadata from MOD
       attribute :competencyQuestion, namespace: :mod, extractedMetadata: true, enforce: [:textarea], display: "methodology",
                 helpText: "A set of questions made to build an ontology at the design time."
 
       # New metadata from VOAF
-      attribute :usedBy, namespace: :voaf, enforce: [:list, :uri, :isOntology], extractedMetadata: true, display: "relations",  # Range : Ontology
+      attribute :usedBy, namespace: :voaf, enforce: [:list, :uri, :isOntology], extractedMetadata: true, display: "relations", # Range : Ontology
                 metadataMappings: ["nkos:usedBy"], helpText: "Ontologies that use the described ontology."
 
       attribute :metadataVoc, namespace: :voaf, enforce: [:list, :uri], extractedMetadata: true, display: "content", label: "Metadata vocabulary used",
@@ -485,17 +475,17 @@ module LinkedData
 
       # Links
       links_load :submissionId, ontology: [:acronym]
-      link_to LinkedData::Hypermedia::Link.new("metrics", lambda {|s| "#{self.ontology_link(s)}/submissions/#{s.submissionId}/metrics"}, self.type_uri)
-              LinkedData::Hypermedia::Link.new("download", lambda {|s| "#{self.ontology_link(s)}/submissions/#{s.submissionId}/download"}, self.type_uri)
+      link_to LinkedData::Hypermedia::Link.new("metrics", lambda { |s| "#{self.ontology_link(s)}/submissions/#{s.submissionId}/metrics" }, self.type_uri)
+      LinkedData::Hypermedia::Link.new("download", lambda { |s| "#{self.ontology_link(s)}/submissions/#{s.submissionId}/download" }, self.type_uri)
 
       # HTTP Cache settings
       cache_timeout 3600
-      cache_segment_instance lambda {|sub| segment_instance(sub)}
+      cache_segment_instance lambda { |sub| segment_instance(sub) }
       cache_segment_keys [:ontology_submission]
       cache_load ontology: [:acronym]
 
       # Access control
-      read_restriction_based_on lambda {|sub| sub.ontology}
+      read_restriction_based_on lambda { |sub| sub.ontology }
       access_control_load ontology: [:administeredBy, :acl, :viewingRestriction]
 
       def initialize(*args)
@@ -555,7 +545,7 @@ module LinkedData
           raise ArgumentError, "Submission cannot be saved if ontology does not have acronym"
         end
         return RDF::URI.new(
-            "#{(Goo.id_prefix)}ontologies/#{CGI.escape(ss.ontology.acronym.to_s)}/submissions/#{ss.submissionId.to_s}"
+          "#{(Goo.id_prefix)}ontologies/#{CGI.escape(ss.ontology.acronym.to_s)}/submissions/#{ss.submissionId.to_s}"
         )
       end
 
@@ -643,7 +633,7 @@ module LinkedData
           return true
         end
 
-        zip = LinkedData::Utils::FileHelpers.zip?(self.uploadFilePath)
+        zip = zipped?
         files =  LinkedData::Utils::FileHelpers.files_from_zip(self.uploadFilePath) if zip
 
         if not zip and self.masterFileName.nil?
@@ -661,29 +651,29 @@ module LinkedData
           end
 
           #check for duplicated names
-          repeated_names =  LinkedData::Utils::FileHelpers.repeated_names_in_file_list(files)
+          repeated_names = LinkedData::Utils::FileHelpers.repeated_names_in_file_list(files)
           if repeated_names.length > 0
             names = repeated_names.keys.to_s
             self.errors[:uploadFilePath] <<
-                "Zip file contains file names (#{names}) in more than one folder."
+              "Zip file contains file names (#{names}) in more than one folder."
             return false
           end
 
           #error message with options to choose from.
           self.errors[:uploadFilePath] << {
-              :message => "Zip file detected, choose the master file.", :options => files }
+            :message => "Zip file detected, choose the master file.", :options => files }
           return false
 
         elsif zip and not self.masterFileName.nil?
           #if zip and the user chose a file then we make sure the file is in the list.
-          files =  LinkedData::Utils::FileHelpers.files_from_zip(self.uploadFilePath)
+          files = LinkedData::Utils::FileHelpers.files_from_zip(self.uploadFilePath)
           if not files.include? self.masterFileName
             if self.errors[:uploadFilePath].nil?
               self.errors[:uploadFilePath] = []
               self.errors[:uploadFilePath] << {
-                  :message =>
-                      "The selected file `#{self.masterFileName}` is not included in the zip file",
-                  :options => files }
+                :message =>
+                  "The selected file `#{self.masterFileName}` is not included in the zip file",
+                :options => files }
             end
           end
         end
@@ -699,8 +689,12 @@ module LinkedData
                          self.submissionId.to_s)
       end
 
+      def zipped?(full_file_path = uploadFilePath)
+        LinkedData::Utils::FileHelpers.zip?(full_file_path) || LinkedData::Utils::FileHelpers.gzip?(full_file_path)
+      end
+
       def zip_folder
-        return File.join([self.data_folder, "unzipped"])
+         File.join([data_folder, 'unzipped'])
       end
 
       def csv_path
@@ -724,18 +718,17 @@ module LinkedData
         self.bring(:masterFileName) if self.bring?(:masterFileName)
         triples_file_name = File.basename(self.uploadFilePath.to_s)
         full_file_path = File.join(File.expand_path(self.data_folder.to_s), triples_file_name)
-        zip = LinkedData::Utils::FileHelpers.zip?(full_file_path)
+        zip = zipped? full_file_path
         triples_file_name = File.basename(self.masterFileName.to_s) if zip && self.masterFileName
         file_name = File.join(File.expand_path(self.data_folder.to_s), triples_file_name)
         File.expand_path(file_name)
       end
 
       def unzip_submission(logger)
-        zip = LinkedData::Utils::FileHelpers.zip?(self.uploadFilePath)
-        gzip = !zip && LinkedData::Utils::FileHelpers.gzip?(self.uploadFilePath)
+
         zip_dst = nil
 
-        if zip || gzip
+        if zipped?
           zip_dst = self.zip_folder
 
           if Dir.exist? zip_dst
@@ -750,10 +743,12 @@ module LinkedData
             self.save
           end
 
-          logger.info("Files extracted from zip/gz #{extracted}")
-          logger.flush
+          if logger
+            logger.info("Files extracted from zip/gz #{extracted}")
+            logger.flush
+          end
         end
-        return zip_dst
+        zip_dst
       end
 
       def delete_old_submission_files
@@ -767,17 +762,18 @@ module LinkedData
       # accepts another submission in 'older' (it should be an 'older' ontology version)
       def diff(logger, older)
         begin
-          self.bring_remaining
-          self.bring(:diffFilePath)
-          self.bring(:uploadFilePath)
-          older.bring(:uploadFilePath)
+          bring_remaining
+          bring :diffFilePath if bring? :diffFilePath
+          older.bring :uploadFilePath if older.bring? :uploadFilePath
+
           LinkedData::Diff.logger = logger
           bubastis = LinkedData::Diff::BubastisDiffCommand.new(
-              File.expand_path(older.uploadFilePath),
-              File.expand_path(self.uploadFilePath)
+            File.expand_path(older.master_file_path),
+            File.expand_path(self.master_file_path),
+            data_folder
           )
           self.diffFilePath = bubastis.diff
-          self.save
+          save
           logger.info("Bubastis diff generated successfully for #{self.id}")
           logger.flush
         rescue Exception => e
@@ -787,7 +783,7 @@ module LinkedData
         end
       end
 
-      def class_count(logger=nil)
+      def class_count(logger = nil)
         logger ||= LinkedData::Parser.logger || Logger.new($stderr)
         count = -1
         count_set = false
@@ -832,7 +828,7 @@ module LinkedData
         count
       end
 
-      def metrics_from_file(logger=nil)
+      def metrics_from_file(logger = nil)
         logger ||= LinkedData::Parser.logger || Logger.new($stderr)
         metrics = []
         m_path = self.metrics_path
@@ -853,6 +849,13 @@ module LinkedData
         end
       end
 
+      def generate_metrics_file2(class_count, indiv_count, prop_count, max_depth)
+        CSV.open(self.metrics_path, "wb") do |csv|
+          csv << ["Class Count", "Individual Count", "Property Count", "Max Depth"]
+          csv << [class_count, indiv_count, prop_count, max_depth]
+        end
+      end
+
       def generate_umls_metrics_file(tr_file_path=nil)
         tr_file_path ||= self.triples_file_path
         class_count = 0
@@ -868,9 +871,9 @@ module LinkedData
         self.generate_metrics_file(class_count, indiv_count, prop_count)
       end
 
-      def generate_rdf(logger, file_path, reasoning=true, user_params = {})
+      def generate_rdf(logger, reasoning: true)
         mime_type = nil
-        user_params = {} if user_params.nil?
+
 
         if self.hasOntologyLanguage.umls?
           triples_file_path = self.triples_file_path
@@ -891,10 +894,7 @@ module LinkedData
               logger.info("error deleting owlapi.rdf")
             end
           end
-          owlapi = LinkedData::Parser::OWLAPICommand.new(
-              File.expand_path(file_path),
-              File.expand_path(self.data_folder.to_s),
-              master_file: self.masterFileName)
+          owlapi = owlapi_parser(logger: nil)
 
           if !reasoning
             owlapi.disable_reasoner
@@ -913,384 +913,6 @@ module LinkedData
           logger.flush
         end
         delete_and_append(triples_file_path, logger, mime_type)
-        begin
-          # Extract metadata directly from the ontology
-          extract_ontology_metadata(logger, user_params)
-          logger.info("Additional metadata extracted.")
-        rescue => e
-          logger.error("Error while extracting additional metadata: #{e}")
-        end
-        begin
-          # Set default metadata
-          set_default_metadata(logger)
-          logger.info("Default metadata set.")
-        rescue => e
-          logger.error("Error while setting default metadata: #{e}")
-        end
-        version_info = extract_version()
-
-        if version_info
-          self.version = version_info
-        end
-      end
-
-      # Extract additional metadata about the ontology
-      # First it extracts the main metadata, then the mapped metadata
-      def extract_ontology_metadata(logger, user_params)
-        ontology_uri = extract_ontology_uri()
-        logger.info("Extraction metadata from ontology #{ontology_uri}")
-        #logger.info("User params: #{user_params}")
-
-        # go through all OntologySubmission attributes. Returns symbols
-        LinkedData::Models::OntologySubmission.attributes(:all).each do |attr|
-          # for attribute with the :extractedMetadata setting on, and that have not been defined by the user
-          if (LinkedData::Models::OntologySubmission.attribute_settings(attr)[:extractedMetadata]) && !(user_params.has_key?(attr) && !user_params[attr].nil? && !user_params[attr].empty?)
-            # a boolean to check if a value that should be single have already been extracted
-            single_extracted = false
-
-            if !LinkedData::Models::OntologySubmission.attribute_settings(attr)[:namespace].nil?
-              property_to_extract = LinkedData::Models::OntologySubmission.attribute_settings(attr)[:namespace].to_s + ":" + attr.to_s
-              hash_results = extract_each_metadata(ontology_uri, attr, property_to_extract, logger)
-
-              if (LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:list))
-                # Add the retrieved value(s) to the attribute if the attribute take a list of objects
-                if self.send(attr.to_s).nil?
-                  metadata_values = []
-                else
-                  metadata_values = self.send(attr.to_s).dup
-                end
-                hash_results.each do |k,v|
-                  metadata_values.push(v)
-                end
-                self.send("#{attr.to_s}=", metadata_values)
-              elsif (LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:concatenate))
-                # don't keep value from previous submissions for concats
-                metadata_concat = []
-                # if multiple value for this attribute, then we concatenate it. And it's send to the attr after getting all metadataMappings
-                hash_results.each do |k,v|
-                  metadata_concat << v.to_s
-                end
-              else
-                # If multiple value for a metadata that should have a single value: taking one value randomly (the first in the hash)
-                hash_results.each do |k,v|
-                  single_extracted = true
-                  self.send("#{attr.to_s}=", v)
-                  break
-                end
-              end
-            end
-
-            # extracts attribute value from metadata mappings
-            if !LinkedData::Models::OntologySubmission.attribute_settings(attr)[:metadataMappings].nil?
-
-              LinkedData::Models::OntologySubmission.attribute_settings(attr)[:metadataMappings].each do |mapping|
-                if single_extracted == true
-                  # if an attribute with only one possible object as already been extracted
-                  break
-                end
-                hash_mapping_results = extract_each_metadata(ontology_uri, attr, mapping.to_s, logger)
-
-                if (LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:list))
-                  # Add the retrieved value(s) to the attribute if the attribute take a list of objects
-                  if self.send(attr.to_s).nil?
-                    metadata_values = []
-                  else
-                    metadata_values = self.send(attr.to_s).dup
-                  end
-                  hash_mapping_results.each do |k,v|
-                    metadata_values.push(v)
-                  end
-                  self.send("#{attr.to_s}=", metadata_values)
-                elsif (LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:concatenate))
-                  # if multiple value for this attribute, then we concatenate it
-                  hash_mapping_results.each do |k,v|
-                    metadata_concat << v.to_s
-                  end
-                else
-                  # If multiple value for a metadata that should have a single value: taking one value randomly (the first in the hash)
-                  hash_mapping_results.each do |k,v|
-                    self.send("#{attr.to_s}=", v)
-                    break
-                  end
-                end
-              end
-            end
-
-            # Add the concat at the very end, to easily join the content of the array
-            if (LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:concatenate))
-              if !metadata_concat.empty?
-                self.send("#{attr.to_s}=", metadata_concat.join(", "))
-              end
-            end
-          end
-        end
-
-        # Retrieve ontology URI attribute directly with OWLAPI
-        self.URI = ontology_uri
-      end
-
-      # Set some metadata to default values if nothing extracted
-      def set_default_metadata(logger)
-        if self.identifier.nil?
-          self.identifier = self.URI.to_s
-        end
-
-        if self.deprecated.nil?
-          if self.status.eql?("retired")
-            self.deprecated = true
-          else
-            self.deprecated = false
-          end
-        end
-
-        # Add the ontology hasDomain to the submission hasDomain metadata value
-        ontology_domain_list = []
-        self.ontology.bring(:hasDomain).hasDomain.each do |domain|
-          ontology_domain_list << domain.id
-        end
-        if (ontology_domain_list.length > 0 && self.hasDomain.nil?)
-          self.hasDomain = ""
-        end
-        if !self.hasDomain.nil?
-          self.hasDomain << ontology_domain_list.join(", ")
-        end
-
-        # Only get the first view because the attribute is not a list
-        ontology_view = self.ontology.bring(:views).views.first
-        if (self.hasPart.nil? && !ontology_view.nil?)
-          self.hasPart = ontology_view.id
-        end
-
-        # If no example identifier extracted: take the first class
-        if self.exampleIdentifier.nil?
-          self.exampleIdentifier = LinkedData::Models::Class.in(self).first.id
-        end
-
-        # Metadata specific to BioPortal that have been removed:
-        #if self.hostedBy.nil?
-        #  self.hostedBy = [ RDF::URI.new("http://#{LinkedData.settings.ui_host}") ]
-        #end
-
-        # Add the search endpoint URL
-        if self.openSearchDescription.nil?
-          self.openSearchDescription = RDF::URI.new("#{LinkedData.settings.rest_url_prefix}search?ontologies=#{self.ontology.acronym}&q=")
-        end
-
-        # Search allow to search by URI too
-        if self.uriLookupEndpoint.nil?
-          self.uriLookupEndpoint = RDF::URI.new("#{LinkedData.settings.rest_url_prefix}search?ontologies=#{self.ontology.acronym}&require_exact_match=true&q=")
-        end
-
-        # Add the dataDump URL
-        if self.dataDump.nil?
-          self.dataDump = RDF::URI.new("#{LinkedData.settings.rest_url_prefix}ontologies/#{self.ontology.acronym}/download?download_format=rdf")
-        end
-
-        if self.csvDump.nil?
-          self.csvDump = RDF::URI.new("#{LinkedData.settings.rest_url_prefix}ontologies/#{self.ontology.acronym}/download?download_format=csv")
-        end
-
-        # Add the previous submission as a prior version
-        if self.submissionId > 1
-=begin
-          if prior_versions.nil?
-            prior_versions = []
-          else
-            prior_versions = self.hasPriorVersion.dup
-          end
-          prior_versions.push(RDF::URI.new("#{LinkedData.settings.rest_url_prefix}ontologies/#{self.ontology.acronym}/submissions/#{self.submissionId - 1}"))
-          self.hasPriorVersion = prior_versions
-=end
-          self.hasPriorVersion = RDF::URI.new("#{LinkedData.settings.rest_url_prefix}ontologies/#{self.ontology.acronym}/submissions/#{self.submissionId - 1}")
-        end
-
-        if self.hasOntologyLanguage.umls?
-          self.hasOntologySyntax = "http://www.w3.org/ns/formats/Turtle"
-        elsif self.hasOntologyLanguage.obo?
-          self.hasOntologySyntax = "http://purl.obolibrary.org/obo/oboformat/spec.html"
-        end
-
-        # Define default properties for prefLabel, synonyms, definition, author:
-        if self.hasOntologyLanguage.owl?
-          if self.prefLabelProperty.nil?
-            self.prefLabelProperty = Goo.vocabulary(:skos)[:prefLabel]
-          end
-          if self.synonymProperty.nil?
-            self.synonymProperty = Goo.vocabulary(:skos)[:altLabel]
-          end
-          if self.definitionProperty.nil?
-            self.definitionProperty = Goo.vocabulary(:rdfs)[:comment]
-          end
-          if self.authorProperty.nil?
-            self.authorProperty = Goo.vocabulary(:dc)[:creator]
-          end
-          # Add also hierarchyProperty? Could not find any use of it
-        end
-
-        # Add the sparql endpoint URL
-        if self.endpoint.nil?
-          self.endpoint = RDF::URI.new(LinkedData.settings.sparql_endpoint_url)
-        end
-
-      end
-
-      # Return a hash with the best literal value for an URI
-      # it selects the literal according to their language: no language > english > french > other languages
-      def select_metadata_literal(metadata_uri, metadata_literal, hash)
-        if metadata_literal.is_a?(RDF::Literal)
-          if hash.has_key?(metadata_uri)
-            if metadata_literal.has_language?
-              if !hash[metadata_uri].has_language?
-                return hash
-              else
-                if metadata_literal.language == :en || metadata_literal.language == :eng
-                  # Take the value with english language over other languages
-                  hash[metadata_uri] = metadata_literal
-                  return hash
-                elsif metadata_literal.language == :fr || metadata_literal.language == :fre
-                  # If no english, take french
-                  if hash[metadata_uri].language == :en || hash[metadata_uri].language == :eng
-                    return hash
-                  else
-                    hash[metadata_uri] = metadata_literal
-                    return hash
-                  end
-                else
-                  return hash
-                end
-              end
-            else
-              # Take the value with no language in priority (considered as a default)
-              hash[metadata_uri] = metadata_literal
-              return hash
-            end
-          else
-            hash[metadata_uri] = metadata_literal
-            return hash
-          end
-        end
-      end
-
-
-      # A function to extract additional metadata
-      # Take the literal data if the property is pointing to a literal
-      # If pointing to an URI: first it takes the "omv:name" of the object pointed by the property, if nil it takes the "rdfs:label".
-      # If not found it check for "omv:firstName + omv:lastName" (for "omv:Person") of this object. And to finish it takes the "URI"
-      # The hash_results contains the metadataUri (objet pointed on by the metadata property) with the value we are using from it
-      def extract_each_metadata(ontology_uri, attr, prop_to_extract, logger)
-
-        query_metadata = <<eos 
-
-SELECT DISTINCT ?extractedObject ?omvname ?omvfirstname ?omvlastname ?rdfslabel
-FROM #{self.id.to_ntriples}
-WHERE {
-  <#{ontology_uri}> #{prop_to_extract} ?extractedObject .
-  OPTIONAL { ?extractedObject omv:name ?omvname } .
-  OPTIONAL { ?extractedObject omv:firstName ?omvfirstname } .
-  OPTIONAL { ?extractedObject omv:lastName ?omvlastname } .
-  OPTIONAL { ?extractedObject rdfs:label ?rdfslabel } .
-}
-eos
-        Goo.namespaces.each do |prefix,uri|
-          query_metadata = "PREFIX #{prefix}: <#{uri}>\n" + query_metadata
-        end
-
-        #logger.info(query_metadata)
-        # This hash will contain the "literal" metadata for each object (uri or literal) pointed by the metadata predicate
-        hash_results = {}
-        Goo.sparql_query_client.query(query_metadata).each_solution do |sol|
-
-          if LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:uri)
-            # If the attr is enforced as URI then it directly takes the URI
-            if sol[:extractedObject].is_a?(RDF::URI)
-              hash_results[sol[:extractedObject]] = sol[:extractedObject]
-            end
-
-          elsif LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:date_time)
-            begin
-              hash_results[sol[:extractedObject]] = DateTime.iso8601(sol[:extractedObject].to_s)
-            rescue => e
-              logger.error("Impossible to extract DateTime metadata for #{attr.to_s}: #{sol[:extractedObject].to_s}. It should follow iso8601 standards. Error message: #{e}")
-            end
-
-          elsif LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:integer)
-            begin
-              hash_results[sol[:extractedObject]] = sol[:extractedObject].to_s.to_i
-            rescue => e
-              logger.error("Impossible to extract integer metadata for #{attr.to_s}: #{sol[:extractedObject].to_s}. Error message: #{e}")
-            end
-
-          elsif LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(:boolean)
-            begin
-              if (sol[:extractedObject].to_s.downcase.eql?("true"))
-                hash_results[sol[:extractedObject]] = true
-              elsif (sol[:extractedObject].to_s.downcase.eql?("false"))
-                hash_results[sol[:extractedObject]] = false
-              end
-            rescue => e
-              logger.error("Impossible to extract boolean metadata for #{attr.to_s}: #{sol[:extractedObject].to_s}. Error message: #{e}")
-            end
-
-          else
-            if sol[:extractedObject].is_a?(RDF::URI)
-              # if the object is an URI but we are requesting a String
-              # TODO: ATTENTION on veut pas forcément TOUT le temps recump omvname, etc... Voir si on change ce comportement
-              if !sol[:omvname].nil?
-                hash_results = select_metadata_literal(sol[:extractedObject],sol[:omvname], hash_results)
-              elsif !sol[:rdfslabel].nil?
-                hash_results = select_metadata_literal(sol[:extractedObject],sol[:rdfslabel], hash_results)
-              elsif !sol[:omvfirstname].nil?
-                hash_results = select_metadata_literal(sol[:extractedObject],sol[:omvfirstname], hash_results)
-                # if first and last name are defined (for omv:Person)
-                if !sol[:omvlastname].nil?
-                  hash_results[sol[:extractedObject]] = hash_results[sol[:extractedObject]].to_s + " " + sol[:omvlastname].to_s
-                end
-              elsif !sol[:omvlastname].nil?
-                # if only last name is defined
-                hash_results = select_metadata_literal(sol[:extractedObject],sol[:omvlastname], hash_results)
-              else
-                hash_results[sol[:extractedObject]] = sol[:extractedObject].to_s
-              end
-
-            else
-              # If this is directly a literal
-              hash_results = select_metadata_literal(sol[:extractedObject],sol[:extractedObject], hash_results)
-            end
-          end
-        end
-
-        return hash_results
-      end
-
-      # Extract the ontology URI to use it to extract ontology metadata
-      def extract_ontology_uri
-        query_get_onto_uri = <<eos
-SELECT DISTINCT ?uri
-FROM #{self.id.to_ntriples}
-WHERE {
-<http://bioportal.bioontology.org/ontologies/URI> <http://www.w3.org/2002/07/owl#versionInfo> ?uri .
-}
-eos
-        Goo.sparql_query_client.query(query_get_onto_uri).each_solution do |sol|
-          return sol[:uri].to_s
-        end
-        return nil
-      end
-
-      def extract_version
-
-        query_version_info = <<eos
-SELECT ?versionInfo
-FROM #{self.id.to_ntriples}
-WHERE {
-<http://bioportal.bioontology.org/ontologies/versionSubject>
- <http://www.w3.org/2002/07/owl#versionInfo> ?versionInfo .
-}
-eos
-        Goo.sparql_query_client.query(query_version_info).each_solution do |sol|
-          return sol[:versionInfo].to_s
-        end
-        return nil
       end
 
       def process_callbacks(logger, callbacks, action_name, &block)
@@ -1344,7 +966,7 @@ eos
           callbacks.each { |_, callback| callback[:artifacts] ||= {}; iterate_classes = true if callback[:caller_on_each] }
 
           process_callbacks(logger, callbacks, :caller_on_pre) {
-              |callable, callback| callable.call(callback[:artifacts], logger, paging) }
+            |callable, callback| callable.call(callback[:artifacts], logger, paging) }
 
           page_len = -1
           prev_page_len = -1
@@ -1390,17 +1012,17 @@ eos
             count_classes += page_classes.length
 
             process_callbacks(logger, callbacks, :caller_on_pre_page) {
-                |callable, callback| callable.call(callback[:artifacts], logger, paging, page_classes, page) }
+              |callable, callback| callable.call(callback[:artifacts], logger, paging, page_classes, page) }
 
             page_classes.each { |c|
               # For real this is calling "generate_missing_labels_each". Is it that hard to be clear in your code?
               # It is unreadable, not stable and not powerful. What did you want to do?
               process_callbacks(logger, callbacks, :caller_on_each) {
-                  |callable, callback| callable.call(callback[:artifacts], logger, paging, page_classes, page, c) }
+                |callable, callback| callable.call(callback[:artifacts], logger, paging, page_classes, page, c) }
             } if iterate_classes
 
             process_callbacks(logger, callbacks, :caller_on_post_page) {
-                |callable, callback| callable.call(callback[:artifacts], logger, paging, page_classes, page) }
+              |callable, callback| callable.call(callback[:artifacts], logger, paging, page_classes, page) }
             cls_count += page_classes.length unless cls_count_set
 
             page = page_classes.next? ? page + 1 : nil
@@ -1408,7 +1030,7 @@ eos
 
           callbacks.each { |_, callback| callback[:artifacts][:count_classes] = cls_count }
           process_callbacks(logger, callbacks, :caller_on_post) {
-              |callable, callback| callable.call(callback[:artifacts], logger, paging) }
+            |callable, callback| callable.call(callback[:artifacts], logger, paging) }
         end
 
         logger.info("Completed #{operations}: #{acr} in #{time} sec. #{count_classes} classes.")
@@ -1423,12 +1045,12 @@ eos
         end
       end
 
-      def generate_missing_labels_pre(artifacts={}, logger, paging)
+      def generate_missing_labels_pre(artifacts = {}, logger, paging)
         file_path = artifacts[:file_path]
         artifacts[:save_in_file] = File.join(File.dirname(file_path), "labels.ttl")
         artifacts[:save_in_file_mappings] = File.join(File.dirname(file_path), "mappings.ttl")
         property_triples = LinkedData::Utils::Triples.rdf_for_custom_properties(self)
-        Goo.sparql_data_client.append_triples(self.id, property_triples, mime_type="application/x-turtle")
+        Goo.sparql_data_client.append_triples(self.id, property_triples, mime_type = "application/x-turtle")
         fsave = File.open(artifacts[:save_in_file], "w")
         fsave.write(property_triples)
         fsave_mappings = File.open(artifacts[:save_in_file_mappings], "w")
@@ -1436,13 +1058,13 @@ eos
         artifacts[:fsave_mappings] = fsave_mappings
       end
 
-      def generate_missing_labels_pre_page(artifacts={}, logger, paging, page_classes, page)
+      def generate_missing_labels_pre_page(artifacts = {}, logger, paging, page_classes, page)
         artifacts[:label_triples] = []
         artifacts[:mapping_triples] = []
       end
-      
+
       # Generate labels when no label found in the prefLabel attribute (it checks rdfs:label and take label from the URI if nothing else found)
-      def generate_missing_labels_each(artifacts={}, logger, paging, page_classes, page, c)
+      def generate_missing_labels_each(artifacts = {}, logger, paging, page_classes, page, c)
         prefLabel = nil
 
         if c.prefLabel.nil?
@@ -1451,7 +1073,7 @@ eos
             rdfs_labels = c.label
 
             if rdfs_labels && rdfs_labels.length > 1 && c.synonym.length > 0
-              rdfs_labels = (Set.new(c.label) -  Set.new(c.synonym)).to_a.first
+              rdfs_labels = (Set.new(c.label) - Set.new(c.synonym)).to_a.first
 
               if rdfs_labels.nil? || rdfs_labels.length == 0
                 rdfs_labels = c.label
@@ -1473,7 +1095,7 @@ eos
             label = LinkedData::Utils::Triples.last_iri_fragment c.id.to_s
           end
           artifacts[:label_triples] << LinkedData::Utils::Triples.label_for_class_triple(
-              c.id, Goo.vocabulary(:metadata_def)[:prefLabel], label)
+            c.id, Goo.vocabulary(:metadata_def)[:prefLabel], label)
           prefLabel = label
         else
           prefLabel = c.prefLabel
@@ -1484,25 +1106,25 @@ eos
 
           if loomLabel.length > 2
             artifacts[:mapping_triples] << LinkedData::Utils::Triples.loom_mapping_triple(
-                c.id, Goo.vocabulary(:metadata_def)[:mappingLoom], loomLabel)
+              c.id, Goo.vocabulary(:metadata_def)[:mappingLoom], loomLabel)
           end
           artifacts[:mapping_triples] << LinkedData::Utils::Triples.uri_mapping_triple(
-              c.id, Goo.vocabulary(:metadata_def)[:mappingSameURI], c.id)
+            c.id, Goo.vocabulary(:metadata_def)[:mappingSameURI], c.id)
         end
       end
 
-      def generate_missing_labels_post_page(artifacts={}, logger, paging, page_classes, page)
+      def generate_missing_labels_post_page(artifacts = {}, logger, paging, page_classes, page)
         rest_mappings = LinkedData::Mappings.migrate_rest_mappings(self.ontology.acronym)
         artifacts[:mapping_triples].concat(rest_mappings)
 
         if artifacts[:label_triples].length > 0
           logger.info("Asserting #{artifacts[:label_triples].length} labels in " +
-                          "#{self.id.to_ntriples}")
+                        "#{self.id.to_ntriples}")
           logger.flush
           artifacts[:label_triples] = artifacts[:label_triples].join("\n")
           artifacts[:fsave].write(artifacts[:label_triples])
           t0 = Time.now
-          Goo.sparql_data_client.append_triples(self.id, artifacts[:label_triples], mime_type="application/x-turtle")
+          Goo.sparql_data_client.append_triples(self.id, artifacts[:label_triples], mime_type = "application/x-turtle")
           t1 = Time.now
           logger.info("Labels asserted in #{t1 - t0} sec.")
           logger.flush
@@ -1513,20 +1135,20 @@ eos
 
         if artifacts[:mapping_triples].length > 0
           logger.info("Asserting #{artifacts[:mapping_triples].length} mappings in " +
-                          "#{self.id.to_ntriples}")
+                        "#{self.id.to_ntriples}")
           logger.flush
           artifacts[:mapping_triples] = artifacts[:mapping_triples].join("\n")
           artifacts[:fsave_mappings].write(artifacts[:mapping_triples])
 
           t0 = Time.now
-          Goo.sparql_data_client.append_triples(self.id, artifacts[:mapping_triples], mime_type="application/x-turtle")
+          Goo.sparql_data_client.append_triples(self.id, artifacts[:mapping_triples], mime_type = "application/x-turtle")
           t1 = Time.now
           logger.info("Mapping labels asserted in #{t1 - t0} sec.")
           logger.flush
         end
       end
 
-      def generate_missing_labels_post(artifacts={}, logger, paging)
+      def generate_missing_labels_post(artifacts = {}, logger, paging)
         logger.info("end generate_missing_labels traversed #{artifacts[:count_classes]} classes")
         logger.info("Saved generated labels in #{artifacts[:save_in_file]}")
         artifacts[:fsave].close()
@@ -1539,7 +1161,7 @@ eos
         self.bring(:obsoleteParent) if self.bring?(:obsoleteParent)
         classes_deprecated = []
         if self.obsoleteProperty &&
-           self.obsoleteProperty.to_s != "http://www.w3.org/2002/07/owl#deprecated"
+          self.obsoleteProperty.to_s != "http://www.w3.org/2002/07/owl#deprecated"
 
           predicate_obsolete = RDF::URI.new(self.obsoleteProperty.to_s)
           query_obsolete_predicate = <<eos
@@ -1557,16 +1179,16 @@ eos
         if self.obsoleteParent.nil?
           #try to find oboInOWL obsolete.
           obo_in_owl_obsolete_class = LinkedData::Models::Class
-                                          .find(LinkedData::Utils::Triples.obo_in_owl_obsolete_uri)
-                                          .in(self).first
+                                        .find(LinkedData::Utils::Triples.obo_in_owl_obsolete_uri)
+                                        .in(self).first
           if obo_in_owl_obsolete_class
             self.obsoleteParent = LinkedData::Utils::Triples.obo_in_owl_obsolete_uri
           end
         end
         if self.obsoleteParent
           class_obsolete_parent = LinkedData::Models::Class
-                                      .find(self.obsoleteParent)
-                                      .in(self).first
+                                    .find(self.obsoleteParent)
+                                    .in(self).first
           if class_obsolete_parent
             descendents_obsolete = class_obsolete_parent.descendants
             logger.info("Found #{descendents_obsolete.length} descendents of obsolete root #{self.obsoleteParent.to_s}")
@@ -1581,15 +1203,15 @@ eos
           classes_deprecated.uniq!
           logger.info("Asserting owl:deprecated statement for #{classes_deprecated} classes")
           save_in_file = File.join(File.dirname(file_path), "obsolete.ttl")
-          fsave = File.open(save_in_file,"w")
+          fsave = File.open(save_in_file, "w")
           classes_deprecated.each do |class_id|
             fsave.write(LinkedData::Utils::Triples.obselete_class_triple(class_id) + "\n")
           end
           fsave.close()
           result = Goo.sparql_data_client.append_triples_from_file(
-              self.id,
-              save_in_file,
-              mime_type="application/x-turtle")
+            self.id,
+            save_in_file,
+            mime_type = "application/x-turtle")
         end
       end
 
@@ -1632,7 +1254,7 @@ eos
           s.reject! { |stat|
             stat_code = stat.get_code_from_id()
             stat_code == status.get_code_from_id() ||
-                stat_code == status.get_error_status().get_code_from_id()
+              stat_code == status.get_error_status().get_code_from_id()
           }
           self.submissionStatus = s
         end
@@ -1650,7 +1272,7 @@ eos
       # allows to optionally submit a list of statuses
       # that would define the "ready" state of this
       # submission in this context
-      def ready?(options={})
+      def ready?(options = {})
         self.bring(:submissionStatus) if self.bring?(:submissionStatus)
         status = options[:status] || :ready
         status = status.is_a?(Array) ? status : [status]
@@ -1685,10 +1307,11 @@ eos
       #   archive           = false
       #   if no options passed, ALL actions, except for archive = true
       ################################################################
-      def process_submission(logger, options={})
+      def process_submission(logger, options = {})
         # Wrap the whole process so we can email results
         begin
           process_rdf = false
+          extract_metadata = false
           index_search = false
           index_properties = false
           index_commit = false
@@ -1699,6 +1322,7 @@ eos
 
           if options.empty?
             process_rdf = true
+            extract_metadata = true
             index_search = true
             index_properties = true
             index_commit = true
@@ -1708,6 +1332,7 @@ eos
             archive = false
           else
             process_rdf = options[:process_rdf] == true ? true : false
+            extract_metadata = options[:extract_metadata] == true ? true : false
             index_search = options[:index_search] == true ? true : false
             index_properties = options[:index_properties] == true ? true : false
             index_commit = options[:index_commit] == true ? true : false
@@ -1747,7 +1372,7 @@ eos
             submissions = ontology.submissions
             unless submissions.nil?
               submissions.each { |s| s.bring(:submissionId) }
-              submission = submissions.sort { |a,b| b.submissionId <=> a.submissionId }[0]
+              submission = submissions.sort { |a, b| b.submissionId <=> a.submissionId }[0]
               # Don't perform deletion if this is the most recent submission.
               if (self.submissionId < submission.submissionId)
                 delete_old_submission_files
@@ -1762,7 +1387,6 @@ eos
               self.save
 
               # Parse RDF
-              file_path = nil
               begin
                 if not self.valid?
                   error = "Submission is not valid, it cannot be processed. Check errors."
@@ -1774,9 +1398,9 @@ eos
                 end
                 status = LinkedData::Models::SubmissionStatus.find("RDF").first
                 remove_submission_status(status) #remove RDF status before starting
-                zip_dst = unzip_submission(logger)
-                file_path = zip_dst ? zip_dst.to_s : self.uploadFilePath.to_s
-                generate_rdf(logger, file_path, reasoning=reasoning, options[:params])
+
+                generate_rdf(logger, reasoning: reasoning)
+
                 add_submission_status(status)
                 self.save
               rescue Exception => e
@@ -1788,21 +1412,26 @@ eos
                 # If RDF generation fails, no point of continuing
                 raise e
               end
+            end
 
+            extract_metadata(logger, options[:params]) if extract_metadata || process_rdf
+
+            if process_rdf
+              file_path = self.uploadFilePath
               callbacks = {
-                  missing_labels: {
-                      op_name: "Missing Labels Generation",
-                      required: true,
-                      status: LinkedData::Models::SubmissionStatus.find("RDF_LABELS").first,
-                      artifacts: {
-                          file_path: file_path
-                      },
-                      caller_on_pre: :generate_missing_labels_pre,
-                      caller_on_pre_page: :generate_missing_labels_pre_page,
-                      caller_on_each: :generate_missing_labels_each,
-                      caller_on_post_page: :generate_missing_labels_post_page,
-                      caller_on_post: :generate_missing_labels_post
-                  }
+                missing_labels: {
+                  op_name: "Missing Labels Generation",
+                  required: true,
+                  status: LinkedData::Models::SubmissionStatus.find("RDF_LABELS").first,
+                  artifacts: {
+                    file_path: file_path
+                  },
+                  caller_on_pre: :generate_missing_labels_pre,
+                  caller_on_pre_page: :generate_missing_labels_pre_page,
+                  caller_on_each: :generate_missing_labels_each,
+                  caller_on_post_page: :generate_missing_labels_post_page,
+                  caller_on_post: :generate_missing_labels_post
+                }
               }
 
               raw_paging = LinkedData::Models::Class.in(self).include(:prefLabel, :synonym, :label)
@@ -1881,9 +1510,9 @@ eos
               submissions = self.ontology.submissions
 
               unless submissions.nil?
-                submissions.each {|s| s.bring(:submissionId, :diffFilePath)}
+                submissions.each { |s| s.bring(:submissionId, :diffFilePath) }
                 # Sort submissions in descending order of submissionId, extract last two submissions
-                recent_submissions = submissions.sort {|a, b| b.submissionId <=> a.submissionId}[0..1]
+                recent_submissions = submissions.sort { |a, b| b.submissionId <=> a.submissionId }[0..1]
 
                 if recent_submissions.length > 1
                   # validate that the most recent submission is the current submission
@@ -1945,7 +1574,7 @@ eos
         self.classesWithOneChild = metrics.classesWithOneChild
         self.classesWithMoreThan25Children = metrics.classesWithMoreThan25Children
         self.classesWithNoDefinition = metrics.classesWithNoDefinition
-        
+
         self.metrics = metrics
         self
       end
@@ -2134,7 +1763,7 @@ eos
 
           props = self.ontology.properties
           count_props = props.length
-          total_pages = (count_props/size.to_f).ceil
+          total_pages = (count_props / size.to_f).ceil
           logger.info("Indexing a total of #{total_pages} pages of #{size} properties each.")
 
           props.each_slice(size) do |prop_batch|
@@ -2166,7 +1795,7 @@ eos
       #TODO: revise this with a better process
       def delete(*args)
         options = {}
-        args.each {|e| options.merge!(e) if e.is_a?(Hash)}
+        args.each { |e| options.merge!(e) if e.is_a?(Hash) }
         remove_index = options[:remove_index] ? true : false
         index_commit = options[:index_commit] == false ? false : true
 
@@ -2190,9 +1819,12 @@ eos
             end
           end
         end
+
+        # delete the folder and files
+        FileUtils.remove_dir(self.data_folder) if Dir.exist?(self.data_folder)
       end
 
-      def roots(extra_include=nil, page=nil, pagesize=nil)
+      def roots(extra_include = [], page = nil, pagesize = nil, concept_schemes: [], concept_collections: [])
         self.bring(:ontology) unless self.loaded_attributes.include?(:ontology)
         self.bring(:hasOntologyLanguage) unless self.loaded_attributes.include?(:hasOntologyLanguage)
         paged = false
@@ -2204,46 +1836,12 @@ eos
           paged = true
         end
 
-        skos = self.hasOntologyLanguage&.skos?
+        skos = self.skos?
         classes = []
 
         if skos
-          root_skos = <<eos
-SELECT DISTINCT ?root WHERE {
-GRAPH #{self.id.to_ntriples} {
-  ?x #{RDF::SKOS[:hasTopConcept].to_ntriples} ?root .
-}}
-eos
-          count = 0
-
-          if paged
-            query = <<eos
-SELECT (COUNT(?x) as ?count) WHERE {
-GRAPH #{self.id.to_ntriples} {
-  ?x #{RDF::SKOS[:hasTopConcept].to_ntriples} ?root .
-}}
-eos
-            rs = Goo.sparql_query_client.query(query)
-            rs.each do |sol|
-              count = sol[:count].object
-            end
-
-            offset = (page - 1) * pagesize
-            root_skos = "#{root_skos} LIMIT #{pagesize} OFFSET #{offset}"
-          end
-
-          #needs to get cached
-          class_ids = []
-
-          Goo.sparql_query_client.query(root_skos, { :graphs => [self.id] }).each_solution do |s|
-            class_ids << s[:root]
-          end
-
-          class_ids.each do |id|
-            classes << LinkedData::Models::Class.find(id).in(self).disable_rules.first
-          end
-
-          classes = Goo::Base::Page.new(page, pagesize, count, classes) if paged
+          classes = skos_roots(concept_schemes, page, paged, pagesize)
+          extra_include += LinkedData::Models::Class.concept_is_in_attributes
         else
           self.ontology.bring(:flat)
           data_query = nil
@@ -2308,15 +1906,35 @@ eos
 
         classes.delete_if { |c|
           obs = !c.obsolete.nil? && c.obsolete == true
-          c.load_has_children if extra_include&.include?(:hasChildren) && !obs
+          if !obs
+            c.load_computed_attributes(to_load: extra_include,
+                                       options: { schemes: current_schemes(concept_schemes), collections: concept_collections })
+          end
           obs
         }
-
         classes
       end
 
-      def roots_sorted(extra_include=nil)
-        classes = roots(extra_include)
+      def skos?
+        self.bring :hasOntologyLanguage if bring? :hasOntologyLanguage
+        self.hasOntologyLanguage&.skos?
+      end
+
+      def ontology_uri
+        self.bring(:URI) if self.bring? :URI
+        RDF::URI.new(self.URI)
+      end
+
+      def uri
+        self.ontology_uri.to_s
+      end
+
+      def uri=(uri)
+        self.URI = uri
+      end
+
+      def roots_sorted(extra_include = nil, concept_schemes: [])
+        classes = roots(extra_include, concept_schemes: concept_schemes)
         LinkedData::Models::Class.sort_classes(classes)
       end
 
@@ -2351,7 +1969,50 @@ eos
         Goo.sparql_data_client.delete_graph(self.id)
       end
 
+
+      def master_file_path
+        path = if zipped?
+                 File.join(self.zip_folder, self.masterFileName)
+               else
+                  self.uploadFilePath
+               end
+        File.expand_path(path)
+      end
+
+      def parsable?(logger: Logger.new($stdout))
+        owlapi = owlapi_parser(logger: logger)
+        owlapi.disable_reasoner
+        parsable = true
+        begin
+          owlapi.parse
+        rescue StandardError => e
+          parsable = false
+        end
+        parsable
+      end
+
+
       private
+
+
+      def owlapi_parser_input
+        path = if zipped?
+                 self.zip_folder
+               else
+                 self.uploadFilePath
+               end
+        File.expand_path(path)
+      end
+
+
+      def owlapi_parser(logger: Logger.new($stdout))
+        unzip_submission(logger)
+        LinkedData::Parser::OWLAPICommand.new(
+          owlapi_parser_input,
+          File.expand_path(self.data_folder.to_s),
+          master_file: self.masterFileName,
+          logger: logger)
+      end
 
       def delete_and_append(triples_file_path, logger, mime_type = nil)
         Goo.sparql_data_client.delete_graph(self.id)
