@@ -10,6 +10,7 @@ require 'ontologies_linked_data/models/skos/scheme'
 require 'ontologies_linked_data/models/skos/collection'
 require 'ontologies_linked_data/models/skos/skosxl'
 require 'ontologies_linked_data/models/notes/note'
+require 'ontologies_linked_data/models/identifier_request'
 require 'ontologies_linked_data/purl/purl_client'
 
 module LinkedData
