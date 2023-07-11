@@ -182,7 +182,13 @@ module LinkedData
 
       # Hypermedia settings
       embed :contact, :ontology, :hasCreator, :publisher
-      embed_values :submissionStatus => [:code], :hasOntologyLanguage => [:acronym], :metrics => %i[classes individuals properties]
+      embed_values :submissionStatus => [:code], :hasOntologyLanguage => [:acronym], :metrics => %i[classes individuals properties],
+                   hasCreator: LinkedData::Models::Agent.goo_attrs_to_load +
+                     [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load],
+                   publisher: LinkedData::Models::Agent.goo_attrs_to_load +
+                     [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load]
+
+
       serialize_default :contact, :ontology, :hasOntologyLanguage, :released, :creationDate, :homepage,
                         :publication, :documentation, :version, :description, :status, :submissionId
 
