@@ -40,6 +40,9 @@ module LinkedData
       write_access submission: [ontology: [:administeredBy]]
       #access_control_load submission: [:access_control_load_attrs]
 
+      embed :submission
+      embed_values submission: LinkedData::Models::OntologySubmission.goo_attrs_to_load + [ontology: LinkedData::Models::Ontology.goo_attrs_to_load]
+
       def self.identifierRequest_id_generator()
         millis = Time.now.strftime('%s%3N')
         return millis     
