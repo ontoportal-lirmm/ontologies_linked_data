@@ -183,7 +183,7 @@ module LinkedData
 
 
       # Hypermedia settings
-      embed :contact, :ontology
+      embed :contact, :ontology, :hasCreator, :publisher
       embed_values :submissionStatus => [:code], :hasOntologyLanguage => [:acronym], :metrics => %i[classes individuals properties]
       serialize_default :contact, :ontology, :hasOntologyLanguage, :released, :creationDate, :homepage,
                         :publication, :documentation, :version, :description, :status, :submissionId
