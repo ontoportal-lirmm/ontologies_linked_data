@@ -182,11 +182,20 @@ module LinkedData
 
       # Hypermedia settings
       embed :contact, :ontology, :hasCreator, :publisher
-      embed_values :submissionStatus => [:code], :hasOntologyLanguage => [:acronym], :metrics => %i[classes individuals properties],
-                   hasCreator: LinkedData::Models::Agent.goo_attrs_to_load +
-                     [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load],
-                   publisher: LinkedData::Models::Agent.goo_attrs_to_load +
-                     [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load]
+      def self.embed_values_hash
+        out = {
+          submissionStatus: [:code], hasOntologyLanguage: [:acronym], metrics: %i[classes individuals properties],
+
+        }
+
+        agent_attributes = LinkedData::Models::Agent.goo_attrs_to_load +
+          [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load]
+
+        [:hasCreator, :publisher, :copyrightHolder, :hasContributor,
+         :translator, :endorsedBy, :fundedBy, :publisher, :curatedBy  ].each { |k| out[k] =  agent_attributes}
+        out
+      end
+      embed_values self.embed_values_hash
 
 
       serialize_default :contact, :ontology, :hasOntologyLanguage, :released, :creationDate, :homepage,
@@ -215,6 +224,7 @@ module LinkedData
       def synchronize(&block)
         @mutex.synchronize(&block)
       end
+
 
       def self.ontology_link(m)
         ontology_link = ""
