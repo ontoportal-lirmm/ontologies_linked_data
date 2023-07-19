@@ -182,8 +182,12 @@ module LinkedData
       attribute :ontology, type: :ontology, enforce: [:existence]
 
 
+      def self.agents_attrs
+        [:hasCreator, :publisher, :copyrightHolder, :hasContributor,
+         :translator, :endorsedBy, :fundedBy, :publisher, :curatedBy  ]
+      end
       # Hypermedia settings
-      embed :contact, :ontology, :hasCreator, :publisher
+      embed *[:contact, :ontology]  + agents_attrs
       def self.embed_values_hash
         out = {
           submissionStatus: [:code], hasOntologyLanguage: [:acronym], metrics: %i[classes individuals properties],
@@ -193,8 +197,7 @@ module LinkedData
         agent_attributes = LinkedData::Models::Agent.goo_attrs_to_load +
           [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load]
 
-        [:hasCreator, :publisher, :copyrightHolder, :hasContributor,
-         :translator, :endorsedBy, :fundedBy, :publisher, :curatedBy  ].each { |k| out[k] =  agent_attributes}
+        agents_attrs.each { |k| out[k] =  agent_attributes}
         out
       end
       embed_values self.embed_values_hash
