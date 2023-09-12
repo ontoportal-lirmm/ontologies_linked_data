@@ -35,9 +35,9 @@ module LinkedData
               LinkedData::Hypermedia::Link.new("submission", lambda {|r| "identifier_requests/#{r.requestId}/submission"}, LinkedData::Models::OntologySubmission.uri_type)
 
       # Access control
-      read_restriction_based_on lambda {|req| req.submission.ontology}
-      access_control_load submission: [ontology: [:administeredBy, :acl, :viewingRestriction]]
-      write_access submission: [ontology: [:administeredBy]]
+      #read_restriction_based_on lambda {|req| req.submission.ontology}
+      #access_control_load submission: [ontology: [:administeredBy, :acl, :viewingRestriction]]
+      #write_access submission: [ontology: [:administeredBy]]
       #access_control_load submission: [:access_control_load_attrs]
 
       embed :submission, :requestedBy, :processedBy

@@ -1,8 +1,23 @@
 require 'set'
+require 'jwt'
 
 module LinkedData
   module Security
     class Authorization
+      def self.decodeJWT(encodedToken)
+        rsa_public = OpenSSL::X509::Certificate.new(
+          Base64.decode64(LinkedData.settings.oauth2_authorization_server_signature_cert)).public_key
+        decoded_token = JWT.decode encodedToken, rsa_public, true, { algorithm: LinkedData.settings.oauth2_authorization_server_signature_alg,
+                                                                     verify_iat: true,
+                                                                     verify_not_before: true,
+                                                                     verify_expiration: true,
+                                                                     verify_aud: true,
+                                                                     aud: LinkedData.settings.oauth2_audience,
+                                                                     verify_iss: true,
+                                                                     iss: LinkedData.settings.oauth_issuer }
+        decoded_token
+      end
+
       APIKEYS_FOR_AUTHORIZATION = {}
 
       def initialize(app = nil)
@@ -19,23 +34,44 @@ module LinkedData
       def call(env)
         req = Rack::Request.new(env)
         params = req.params
-        apikey = find_apikey(env, params)
+        access_token = nil
+        apikey = nil
 
-        unless apikey
+        access_token = find_access_token(env, params) if LinkedData.settings.oauth2_enabled
+        apikey = find_apikey(env, params) unless access_token
+
+        if apikey
+          unless authorized?(apikey, env)
+            status = 401
+            response = {
+              status: status,
+              error: "You must provide a valid API Key. " + \
+              "Your API Key can be obtained by logging in at #{LinkedData.settings.ui_host}/account"
+            }
+          end
+        elsif access_token
+          begin
+            Authorization::decodeJWT(access_token)
+          rescue JWT::DecodeError => e
+            LOGGER.debug(e.message)
+            status = 401
+            response = {
+              status: status,
+              error: "Failed to decode JWT token: " + e.message
+            }
+          end
+        else
           status = 401
+          error_message = "You must provide an API Key either using the query-string parameter `apikey` or the `Authorization` header: `Authorization: apikey token=my_apikey`. " + \
+            "Your API Key can be obtained by logging in at #{LinkedData.settings.ui_host}/account"
+
+          if LinkedData.settings.oauth2_enabled
+            error_message = error_message +  "Alternatively, you must supply an OAuth2 access token in the `Authorization` header: `Authorization: Bearer oauth2-access-token`."
+          end
+
           response = {
             status: status,
-            error: "You must provide an API Key either using the query-string parameter `apikey` or the `Authorization` header: `Authorization: apikey token=my_apikey`. " + \
-              "Your API Key can be obtained by logging in at #{LinkedData.settings.ui_host}/account"
-          }
-        end
-
-        if status != 401 && !authorized?(apikey, env)
-          status = 401
-          response = {
-            status: status,
-            error: "You must provide a valid API Key. " + \
-              "Your API Key can be obtained by logging in at #{LinkedData.settings.ui_host}/account"
+            error: error_message
           }
         end
 
@@ -76,7 +112,7 @@ module LinkedData
           apikey = params["userapikey"]
         elsif params["apikey"]
           apikey = params["apikey"]
-        elsif apikey.nil? && header_auth
+        elsif apikey.nil? && header_auth && !header_auth.empty?
           token = Rack::Utils.parse_query(header_auth.split(" ")[1])
           # Strip spaces from start and end of string
           apikey = token["token"].gsub(/\"/, "")
@@ -92,6 +128,16 @@ module LinkedData
         end
         apikey
       end
+
+      def find_access_token(env, params)
+        access_token = nil
+        header_auth = env["HTTP_AUTHORIZATION"] || env["Authorization"]
+        if header_auth && header_auth.downcase().start_with?("bearer ")
+          access_token = header_auth.split()[1]
+        end
+        access_token
+      end
+
 
       def authorized?(apikey, env)
         return false if apikey.nil?
