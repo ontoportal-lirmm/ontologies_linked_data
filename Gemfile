@@ -20,6 +20,7 @@ gem 'rsolr', '~> 1.0'
 gem 'rubyzip', '~> 1.0'
 gem 'thin'
 gem "oauth2", "~> 2.0"
+gem 'request_store'
 
 # Testing
 group :test do
@@ -36,5 +37,5 @@ group :development do
 end
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'ecoportal'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'master'
