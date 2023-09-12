@@ -19,7 +19,9 @@ gem 'rest-client'
 gem 'rsolr', '~> 1.0'
 gem 'rubyzip', '~> 1.0'
 gem 'thin'
+gem "oauth2", "~> 2.0"
 gem 'request_store'
+
 # Testing
 group :test do
   gem 'email_spec'
