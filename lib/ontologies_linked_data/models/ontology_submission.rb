@@ -1894,6 +1894,9 @@ eos
             load_children = [:children]
           end
 
+          extra_include << :inScheme if extra_include.include?(:isInActiveScheme)
+          extra_include << :memberOf if extra_include.include?(:isInActiveCollection)
+
           if extra_include.length > 0
             where.include(extra_include)
           end
@@ -1906,7 +1909,7 @@ eos
 
         classes.delete_if { |c|
           obs = !c.obsolete.nil? && c.obsolete == true
-          if !obs
+          unless obs
             c.load_computed_attributes(to_load: extra_include,
                                        options: { schemes: current_schemes(concept_schemes), collections: concept_collections })
           end

@@ -5,7 +5,8 @@ module LinkedData
         def tree(concept_schemes: [], concept_collections: [], roots: nil)
           bring(parents: [:prefLabel]) if bring?(:parents)
           return self if parents.nil? || parents.empty?
-          extra_include = [:hasChildren, :isInActiveScheme, :isInActiveCollection]
+          extra_include = [:hasChildren]
+          extra_include += [:isInActiveScheme, :isInActiveCollection]  if submission.skos?
           roots = self.submission.roots( extra_include, concept_schemes:concept_schemes) if roots.nil?
           path = path_to_root(roots)
           threshold = 99
