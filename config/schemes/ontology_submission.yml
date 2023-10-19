@@ -582,78 +582,150 @@ endorsedBy:
 #Evaluation => Ontology object (bpm:reviews)
 #Group => Ontology object (bpm:group)
 #Used in project => Ontology object (bpm:project)
-#Analytics => Ontology object (bpm:analytics)
 
 #Target audience
+audience:
+  display: "community" 
+  label: "Audience"
+  helpText: ""
+  example: ''
+  description: [ 
+    "DCTERMS: a class of entity for whom the resource is intended or useful (public visé ou recommandé pour la ressource).",
+    "DOAP: Description of target user base.",
+    "SCHEMA: An intended audience, i.e. a group for whom something was created." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:audience", "doap:audience", "schema:audience" ]
+
+#Analytics => Ontology object (bpm:analytics)
 
 #Repository
+repository:
+  display: "community" 
+  label: "Repository"
+  helpText: ""
+  example: 'https://github.com/Planteome/plant-trait-ontology'
+  description: [ 
+    "DOAP: Source code repository." ]
+  extractedMetadata: true
+  metadataMappings: [ "doap:repository" ]
 
 #Bug database
-
+bugDatabase:
+  display: "community" 
+  label: "Bug database"
+  helpText: "Bug tracker for a project."
+  example: 'https://github.com/Planteome/plant-trait-ontology/issues'
+  description: [ 
+    "DOAP: Bug tracker for a project." ]
+  extractedMetadata: true
+  metadataMappings: [ "doap:bug-database", ".." ]
+  
 #Mailing list
+propname:
+  display: "community" 
+  label: "Mailing list"
+  helpText: ""
+  example: ''
+  description: [ 
+    "DOAP: Mailing list home page or email address." ]
+  extractedMetadata: true
+  metadataMappings: [ "doap:mailing-list" ]
 
 #To Do List
+toDoList:
+  display: "community" 
+  label: "To do list"
+  helpText: "Describes future tasks planned by a resource curator."
+  description: [ 
+    "VOAF: Describes future tasks planned by a resource curator. This property is primarily intended to be used for vocabularies or datasets, but the domain is left open, it can be used for any resource. Use iCalendar Vtodo class and its properties to further describe the task calendar, priorities etc." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:toDoList", "voaf:toDoList" ]
 
 #Award
-
-audience:
-  extractedMetadata: true
-  label: "Audience"
-  description: [ "DCTERMS: a class of entity for whom the resource is intended or useful (public visé ou recommandé pour la ressource).",
-                 "DOAP: Description of target user base.",
-                 "SCHEMA: An intended audience, i.e. a group for whom something was created" ]
-  metadataMappings: [ "doap:audience", "schema:audience" ]
-  helpText: "Description of the target user base of the ontology."
-  display: "community"
-
-toDoList:
-  extractedMetadata: true
-  label: "To do list"
-  description: "VOID: Describes future tasks planned by a resource curator. This property is primarily intended to be used for vocabularies or datasets, but the domain is left open, it can be used for any resource. Use iCalendar Vtodo class and its properties to further describe the task calendar, priorities etc"
-  helpText: "Describes future tasks planned by a resource curator."
-  display: "community"
-
-repository:
-  extractedMetadata: true
-  label: "Repository"
-  description: "DOAP: Source code repository"
-  helpText: "Link to the source code repository."
-  example: 'https://github.com/Planteome/plant-trait-ontology'
-  display: "community"
-
-bugDatabase:
-  extractedMetadata: true
-  label: "Bug database"
-  description: "DOAP: Bug tracker for a project"
-  helpText: "Link to the bug tracker of the ontology (i.e.: GitHub issues)."
-  display: "community"
-
-mailingList:
-  extractedMetadata: true
-  label: "Mailing list"
-  description: "DOAP: Mailing list home page or email address "
-  helpText: "Mailing list home page or email address."
-  display: "community"
-
 award:
-  extractedMetadata: true
+  display: "community" 
   label: "Award"
-  description: "SCHEMA: An award won by or for this item"
-  helpText: "An award won by this ontology."
-  display: "community"
+  helpText: "An award won by or for this item."
+  description: [ 
+    "SCHEMA: An award won by or for this item." ]
+  extractedMetadata: true
+  metadataMappings: [ "schema:award" ]
 
 ### Usage
 
 #Known usage
+knownUsage:
+  display: "usage" 
+  label: "Known usage"
+  helpText: "The applications where the ontology is being used."
+  example: "Used to annotate phenotypes and patterns of gene expression."
+  description: [ 
+    "OMV: The applications where the ontology is being used.",
+    "MOD: Type of applications or usage of the ontology." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:knownUsage", "omv:knownUsage" ]
 
 #Designed for task
+designedForOntologyTask:
+  display: "usage" 
+  label: "Designed for task (as defined by OMV)."
+  helpText: ""
+  description: [ 
+    "MOD: The purpose or tasks for which the ontology was originally designed.",
+    "OMV: The purpose for which the ontology was originally designed." ]
+  extractedMetadata: true
+  enforcedValues: {
+    "http://omv.ontoware.org/2005/05/ontology#AnnotationTask": "Annotation Task",
+    "http://omv.ontoware.org/2005/05/ontology#ConfigurationTask": "Configuration Task",
+    "http://omv.ontoware.org/2005/05/ontology#FilteringTask": "Filtering Task",
+    "http://omv.ontoware.org/2005/05/ontology#IndexingTask": "Indexing Task",
+    "http://omv.ontoware.org/2005/05/ontology#IntegrationTask": "Integration Task",
+    "http://omv.ontoware.org/2005/05/ontology#MatchingTask": "Matching Task",
+    "http://omv.ontoware.org/2005/05/ontology#MediationTask": "Mediation Task",
+    "http://omv.ontoware.org/2005/05/ontology#PersonalizationTask": "Personalization Task",
+    "http://omv.ontoware.org/2005/05/ontology#QueryFormulationTask": "Query Formulation Task",
+    "http://omv.ontoware.org/2005/05/ontology#QueryRewritingTask": "Query Rewriting Task",
+    "http://omv.ontoware.org/2005/05/ontology#SearchTask": "Search Task"
+  }
+  metadataMappings: [ "omv:designedForOntologyTask", "mod:designedForTask" ]
 
 #Subject
-
+hasDomain:
+  display: "usage" 
+  label: "Subject"
+  helpText: "The topics of the ontology."
+  example: ''
+  description: [ 
+     "DCTERMS: The topic of the resource.",
+      "SCHEMA: The subject matter of the content.",
+      "FOAF: A topic of some page or document.",
+      "OMV: Typically, the domain can refer to established topic hierarchies such as the general purpose topic hierarchy (DMOZ or the domain specific topic hierarchy ACM for the computer science domain.",
+      "DCAT: A main category of the resource." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:hasDomain", "dc:subject", "dcterms:subject", "foaf:topic", "dcat:theme", "schema:about" ]
+    
 #Coverage
-
+coverage:
+  display: "usage" 
+  label: "Coverage"
+  helpText: "The spatial or temporal topic of the ontology, the spatial applicability of the ontology, or the jurisdiction under which the ontology is relevant."
+  description: [ 
+    "DCTERMS: The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant. Spatial topic and spatial applicability may be a named place or a location specified by its geographic coordinates. Temporal topic may be a named period, date, or date range. A jurisdiction may be a named administrative entity or a geographic place to which the resource applies.",
+    "SCHEMA: The 'spatial' property can be used in cases when more specific properties (e.g. locationCreated, spatialCoverage, contentLocation) are not known to be appropriate." ]
+  extractedMetadata: true
+  metadataMappings: [ "dc:coverage", "dcterms:coverage", "schema:spatial" ]
+  
 #Example of use
-
+example:
+  display: "usage" 
+  label: "Example of use"
+  helpText: "A reference to a resource that provides an example of how this ontology can be used."
+  description: [ 
+    "VANN: A reference to a resource that provides an example of how this resource can be used.",
+    "SCHEMA: Example/instance/realization/derivation of the concept of this creative work. eg. The paperback edition, first edition, or eBook." ]
+  extractedMetadata: true
+  metadataMappings: [ "vann:example", "schema:workExample" ]
+  
 ### Methodology
 
 #Knowledge representation paradigm
@@ -1242,70 +1314,6 @@ obsoleteParent:
   metadataMappings: [ "doap:download-page" , "dcat:accessURL" , "omv:resourceLocator" ]
   label: "Root of obsolete branch"
   display: "content"
-
-# usage
-
-
-knownUsage:
-  extractedMetadata: true
-  description: [ "OMV: The applications where the ontology is being used." ]
-  helpText: "The applications where the ontology is being used."
-  example: "Used to annotate phenotypes and patterns of gene expression"
-  label: "Known usage"
-  display: "usage"
-
-designedForOntologyTask:
-  extractedMetadata: true
-  description: [ "DCTERMS: The purpose for which the ontology was originally designed",
-                 "OMV: The purpose for which the ontology was originally designed." ]
-  label: "Designed for task"
-  helpText: "The purpose for which the ontology was originally designed."
-  enforcedValues: {
-    "http://omv.ontoware.org/2005/05/ontology#AnnotationTask": "Annotation Task",
-    "http://omv.ontoware.org/2005/05/ontology#ConfigurationTask": "Configuration Task",
-    "http://omv.ontoware.org/2005/05/ontology#FilteringTask": "Filtering Task",
-    "http://omv.ontoware.org/2005/05/ontology#IndexingTask": "Indexing Task",
-    "http://omv.ontoware.org/2005/05/ontology#IntegrationTask": "Integration Task",
-    "http://omv.ontoware.org/2005/05/ontology#MatchingTask": "Matching Task",
-    "http://omv.ontoware.org/2005/05/ontology#MediationTask": "Mediation Task",
-    "http://omv.ontoware.org/2005/05/ontology#PersonalizationTask": "Personalization Task",
-    "http://omv.ontoware.org/2005/05/ontology#QueryFormulationTask": "Query Formulation Task",
-    "http://omv.ontoware.org/2005/05/ontology#QueryRewritingTask": "Query Rewriting Task",
-    "http://omv.ontoware.org/2005/05/ontology#SearchTask": "Search Task"
-  }
-  display: "usage"
-
-hasDomain:
-  extractedMetadata: true
-  label: "Subject"
-  description: [ "DCTERMS: The topic of the resource.",
-                 "SCHEMA: The subject matter of the content.",
-                 "FOAF: A topic of some page or document.",
-                 "OMV: Typically, the domain can refer to established topic hierarchies such as the general purpose topic hierarchy DMOZ or the domain specific topic hierarchy ACM for the computer science domain",
-                 "DCAT: A main category of the resource." ]
-  helpText: "Typically, the domain can refer to established topic hierarchies such as the general purpose topic hierarchy DMOZ or the domain specific topic hierarchy ACM for the computer science domain"
-  metadataMappings: [ "dc:subject", "dcterms:subject", "foaf:topic", "dcat:theme", "schema:about" ]
-  display: "usage"
-
-
-coverage:
-  extractedMetadata: true
-  label: "Coverage"
-  description: [ "DCTERMS: The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant. Spatial topic and spatial applicability may be a named place or a location specified by its geographic coordinates. Temporal topic may be a named period, date, or date range. A jurisdiction may be a named administrative entity or a geographic place to which the resource applies.",
-                 "SCHEMA: The 'spatial' property can be used in cases when more specific properties (e.g. locationCreated, spatialCoverage, contentLocation) are not known to be appropriate." ]
-  metadataMappings: [ "dc:coverage", "schema:spatial" ]
-  helpText: "The spatial or temporal topic of the ontology, the spatial applicability of the ontology, or the jurisdiction under which the ontology is relevant."
-  display: "usage"
-
-
-example:
-  extractedMetadata: true
-  description: [ "VANN: A reference to a resource that provides an example of how this resource can be used.",
-                 "SCHEMA: Example/instance/realization/derivation of the concept of this creative work. eg. The paperback edition, first edition, or eBook" ]
-  metadataMappings: [ "schema:workExample" ]
-  helpText: "A reference to a resource that provides an example of how this ontology can be used."
-  label: "Example of use"
-  display: "usage"
 
 
 
