@@ -866,6 +866,152 @@ wasInvalidatedBy:
   extractedMetadata: true
   metadataMappings: [ "prov:wasInvalidatedBy" ]
 
+### Object description properties
+
+#Object preferred label property
+prefLabelProperty:
+  display: "object description properties"
+  label: "Object preferred label property"
+  helpText: "Property used to specify objects preferred label."
+  description: [ 
+    "MOD: Property used to specify objects preferred label." ]
+  extractedMetadata: true
+  enforcedValues: {
+    "http://www.w3.org/2004/02/skos/core#prefLabel": "skos:prefLabel",
+    "http://www.w3.org/2000/01/rdf-schema#label": "rdfs:label",
+    "http://schema.org/name": "schema:name",
+    "http://xmlns.com/foaf/0.1/name": "foaf:name",
+    "http://purl.org/dc/terms/title": "dcterms:title",
+    "http://purl.org/dc/elements/1.1/title": "dc:title"
+  }
+  metadataMappings: [ "mod:prefLabelProperty" ]
+
+#Object synonym property
+synonymProperty:
+  display: "object description properties"
+  label: "Object synonym property"
+  helpText: "Property used to specify objects synonyms."
+  description: [ 
+    "MOD: Property used to specify objects synonyms." ]
+  extractedMetadata: true
+  enforcedValues: {
+    "http://www.w3.org/2004/02/skos/core#altLabel ": "skos:altLabel",
+    "http://purl.org/dc/terms/alternative ": "dcterms:alternative",
+    "http://schema.org/alternateName": "schema:alternativeName", 
+    "http://www.geneontology.org/formats/oboInOwl#hasSynonym": "oboInOwl:hasSynonym",
+    "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym": "oboInOwl:hasExactSynonym",
+    "http://www.geneontology.org/formats/oboInOwl#hasNarrowSynonym": "oboInOwl:hasNarrowSynonym",
+    "http://www.geneontology.org/formats/oboInOwl#hasBroadSynonym": "oboInOwl:hasBroadSynonym",
+    "http://www.geneontology.org/formats/oboInOwl#hasRelatedSynonym": "oboInOwl:hasRelatedSynonym"
+  }
+  metadataMappings: [ "mod:synonymProperty" ]
+
+#Object definition property
+definitionProperty:
+  display: "object description properties"
+  label: "Object definition property"
+  helpText: "Property used to specify objects definition."
+  description: [ 
+    "MOD: Property used to specify objects definition." ]
+  extractedMetadata: true
+  enforcedValues: { 
+    "http://www.w3.org/2004/02/skos/core#definition": "skos:definition",
+    "http://www.w3.org/2000/01/rdf-schema#comment": "rdfs:comment",
+    "http://purl.org/dc/terms/description ": "dcterms:description",
+    "http://purl.org/dc/elements/1.1/description": "dc:description",
+    "http://schema.org/description ": "schema:decription",
+    "http://www.geneontology.org/formats/oboInOwl#hasDefinition": "oboInOwl:hasDefinition"
+  }
+  metadataMappings: [ "mod:definitionProperty" ]
+  
+#Object author property
+authorProperty:
+  display: "object description properties"
+  label: "Object author property"
+  helpText: "Property used to specify object author."
+  description: [ 
+    "MOD: Property used to specify object author." ]
+  extractedMetadata: true
+  enforcedValues: {
+    "http://purl.org/dc/elements/1.1/creator": "dc:creator",
+    "http://purl.org/dc/terms/creator": "dcterms:creator",
+    "http://schema.org/author": "schema:author",
+    "http://www.w3.org/ns/prov#wasAttributedTo": "prov:wasAttributedTo",
+    "http://purl.org/pav/authoredBy": "pav:authoredBy",
+    "http://purl.org/pav/createdBy": "pav:createdBy",
+    "http://xmlns.com/foaf/0.1/maker": "foaf:maker"
+  }
+  metadataMappings: [ "mod:authorProperty" ]
+
+#Object obsolete property
+ obsoleteProperty:
+  display: "object description properties"
+  label: "Object obsolete property"
+  helpText: ""
+  description: [ 
+    "MOD: Property used to specify obsolete objects." ]
+  extractedMetadata: true
+  enforcedValues: {
+    "http://www.w3.org/2002/07/owl#deprecated": "owl:deprecated",
+    "http://identifiers.org/idot/obsolete": "idot:obsolete"
+  }
+  metadataMappings: [ "mod:obsoleteProperty" ]
+
+#Object creation date property
+createdProperty:
+  display: "object description properties"
+  label: "Object creation date property"
+  helpText: "Property used to specify the date of creation of a class or another object in the ontology."
+  description: [ 
+    "MOD: Property used to specify the date of creation of a class or another object in the ontology." ]
+  extractedMetadata: true
+  enforcedValues: {
+    "http://purl.org/dc/terms/created ": "dcterms:created",
+    "http://purl.org/dc/terms/issued ": "dcterms:issued",
+    "http://purl.org/dc/terms/date": "dcterms:date",
+    "http://purl.org/dc/elements/1.1/date": "dc:date",
+    "http://purl.org/pav/authoredOn ": "pav:authoredOn",
+    "http://purl.org/pav/contributedOn": "pav:contributedOn",
+    "http://purl.org/pav/createdOn": "pav:createdOn",
+    "http://schema.org/dateCreated": "schema:dateCreated",
+    "http://www.w3.org/ns/prov#generatedAtTime": "prov:generatedAtTime"
+  }
+  metadataMappings: [ "mod:modifiedProperty" ]
+
+#Object modification date property
+modifiedProperty:
+  display: "object description properties"
+  label: "Object modification date property"
+  helpText: "Property used to specify the date of modification of a class or another object in the ontology."
+  description: [ 
+    "MOD: Property used to specify the date of modification of a class or another object in the ontology." ]
+  extractedMetadata: true
+  enforcedValues: {
+    "http://purl.org/dc/terms/modified ": "dc:modified",
+    "http://purl.org/dc/terms/issued ": "dcterms:issued",
+    "http://purl.org/dc/terms/date": "dcterms:date",
+    "http://purl.org/dc/elements/1.1/date": "dc:date",
+    "http://purl.org/pav/authoredOn ": "pav:authoredOn",
+    "http://purl.org/pav/contributedOn": "pav:contributedOn",
+    "http://purl.org/pav/lastUpdateOn": "pav:lastUpdateOn",
+    "http://schema.org/dateModified": "schema:dateModified"
+  }
+  metadataMappings: [ "mod:createdProperty" ]
+  
+#Hierarchy property
+hierarchyProperty:
+  display: "object description properties"
+  label: "Hierarchy property"
+  helpText: "A property that is used to specify the hierarchy."
+  description: [ 
+    "MOD: A property that is used to specify the hierarchy." ]
+  extractedMetadata: true
+  enforcedValues: {
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": "rdfs:subClassOf",
+    "http://www.w3.org/2004/02/skos/core#broader": "skos:broader"
+  }
+  metadataMappings: [ "mod:hierarchyProperty" ]
+    
 ### Links
 
 #Access URL 
@@ -1337,127 +1483,6 @@ associatedMedia:
   description: "SCHEMA: A media object that encodes this CreativeWork. This property is a synonym for encoding"
   display: "images"
   helpText: "A media object that encodes this ontology. This property is a synonym for encoding."
-
-
-
-###Object description properties
-
-#Object preferred label property
-
-#Object synonym property
-
-#Object definition property
-
-#Object author property
-
-#Object obsolete property
-
-#Object creation date property
-
-#Object modification date property
-
-#Hierarchy property
-
-prefLabelProperty:
-  extractedMetadata: true
-  description: "MOD: Property used to specify objects preferred label."
-  label: "Object preferred label property"
-  enforcedValues: {
-    "http://www.w3.org/2004/02/skos/core#prefLabel": "prefLabel",
-    "http://www.w3.org/2000/01/rdf-schema#label": "label",
-    "http://schema.org/name": "name",
-    "http://xmlns.com/foaf/0.1/name": "name",
-    "http://purl.org/dc/terms/title": "title"
-  }
-  display: "object description properties"
-  
-synonymProperty:
-  extractedMetadata: true
-  description: "MOD: Property used to specify objects synonyms."
-  label: "Object synonym property"
-  enforcedValues: {
-    "http://www.w3.org/2004/02/skos/core#altLabel ": "altLabel",
-    "http://purl.org/dc/terms/alternative ": "alternative",
-    "http://schema.org/alternateName": "alternativeName"
-  }
-  display: "object description properties"
-
-definitionProperty:
-  extractedMetadata: true
-  description: "MOD: Property used to specify objects definition."
-  label: "Object definition property"
-  enforcedValues: {
-    "http://www.w3.org/2004/02/skos/core#definition": "definition",
-    "http://www.w3.org/2000/01/rdf-schema#comment": "comment",
-    "http://purl.org/dc/terms/description ": "description",
-    "http://schema.org/description ": "decription"
-  }
-  display: "object description properties"
-
-authorProperty:
-  extractedMetadata: true
-  description: "MOD: Property used to specify object author."
-  label: "Object author property"
-  enforcedValues: {
-    "http://purl.org/dc/elements/1.1/creator": "creator",
-    "http://schema.org/author": "author",
-    "http://www.w3.org/ns/prov#wasAttributedTo": "wasAttributedTo",
-    "http://purl.org/pav/authoredBy": "authoredBy",
-    "http://purl.org/pav/createdBy": "createdBy",
-    "http://xmlns.com/foaf/0.1/maker": "maker"
-  }
-  display: "object description properties"
-
-obsoleteProperty:
-  extractedMetadata: true
-  description: "MOD: Property used to specify obsolete objects."
-  label: "Object obsolete property"
-  enforcedValues: {
-    "http://www.w3.org/2002/07/owl#owl:deprecated": "deprecated",
-    "http://identifiers.org/idot/obsolete": "obsolete"
-  }
-  display: "object description properties"
-
-createdProperty:
-  extractedMetadata: true
-  description: "MOD: Property used to specify the date of creation of a class or another object in the ontology."
-  label: "Object creation date property"
-  enforcedValues: {
-    "http://purl.org/dc/terms/created ": "dcterms:created",
-    "http://purl.org/dc/terms/issued ": "dcterms:issued",
-    "http://purl.org/dc/terms/date": "dcterms:date",
-    "http://purl.org/pav/authoredOn ": "pav:authoredOn",
-    "http://purl.org/pav/contributedOn": "pav:contributedOn",
-    "http://purl.org/pav/createdOn": "pav:createdOn",
-    "http://schema.org/dateCreated": "sdo:dateCreated",
-    "http://www.w3.org/ns/prov#generatedAtTime": "prov:generatedAtTime"
-  }
-  display: "object description properties"
-
-modifiedProperty:
-  extractedMetadata: true
-  description: "MOD: Property used to specify the date of modification of a class or another object in the ontology."
-  label: "Object modification date property"
-  enforcedValues: {
-    "http://purl.org/dc/terms/modified ": "dc:modified",
-    "http://purl.org/dc/terms/issued ": "dcterms:issued",
-    "http://purl.org/dc/terms/date": "dcterms:date",
-    "http://purl.org/pav/authoredOn ": "pav:authoredOn",
-    "http://purl.org/pav/contributedOn": "pav:contributedOn",
-    "http://purl.org/pav/lastUpdateOn": "pav:lastUpdateOn",
-    "http://schema.org/dateModified": "sdo:dateModified"
-  }
-  display: "object description properties"
-  
-hierarchyProperty:
-  extractedMetadata: true
-  description: "MOD: A property that is used to specify the hierarchy."
-  label: "Hierarchy property"
-  enforcedValues: {
-    "http://www.w3.org/2000/01/rdf-schema#subClassOf": "rdfs:subClassOf",
-    "http://www.w3.org/2004/02/skos/core#broader": "skos:broader"
-  }
-  display: "object description properties"
 
 ### Metrics
 
