@@ -478,119 +478,113 @@ released:
 ### Persons and organizations
 
 #Contact
+contact:
+  display: "persons and organizations" 
+  label: "Contacts"
+  helpText: "The persons who can be contacted to enquire about an ontology. Composed of the contacts name and email."
+  description: [ 
+    "DCAT: Relevant contact information for the cataloged resource. Use of vCard is recommended."]
+  extractedMetadata: false
+  metadataMappings: [ "dcat:contactPoint" ]
 
 #Creator
+hasCreator:
+  display: "persons and organizations" 
+  label: "Creators"
+  helpText: "Main responsible for the creation of the ontology."
+  description: [ 
+    "OMV: Main responsible for the creation of the ontology",
+    "DCTERMS: An entity primarily responsible for making the resource",
+    "FOAF: An agent that made this thing",
+    "PROV: Attribution is the ascribing of an entity to an agent.",
+    "PAV:authoredBy: An agent that originated or gave existence to the work that is expressed by the digital resource.",
+    "PAV:cretaedBy: An agent primary responsible for making the digital artifact or resource representation.",
+    "DOAP: Maintainer of a project, a project leader.",
+    "SCHEMA:author: The author of this content or rating.",
+    "SCHEMA:creator: The creator/author of this CreativeWork." ]
+  extractedMetadata: false
+  metadataMappings: [ "omv:hasCreator", "dc:creator", "dcterms:creator", "foaf:maker", "prov:wasAttributedTo", "doap:maintainer", "pav:authoredBy", "pav:createdBy", "schema:author", "schema:creator" ]
 
 #Contributor
-
+hasContributor:
+  display: "persons and organizations" 
+  label: "Contributors"
+  helpText: "Contributors to the creation of the ontology."
+  description: [ 
+    "DCTERMS: An entity responsible for making contributions to the resource.",
+    "SCHEMA: A secondary contributor to the CreativeWork or Event.",
+    "OMV: Contributors to the creation of the ontology.",
+    "PAV: The resource was contributed to by the given agent.",
+    "DOAP: Project contributor" ]
+  extractedMetadata: false
+  metadataMappings: [ "omv:hasContributor", "dc:contributor", "dcterms:contributor", "doap:helper", "schema:contributor", "pav:contributedBy" ]
+  helpText: "Contributors to the creation of the ontology."
+  
 #Curator
+curatedBy:
+  display: "persons and organizations" 
+  label: "Curators"
+  helpText: ""
+  description: [ 
+    "PAV: Specifies an agent specialist responsible for shaping the expression in an appropriate format. Often the primary agent responsible for ensuring the quality of the representation.", 
+    "MOD: An ontology that is evaluated by an agent." ]
+  extractedMetadata: false
+  metadataMappings: [ "mod:evaluatedBy", "pav:curatedBy" ]
 
 #Translator
-
+translator:
+  display: "persons and organizations" 
+  label: "Translators"
+  helpText: "Organization or person who adapts a creative work to different languages."
+  description: [ 
+    "SCHEMA: Organization or person who adapts a creative work to different languages, regional differences and technical requirements of a target market, or that translates during some event." ]
+  extractedMetadata: false
+  metadataMappings: [ "schema:translator" ]
+  
 #Publisher
+publisher:
+  display: "persons and organizations" 
+  label: "Publishers"
+  helpText: ""
+  description: [ 
+    "DCTERMS: An entity responsible for making the resource available.",
+    "SCHEMA: The publisher of creative work.",
+    "ADMS: The name of the agency that issued the identifier." ]
+  extractedMetadata: false
+  metadataMappings: [ "dc:publisher", "dcterms:publisher", "schema:publisher", "adms:schemaAgency" ]
 
 #Funded or sponsored by
-
-#Endorsed by
-
-contact:
-  helpText: "The people to contact when questions about the ontology. Composed of the contacts name and email."
-  label: "Contact"
-  description: "DCAT: Relevant contact information for the cataloged resource. Use of vCard is recommended"
-  display: 'people'
-
-hasCreator:
-  extractedMetadata: false
-  description: [ "OMV: Main responsible for the creation of the ontology",
-                 "DCTERMS: An entity primarily responsible for making the resource",
-                 "FOAF: An agent that made this thing",
-                 "PROV: Attribution is the ascribing of an entity to an agent.",
-                 "PAV: An agent that originated or gave existence to the work that is expressed by the digital resource.",
-                 "PAV: An agent primary responsible for making the digital artifact or resource representation.",
-                 "DOAP: Maintainer of a project, a project leader.",
-                 "SCHEMA: The author of this content or rating." ]
-  label: "Creators"
-  metadataMappings: [ "dc:creator", "dcterms:creator", "foaf:maker", "prov:wasAttributedTo", "doap:maintainer", "pav:authoredBy", "pav:createdBy", "schema:author", "schema:creator" ]
-  helpText: "Main responsible for the creation of the ontology."
-  display: 'people'
-
-hasContributor:
-  extractedMetadata: false
-  description: [ "DCTERMS: An entity responsible for making contributions to the resource",
-                 "SCHEMA: A secondary contributor to the CreativeWork or Event.",
-                 "OMV: Contributors to the creation of the ontology.",
-                 "PAV: The resource was contributed to by the given agent.",
-                 "SCHEMA: A secondary contributor to the CreativeWork or Event.",
-                 "DOAP: Project contributor",
-                 "OMV: Contributors to the creation of the ontology" ]
-  label: "Contributors"
-  metadataMappings: [ "dc:contributor", "dcterms:contributor", "doap:helper", "schema:contributor", "pav:contributedBy" ]
-  helpText: "Contributors to the creation of the ontology."
-  display: 'people'
-
-publisher:
-  extractedMetadata: false
-  label: "Publisher"
-  description: [ "DCTERMS: An entity responsible for making the resource available.",
-                 "SCHEMA: The publisher of creative work.",
-                 "ADMS: The name of the agency that issued the identifier." ]
-  metadataMappings: [ "dc:publisher", "schema:publisher" ]
-  helpText: "An entity responsible for making the ontology available."
-  display: 'people'
-
-curatedBy:
-  extractedMetadata: false
-  description: [ "PAV: Specifies an agent specialist responsible for shaping the expression in an appropriate format. Often the primary agent responsible for ensuring the quality of the representation.",
-                 "MOD: A curator who restructure the previously authored content and shape it to be appropriate for the intended representation (e.g. by normalizing the fields for being represented in a spreadsheet)." ]
-  label: "Curator"
-  metadataMappings: [ "mod:evaluatedBy" ]
-  helpText: "People who curated the ontology."
-  example: 'Yvonne M. Bradford (0000-0002-9900-7880)'
-  display: "people"
-
-endorsedBy:
-  extractedMetadata: false
-  label: "Endorsed by"
-  description: [ "MOD: An ontology endorsed by an agent.",
-                 "OMV: The parties that have expressed support or approval to this ontology." ]
-  metadataMappings: [ "mod:endorsedBy" ]
-  helpText: "The parties that have expressed support or approval to this ontology"
-  example: 'INRAE (003vg9w96)'
-  display: "people"
-
 fundedBy:
-  extractedMetadata: false
+  display: "persons and organizations" 
   label: "Funded or sponsored by"
-  description: [ "MOD: An ontology that is sponsored by and developed under a project.",
-                 "FOAF: An organization funding a project or person.",
-                 "SCHEMA: The Organization on whose behalf the creator was working." ]
-  metadataMappings: [ "mod:sponsoredBy", "schema:sourceOrganization" ]
-  helpText: "The organization funding the ontology development."
-  example: [ 'Yvonne M. Bradford (0000-0002-9900-7880','INRAE (003vg9w96)' ]
-  display: "people"
-
-translator:
+  helpText: "An organization funding a project or person."
+  description: [ 
+    "MOD: An ontology that is sponsored by and developed under a project.",
+    "FOAF: An organization funding a project or person.",
+    "SCHEMA: The organization on whose behalf the creator was working." ]
   extractedMetadata: false
-  label: "Translator"
-  description: "SCHEMA: Organization or person who adapts a creative work to different languages, regional differences and technical requirements of a target market, or that translates during some event."
-  metadataMappings: [ "doap:translator" ]
-  helpText: "Organization or person who adapted the ontology to different languages, regional differences and technical requirements"
-  display: "people"
-
-
+  metadataMappings: [ "foaf:fundedBy", "mod:sponsoredBy", "schema:sourceOrganization" ]
+  
+#Endorsed by
+endorsedBy:
+  display: "persons and organizations" 
+  label: "Endorsed by"
+  helpText: "The parties that have expressed support or approval to this ontology."
+  description: [ 
+    "MOD: An ontology endorsed by an agent.",
+    "OMV: The parties that have expressed support or approval to this ontology." ]
+  extractedMetadata: false
+  metadataMappings: [ "omv:endorsedBy", "mod:endorsedBy" ]
+  
 ### Community
 
-#User notes or reviews
-
-#Evaluation
-
-#Group
-
-#Used in project
+#User notes or reviews => Ontology object (bpm:notes)
+#Evaluation => Ontology object (bpm:reviews)
+#Group => Ontology object (bpm:group)
+#Used in project => Ontology object (bpm:project)
+#Analytics => Ontology object (bpm:analytics)
 
 #Target audience
-
-#Analytics
 
 #Repository
 
@@ -962,7 +956,7 @@ includedInDataCatalog:
 
 #Prior version
 
-#Is part of (view of)
+#Is part of (view of) => Ontology object (bpm:viewOf)
 
 #Has part (has views)
 
