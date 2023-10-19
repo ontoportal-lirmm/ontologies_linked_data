@@ -15,6 +15,8 @@
 #    ".." }
 #  metadataMappings: [ "ns:propname", ".." ]
 
+# AgroPortal properties ordered as MOD file
+
 ### General
 
 #Acronym => Ontology object (omv:acronym)
@@ -228,98 +230,22 @@ identifier:
   metadataMappings: [ "dc:identifier", "dcterms:identifier", "skos:notation", "adms:identifier" ]
   
 
-  ### Description
+### Licensing
 
-description:
-  label: "Description"
-  extractedMetadata: true
-  description: [ "DCTERMS: An account of the resource","SCHEMA: A description of the item.","OMV: Free text description of an ontology.","DOAP: Plain text description of a project, of 2-4 sentences in length.","RDFS: A human-readable description of a resource." ]
-  helpText: "Free text description of the ontology."
-  metadataMappings: [ "dc:description", "dcterms:description", "doap:description", "schema:description", "oboInOwl:remark" ]
-  display: "description"
+#Access rights => Ontology object (bpm:viewingRestriction)
 
-abstract:
-  extractedMetadata: true
-  label: "Abstract"
-  description: "DCTERMS: A summary of the resource"
-  helpText: "A summary of the ontology"
-  display: "description"
-
-homepage:
-  extractedMetadata: true
-  metadataMappings: [ "cc:attributionURL", "mod:homepage", "doap:blog", "schema:mainEntityOfPage" ]
-  helpText: "The URL of the homepage for the ontology."
-  label: "Homepage"
-  display: "description"
-
-documentation:
-  extractedMetadata: true
-  description: [ "DCTERMS: A link to the documentation page on a thing","DCAT: A Web page that can be navigated to in a Web browser to gain access to the dataset, its distributions and/or additional information.", "OMV: URL for further documentation.","RDFS: Further information about the subject resource.", "DOAP: URL of Wiki for collaborative discussion of project. ","VANN: A reference to a resource that provides information on how this resource is to be used","MOD: A link to the documentation page on a thing." ]
-  metadataMappings: [ "rdfs:seeAlso", "foaf:page", "vann:usageNote", "mod:document", "dcat:landingPage", "doap:wiki" ]
-  helpText: "URL for further documentation."
-  label: "Documentation"
-  display: "description"
-
-keywords:
-  extractedMetadata: true
-  description: [ "DCTERMS: A keyword(s) is used to describe the content of an ontology",
-                 "SCHEMA: Keywords or tags used to describe some item. Multiple textual entries in a keywords list are typically delimited by commas, or by repeating the property.",
-                 "OMV: List of keywords related to an ontology.",
-                 "DCAT: A keyword or tag describing a resource.",
-                 "MOD: A keyword(s) is used to describe the content of an ontology." ]
-  helpText: "List of keywords related to the ontology."
-  metadataMappings: [ "mod:keyword", "dcat:keyword", "schema:keywords" ]
-  label: "Keywords"
-  display: "description"
-
-notes:
-  extractedMetadata: true
-  description: [ "RDFS: A description of the subject resource.",
-                 "OMV: Additional information about the ontology that is not included somewhere else (e.g. information that you do not want to include in the documentation)." ]
-  metadataMappings: [ "rdfs:comment", "adms:versionNotes" ]
-  helpText: "Additional information about the ontology that is not included somewhere else (e.g. information that you do not want to include in the documentation)."
-  label: "Notes"
-  display: "description"
-
-hiddenLabel:
-  extractedMetadata: true
-  label: "Hidden or past name"
-  description: [ "MOD: Hidden or past name",
-                 "SKOS: A lexical label for a resource that should be hidden when generating visual displays of the resource, but should still be accessible to free text search operations." ]
-  helpText: "The hidden labels are useful when a user is interacting with a knowledge organization system via a text-based search function. The user may, for example, enter mis-spelled words when trying to find a relevant concept. If the mis-spelled query can be matched against a hidden label, the user will be able to find the relevant concept, but the hidden label won't otherwise be visible to the user"
-  display: "description"
-
-alternative:
-  extractedMetadata: true
-  description: [ "DCTERMS: An alternative name for the resource. The distinction between titles and alternative titles is application-specific.",
-                 "SKOS: The preferred and alternative labels are useful when generating or creating human-readable representations of a knowledge organization system.",
-                 "SCHEMA: An alias for the item. A short label that is used by some communities to refer to a dataset",
-                 "IDOT: A short label that is used by some communities to refer to a dataset (see 'preferredPrefix')." ]
-  label: "Alternative name"
-  metadataMappings: [ "skos:altLabel", "idot:alternatePrefix", "schema:alternativeHeadline", "schema:alternateName" ]
-  helpText: "An alternative title for the ontology"
-  display: "description"
-
-publication:
-  extractedMetadata: true
-  description: [ "SCHEMA: A citation or reference to another creative work, such as another publication, web page, scholarly article, etc.","DCTERMS: A bibliographic reference for the resource.","OMV: List of bibliographic references describing the ontology and its applications.","FOAF: A document that this thing is the primary topic of" ]
-  helpText: "The URL of bibliographic reference for the ontology."
-  metadataMappings: [ "omv:reference", "dcterms:bibliographicCitation", "foaf:isPrimaryTopicOf", "schema:citation", "cito:citesAsAuthority", "schema:citation" ]
-  label: "Publication"
-  display: "description"
-
-# license
-
+#License
 hasLicense:
-  extractedMetadata: true
+  display: "licensing"
   label: "License"
-  description: [ "CC: A Work has a License.",
-                 "DC: Information about rights held in and over the resource.",
-                 "SCHEMA: A license document that applies to this content, typically indicated by URL.",
-                 "DCTERMS: A legal document giving official permission to do something with the resource. Recommended practice is to identify the license document with a URI. If this is not possible or feasible, a literal value that identifies the license may be provided.",
-                 "OMV: Underlying license model." ]
-  metadataMappings: [ "dc:rights", "dcterms:rights", "dcterms:license", "cc:license", "schema:license" ]
-  helpText: "Underlying license model.&lt;br&gt;Consider using a &lt;a target=&quot;_blank&quot; href=&quot;http://rdflicense.appspot.com/&quot;&gt;URI to describe your License&lt;/a&gt;&lt;br&gt;Consider using a &lt;a target=&quot;_blank&quot; href=&quot;http://licentia.inria.fr/&quot;&gt;INRIA licentia&lt;/a&gt; to choose your license"
+  helpText: "A legal document giving official permission to do something with the resource. Recommended practice is to identify the license document with a URI. "
+  description: [ 
+    "DCTERMS: A legal document giving official permission to do something with the resource. Recommended practice is to identify the license document with a URI. If this is not possible or feasible, a literal value that identifies the license may be provided.",
+    "OMV: Underlying license model.", 
+    "SCHEMA: A license document that applies to this content, typically indicated by URL.",
+    "CC: A Work has a License.",
+    "DC: Information about rights held in and over the resource." ]
+  extractedMetadata: true
   enforcedValues: {
     "https://creativecommons.org/licenses/by/4.0/": "CC Attribution 4.0 International",
     "https://creativecommons.org/licenses/by/3.0/": "CC Attribution 3.0",
@@ -331,79 +257,241 @@ hasLicense:
     "https://opensource.org/licenses/BSD-3-Clause": "BSD 3-Clause License",
     "http://www.apache.org/licenses/LICENSE-2.0": "Apache License 2.0"
   }
-  display: "license"
+  metadataMappings: [ "dc:rights", "dcterms:rights", "dcterms:license", "cc:license", "schema:license" ]
 
+#Use guidelines
 useGuidelines:
-  extractedMetadata: true
+  display: "licensing"
   label: "Use guidelines"
-  description: "CC: A related resource which defines non-binding use guidelines for the work"
   helpText: "A related resource which defines how the ontology should be used."
-  display: "license"
-
-morePermissions:
-  description: "CC: A related resource which describes additional permissions or alternative licenses for a Work which may be available"
+  description: [ 
+    "CC: A related resource which defines non-binding use guidelines for the work." ]
   extractedMetadata: true
+
+#More permissions
+morePermissions:
+  display: "licensing"
   label: "More permissions"
   helpText: "A related resource which describes additional permissions or alternative licenses."
-  display: "license"
-
+  description: [ 
+    "CC: A related resource which describes additional permissions or alternative licenses for a Work which may be available." ]
+  extractedMetadata: true
+  
+#Rights holder
 copyrightHolder:
+  display: "licensing"
+  label: ""
+  helpText: ""
+  example: ''
+  description: [ 
+    "SCHEMA: The party holding the legal copyright to the CreativeWork.",
+    "DCTERMS: A person or organization owning or managing rights over the resource." ]
   extractedMetadata: false
-  label: "Rights holder"
-  description: [ "SCHEMA: The party holding the legal copyright to the CreativeWork.",
-                 "DCTERMS: A person or organization owning or managing rights over the resource." ]
-  helpText: "The party holding the legal copyright to the CreativeWork."
-  example: 'INRAE (003vg9w96)'
-  display: "license"
+  
+### Description
 
+#Description
+description:
+  display: "description" 
+  label: "Description"
+  helpText: "Free text description of an ontology."
+  example: ''
+  description: [ 
+    "DCTERMS: An account of the resource.",
+    "SCHEMA: A description of the item.",
+    "OMV: Free text description of an ontology.",
+    "DOAP: Plain text description of a project, of 2-4 sentences in length.","RDFS: A human-readable description of a resource." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:description", "dc:description", "dcterms:description", "doap:description", "schema:description", "oboInOwl:remark" ]
 
-# dates
+#Homepage
+  homepage:
+  display: "description" 
+  label: "Homepage"
+  helpText: ""
+  example: ''
+  description: [ 
+    "FOAF: A homepage for some thing.", 
+    "MOD: An unambiguous reference to the resource within a given context.", 
+    "DOAP: URI of a blog related to a project.",
+    "CC: The URL the creator of a Work would like used when attributing re-use.",
+    "SCHEMA: Indicates a page (or other CreativeWork) for which this thing is the main entity being described." ]
+  extractedMetadata: true
+  metadataMappings: [ "foaf:homepage", "cc:attributionURL", "mod:homepage", "doap:blog", "schema:mainEntityOfPage" ]
+
+#Documentation
+documentation:
+  display: "description" 
+  label: "Documentation"
+  helpText: "URL for further documentation."
+  description: [ 
+    "MOD: A link to the documentation page on a thing.",
+    "DCAT: A Web page that can be navigated to in a Web browser to gain access to the dataset, its distributions and/or additional information.",
+    "OMV: URL for further documentation.",
+    "RDFS: Further information about the subject resource.",
+    "DOAP: URL of Wiki for collaborative discussion of project.",
+    "VANN: A reference to a resource that provides information on how this resource is to be used.",
+    "FOAF: A page or document about this thing." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:documentation", "rdfs:seeAlso", "foaf:page", "vann:usageNote", "mod:document", "dcat:landingPage", "doap:wiki" ]
+  
+#Notes or comments
+notes:
+  display: "description" 
+  label: "Notes"
+  helpText: "Additional information about the ontology that is not included somewhere else."
+  description: [
+    "RDFS: A description of the subject resource.",
+    "OMV: Additional information about the ontology that is not included somewhere else (e.g. information that you do not want to include in the documentation).",
+    "ADMS: A description of changes between this version and the previous version of the Asset." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:notes", "rdfs:comment", "adms:versionNotes" ]
+
+#Keywords
+keywords:
+  display: "description" 
+  label: "Keywords"
+  helpText: "List of keywords related to an ontology."
+  description: [ 
+    "SCHEMA: Keywords or tags used to describe some item. Multiple textual entries in a keywords list are typically delimited by commas, or by repeating the property.",
+    "OMV: List of keywords related to an ontology.",
+    "DCAT: A keyword or tag describing a resource.",
+    "MOD: A keyword(s) is used to describe the content of an ontology." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:keywords", "mod:keyword", "dcat:keyword", "schema:keywords" ]
+
+#Hidden label
+hiddenLabel:
+  display: "description" 
+  label: "Hidden label"
+  helpText: "A lexical label for a resource that should be hidden when generating visual displays of the resource, but should still be accessible to free text search operations."
+  description: [ 
+    "SKOS: A lexical label for a resource that should be hidden when generating visual displays of the resource, but should still be accessible to free text search operations." ]
+  extractedMetadata: true
+  metadataMappings: [ "skos:hiddenLabel" ]
+  
+#Alternative name
+alternative:
+  display: "description" 
+  label: "Alternative name"
+  helpText: "An alternative name for the resource. The distinction between titles and alternative titles is application-specific."
+  description: [ 
+    "DCTERMS: An alternative name for the resource. The distinction between titles and alternative titles is application-specific.",
+    "SKOS: The preferred and alternative labels are useful when generating or creating human-readable representations of a knowledge organization system.",
+    "SCHEMA: An alias for the item. A short label that is used by some communities to refer to a dataset",
+    "IDOT: A short label that is used by some communities to refer to a dataset (see 'preferredPrefix')." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:alternative", "skos:altLabel", "idot:alternatePrefix", "schema:alternativeHeadline", "schema:alternateName" ]
+
+#Abstract
+abstract:
+  display: "description" 
+  label: "Abstract"
+  helpText: ""
+  example: ''
+  description: [ 
+    "DCTERMS: A summary of the resource." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:abstract" ]
+
+#Bibliographic reference
+publication:
+  display: "description" 
+  label: "Bibliographic reference"
+  helpText: "List of bibliographic references describing the ontology and its applications."
+  description: [ 
+    "SCHEMA: A citation or reference to another creative work, such as another publication, web page, scholarly article, etc.",
+    "DCTERMS: A bibliographic reference for the resource.",
+    "OMV: List of bibliographic references describing the ontology and its applications.",
+    "FOAF: A document that this thing is the primary topic of.",
+    "CITO: The citing entity cites the cited entity as one that provides an authoritative description or definition of the subject under discussion." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:reference", "dcterms:bibliographicCitation", "foaf:isPrimaryTopicOf", "schema:citation", "cito:citesAsAuthority" ]
+
+### Dates
+
+#Creation date
 creationDate:
-  extractedMetadata: true
-  description: [ "DCTERMS: Date of submission of the resource.", "SCHEMA: Date of first broadcast/publication." ]
-  metadataMappings: [ "dcterms:dateSubmitted", "schema:datePublished" ]
+  display: "dates"
   label: "Creation date"
-  display: "dates"
+  helpText: "Date of original (or first) creation of the resource."
+  description: [ 
+    "DCTERMS:date: A point or period of time associated with an event in the lifecycle of the resource.",
+    "DCTERMS:created: Date of creation of the resource.", 
+    "DCTERMS:issued: Date of formal issuance (e.g., publication) of the resource.",
+    "PROV: Generation is the completion of production of a new entity by an activity. This entity did not exist before generation and becomes available for usage after this generation.",
+    "PAV:authoredOn: The date this resource was authored.",
+    "PAV:contributedOn: The date this resource was contributed to.",
+    "PAV:createdOn: The date of creation of the resource representation.",
+    "DOAP: Date when something was created, in YYYY-MM-DD form. e.g. 2004-04-05.",
+    "SCHEMA: The date on which the CreativeWork was created or the item was added to a DataFeed.",
+    "DOAP: Date when something was created, in YYYY-MM-DD form. e.g. 2004-04-05." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:created", "dcterms:date", "dcterms:issued", "doap:created", "mod:creationDate",  "oboInOwl:hasDate", "oboInOwl:date", "omv:creationDate", "pav:createdOn", "pav:authoredOn", "pav:contributedOn", "prov:generatedAtTime", "schema:dateCreated"]
 
+#Modification date
 modificationDate:
-  extractedMetadata: true
-  description: [ "DCTERMS: Date on which the resource was changed",
-                 "SCHEMA: The date on which the CreativeWork was most recently modified or when the item's entry was modified within a DataFeed.",
-                 "OMV: Date of the last modification made to the ontology",
-                 "PAV: The date of the last update of the resource" ]
-  metadataMappings: [ "dcterms:modified", "schema:dateModified", "pav:lastUpdateOn", "mod:updated" ]
-  helpText: "Date of the last modification made to the ontology"
+  display: "dates"
   label: "Modification date"
-  display: "dates"
-
-released:
+  helpText: "Date of the last modification made to the ontology."
+  description: [ 
+    "DCTERMS: Date on which the resource was changed.",
+    "SCHEMA: The date on which the CreativeWork was most recently modified or when the item's entry was modified within a DataFeed.",
+    "OMV: Date of the last modification made to the ontology.",
+    "PAV: The date of the last update of the resource." ]
   extractedMetadata: true
-  description: [ "DCTERMS: Date of submission of the resource.",
-                 "SCHEMA: Date of first broadcast/publication." ]
-  label: "Release date"
-  helpText: "Date of the ontology release."
-  metadataMappings: [ "omv:creationDate", "dc:date", "dcterms:date", "dcterms:issued", "mod:creationDate", "doap:created", "schema:dateCreated","prov:generatedAtTime", "pav:createdOn", "pav:authoredOn", "pav:contributedOn", "oboInOwl:date", "oboInOwl:hasDate" ]
-  display: "dates"
-
+  metadataMappings: [ "omv:modificationDate", "dcterms:modified", "schema:dateModified", "pav:lastUpdateOn" ]
+  
+#Validity date
 valid:
-  extractedMetadata: true
-  description: [ "DCTERMS: Date (often a range) of validity of a resource.",
-                 "SCHEMA: The end date and time of the item.",
-                 "PROV: Invalidation is the start of the destruction, cessation, or expiry of an existing entity by an activity. The entity is no longer available for use (or further invalidation) after invalidation. Any generation or usage of an entity precedes its invalidation." ]
-  label: "Valid until"
-  metadataMappings: [ "prov:invaliatedAtTime", "schema:endDate" ]
-  helpText: "Date (often a range) of validity of the ontology."
   display: "dates"
-
+  label: "Validity date"
+  helpText: "Date (often a range) of validity of a resource."
+  description: [ 
+    "DCTERMS: Date (often a range) of validity of a resource.",
+    "SCHEMA: The end date and time of the item.",
+    "PROV: Invalidation is the start of the destruction, cessation, or expiry of an existing entity by an activity. The entity is no longer available for use (or further invalidation) after invalidation. Any generation or usage of an entity precedes its invalidation." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:valid", "prov:invaliatedAtTime", "schema:endDate" ]
+   
+#Curation date
 curatedOn:
-  extractedMetadata: true
-  label: "Curation date"
-  description: "PAV: Specifies the date this resource was curated. pav:curatedBy gives the agents that performed the curation."
-  helpText: "The date the ontology was curated."
-  example: '2022-09-06'
   display: "dates"
+  label: "Curation date"
+  helpText: "Specifies the date this resource was curated. pav:curatedBy gives the agents that performed the curation."
+  description: [ 
+    "PAV: Specifies the date this resource was curated. pav:curatedBy gives the agents that performed the curation." ]
+  extractedMetadata: true
+  metadataMappings: [ "ns:propname", ".." ]
 
-# people
+#Submission date 
+released:
+  display: "dates"
+  label: "Submission date"
+  helpText: "Date of the submission/release in hte portal."
+  description: [
+    "DCTERMS: Date of submission of the resource.",
+    "SCHEMA: Date of first broadcast/publication." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:dateSubmitted", "schema:datePublished" ]
+
+### Persons and organizations
+
+#Contact
+
+#Creator
+
+#Contributor
+
+#Curator
+
+#Translator
+
+#Publisher
+
+#Funded or sponsored by
+
+#Endorsed by
 
 contact:
   helpText: "The people to contact when questions about the ontology. Composed of the contacts name and email."
@@ -490,7 +578,30 @@ translator:
   display: "people"
 
 
-# community
+### Community
+
+#User notes or reviews
+
+#Evaluation
+
+#Group
+
+#Used in project
+
+#Target audience
+
+#Analytics
+
+#Repository
+
+#Bug database
+
+#Mailing list
+
+#To Do List
+
+#Award
+
 audience:
   extractedMetadata: true
   label: "Audience"
@@ -537,8 +648,58 @@ award:
   helpText: "An award won by this ontology."
   display: "community"
 
+### Usage
 
-# methodology
+#Known usage
+
+#Designed for task
+
+#Subject
+
+#Coverage
+
+#Example of use
+
+### Methodology
+
+#Knowledge representation paradigm
+
+#Engineering Methodology
+
+#Created with
+
+#Accrual method
+
+#Accrual periodicity
+
+#Accrual policy
+
+#Competency question
+
+#Sample queries
+
+#Was generated by
+
+#Was invalidated by
+
+###Object description properties
+
+#Object preferred label property
+
+#Object synonym property
+
+#Object definition property
+
+#Object author property
+
+#Object obsolete property
+
+#Object creation date property
+
+#Object modification date property
+
+#Hierarchy property
+
 wasGeneratedBy:
   extractedMetadata: true
   description: [ "PROV: Generation is the completion of production of a new entity by an activity. This entity did not exist before generation and becomes available for usage after this generation" ]
@@ -651,7 +812,27 @@ usedOntologyEngineeringTool:
   }
   display: "methodology"
 
-# links
+### Links
+
+#Access URL 
+
+#Is format of
+
+#Has format
+
+#Download URL
+
+#URI look endpoint
+
+#Free-text search endpoint
+
+#Browsing user interface
+
+#Source
+
+#SPARQL endpoint
+
+#Indexed or Included in catalog or repository
 
 pullLocation:
   extractedMetadata: true
@@ -775,7 +956,45 @@ includedInDataCatalog:
   display: "links"
 
 
-# relations
+### Relation
+
+#Imports
+
+#Prior version
+
+#Is part of (view of)
+
+#Has part (has views)
+
+#Specializes
+
+#Generalizes
+
+#Used by
+
+#Relies on
+
+#Relation
+
+#Generaly related to
+
+#Similar to
+
+#Comes from the same domain
+
+#Has equivalences with
+
+#Backward Compatible
+
+#Incompatible
+
+#Disparate modelling with
+
+#Has disjunctions with 
+
+#Translation
+
+#Translation of
 
 useImports:
   extractedMetadata: true
@@ -932,7 +1151,32 @@ hasDisjunctionsWith:
   display: "relations"
 
 
-# content
+### Content
+
+#Identifier pattern
+
+#Preferred Namespace URI
+
+#Preferred Namespace Prefix
+
+#Root of obsolete branch
+
+#Example of resource
+
+#Key classes
+
+#Metadata vocabulary used
+
+#Root resources
+
+#Classes partition
+
+#Properties partition
+
+#Has version
+
+#Changes
+
 diffFilePath:
   label: "Changes"
   description: [ "VANN: A reference to a resource that describes changes between this version of a vocabulary and the previous"]
@@ -1071,7 +1315,14 @@ example:
 
 
 
-# images
+### Media
+
+#Associated media
+
+#Depiction
+
+#Logo
+
 depiction:
   extractedMetadata: true
   label: "Depiction"
@@ -1203,6 +1454,21 @@ hierarchyProperty:
   }
   display: "object description properties"
 
+### Metrics
 
-
+#Number of classes
+#Number of individuals
+#Number of properties
+#Number of object properties
+#Number of data properties
+#Number of axioms or triples
+#Number of labels
+#Number of deprecated objects
+#Byte size
+#Maximum depth of the hierarchy
+#Maximum number of children per class
+#Average number of children per class
+#Number of classes with a single child
+#Number of classes with more than 25 children
+#Number of classes with no definition
 
