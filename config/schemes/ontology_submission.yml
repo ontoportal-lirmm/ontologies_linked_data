@@ -1,4 +1,21 @@
-# general
+
+###Template
+
+#propname:
+#  display: "general" / 
+#  label: ""
+#  helpText: ""
+#  example: ''
+#  description: [ 
+#    "ACRO: description."
+#    "ACRO: description." ]
+#  extractedMetadata: true / false
+#  enforcedValues: [ 
+#    "..",
+#    ".." ]
+#  metadataMappings: [ "ns:propname", ".." ]
+
+### General
 
 URI:
   extractedMetadata: true
