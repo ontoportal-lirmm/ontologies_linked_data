@@ -1379,137 +1379,154 @@ translationOfWork:
 ### Content
 
 #Identifier pattern
+uriRegexPattern:
+  display: "content"
+  label: "Identifier pattern"
+  helpText: "A regular expression that matches the URIs of a void:Dataset's entities."
+  example: 'http://purl.obolibrary.org/obo/ENVO_'
+  description: [ 
+    "VOID: A regular expression that matches the URIs of a void:Dataset's entities.", 
+    "IDOT: Regular expression describing alphanumeric strings used to identify items (or records) in a dataset.ACRO: description." ]
+  extractedMetadata: true
+  metadataMappings: [ "void:uriRegexPattern", "idot:identifierPattern" ]
 
 #Preferred Namespace URI
+preferredNamespaceUri:
+  display: "content"
+  label: "Preferred namespace URI"
+  helpText: "The preferred namespace URI to use when using terms from this vocabulary in an XML document."
+  example: ''
+  description: [ 
+    "VANN: The preferred namespace URI to use when using terms from this vocabulary in an XML document.",
+    "VOID: A URI that is a common string prefix of all the entity URIs in a void:Dataset." ]
+  extractedMetadata: true
+  metadataMappings: [ "void:uriSpace", "vann:preferredNamespaceUri" ]
 
 #Preferred Namespace Prefix
+preferredNamespacePrefix:
+  display: "content"
+  label: "Preferred namespace prefix"
+  helpText: "The preferred namespace prefix to use when using terms from this ontology."
+  example: ''
+  description: [ 
+    "VANN: The preferred namespace prefix to use when using terms from this vocabulary in an XML document.",
+    "IDOT: Short label that is commonly used to refer to the dataset. Often used to identify the dataset in IRIs for specific items (or records). This may also stand in place of the base IRI of the dataset (e.g. see http://prefix.cc)." ]
+  extractedMetadata: true
+  metadataMappings: [ "vann:preferredNamespacePrefix", "idot:preferredPrefix", "oboInOwl:default-namespace", "oboInOwl:hasDefaultNamespace" ]
 
 #Root of obsolete branch
+obsoleteParent:
+  display: "content"
+  label: "Root of obsolete branch"
+  helpText: "Property used to specify the root of an obsolete branch in the ontology."
+  description: [ 
+    "MOD: Property used to specify the root of an obsolete branch in the ontology." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:obsoleteParent" ]
 
 #Example of resource
+exampleIdentifier:
+  display: "content"
+  label: "Example of resource"
+  helpText: "An example identifier used by one item in the ontology."
+  description: [ 
+    "VOID: Example resource of dataset.",
+    "IDOT: An example identifier used by one item (or record) from a dataset." ]
+  extractedMetadata: false
+  metadataMappings: [ "void:exampleResource", "idot:exampleIdentifier" ]
 
 #Key classes
+keyClasses:
+  display: "content"
+  label: "Key classes"
+  helpText: "Representative classes in the ontology."
+  description: [
+    "OMV: Representative classes in the ontology.",
+    "FOAF: The primary topic of some page or document.",
+    "SCHEMA: Indicates the primary entity described in some page or other CreativeWork." ]
+  extractedMetadata: false
+  metadataMappings: [ "foaf:primaryTopic", "schema:mainEntity", "omv:keyClasses"]
 
 #Metadata vocabulary used
-
-#Root resources
-
-#Classes partition
-
-#Properties partition
-
-#Has version
-
-#Changes
-
-diffFilePath:
-  label: "Changes"
-  description: [ "VANN: A reference to a resource that describes changes between this version of a vocabulary and the previous"]
-  metadataMappings: [ "vann:changes"]
-  display: "content"
-
-
-exampleIdentifier:
-  extractedMetadata: false
-  label: "Example of resource"
-  description: [ "VOID: Example resource of dataset.",
-                 "IDOT: An example identifier used by one item (or record) from a dataset." ]
-  helpText: "An example identifier used by one item (or record) from a dataset."
-  display: "content"
-
-preferredNamespacePrefix:
-  extractedMetadata: true
-  label: "Preferred namespace prefix"
-  description: [ "VANN: The preferred namespace prefix to use when using terms from this vocabulary in an XML document.",
-                 "IDOT: Short label that is commonly used to refer to the dataset. Often used to identify the dataset in IRIs for specific items (or records). This may also stand in place of the base IRI of the dataset (e.g. see http://prefix.cc)." ]
-  metadataMappings: [ "idot:preferredPrefix", "oboInOwl:default-namespace", "oboInOwl:hasDefaultNamespace" ]
-  helpText: "The preferred namespace prefix to use when using terms from this ontology."
-  display: "content"
-
-preferredNamespaceUri:
-  extractedMetadata: true
-  label: "Preferred namespace URI"
-  description: [ "VANN: The preferred namespace URI to use when using terms from this vocabulary in an XML document.",
-                 "VOID: A URI that is a common string prefix of all the entity URIs in a void:Dataset" ]
-  metadataMappings: [ "void:uriSpace" ]
-  helpText: "The preferred namespace URI to use when using terms from this ontology."
-  example: 'http://purl.obolibrary.org/obo/ENVO_'
-  display: "content"
-
-
-uriRegexPattern:
-  extractedMetadata: true
-  description: "VOID: A protocol endpoint for simple URI lookups for a void:Dataset."
-  metadataMappings: [ "idot:identifierPattern" ]
-  label: "URI Regex Pattern"
-  helpText: "A regular expression that matches the URIs of the ontology entities."
-  display: "content"
-
 metadataVoc:
-  extractedMetadata: true
-  description: [ "VOAF: Indicates that the subject vocabulary uses the object vocabulary in metadata at vocabulary or element level",
-                 "SCHEMA: Indicates (by URL or string) a particular version of a schema used in some CreativeWork.",
-                 "ADMS: A schema according to which the Asset Repository can provide data about its content, e.g. ADMS.",
-                 "MOD: A vocabulary(ies) that is used and/or referred to create the current ontology." ]
+  display: "content"
   label: "Metadata vocabulary used"
-  metadataMappings: [ "mod:vocabularyUsed", "adms:supportedSchema", "schema:schemaVersion" ]
-  helpText: "Vocabularies that are used and/or referred to create the described ontology."
-  display: "content"
-
-
-keyClasses:
+  helpText: "Indicates that the subject vocabulary uses the object vocabulary in metadata at vocabulary or element level."
+  description: [ 
+    "VOAF: Indicates that the subject vocabulary uses the object vocabulary in metadata at vocabulary or element level.",
+    "SCHEMA: Indicates (by URL or string) a particular version of a schema used in some CreativeWork.",
+    "ADMS: A schema according to which the Asset Repository can provide data about its content, e.g. ADMS.",
+    "MOD: A vocabulary(ies) that is used and/or referred to create the current ontology." ]
   extractedMetadata: false
-  description: [ "OMV: Representative classes in the ontology.",
-                 "FOAF: The primary topic of some page or document.",
-                 "SCHEMA: Indicates the primary entity described in some page or other CreativeWork." ]
-  metadataMappings: [ "foaf:primaryTopic", "void:exampleResource", "schema:mainEntity" ]
-  helpText: "Representative classes in the ontology."
-  label: "Key classes"
-  display: "content"
-
-obsoleteParent:
-  extractedMetadata: true
-  description: [ "MOD: property used to specify the root of an obsolete branch in the ontology." ]
-  metadataMappings: [ "doap:download-page" , "dcat:accessURL" , "omv:resourceLocator" ]
-  label: "Root of obsolete branch"
-  display: "content"
-
-
-
-
+    enforcedValues: { 
+      "http://w3id.org/nkos/nkostype#classification_schema": "Classification scheme",
+      "http://www.w3.org/2000/01/rdf-schema#": "RDF Schema (RDFS)",
+      "http://www.w3.org/2002/07/owl#": "OWL 2 Web Ontology Language (OWL)",
+      "http://www.w3.org/2004/02/skos/core#": "Simple Knowledge Organization System (SKOS)",
+      "http://purl.org/dc/elements/1.1/": "Dublin core (DC)",
+      "http://purl.org/dc/terms/": "Dublin core (DCTERMS)",
+      "http://omv.ontoware.org/2005/05/ontology#": "Ontology Metadata Vocabulary (OMV)",
+      "http://www.isibang.ac.in/ns/mod#": "Metadata for Ontology Description and Publication (MOD 1)",
+      "https://w3id.org/mod": "Metadata for Ontology Description and Publication (MOD 2)",
+      "http://kannel.open.ac.uk/ontology#": "Descriptive Ontology of Ontology Relations (DOOR)",
+      "http://purl.org/vocommons/voaf#": "Vocabulary of a Friend (VOAF)",
+      "http://rdfs.org/ns/void#": "Vocabulary of Interlinked Datasets (VOID)",
+      "http://biomodels.net/vocab/idot.rdf#": "Identifiers.org (IDOT)",
+      "http://purl.org/vocab/vann/": "Vocabulary for annotating vocabulary descriptions (VANN)",
+      "http://www.w3.org/ns/dcat#": "Data Catalog Vocabulary (DCAT)",
+      "http://www.w3.org/ns/adms#": "Asset Description Metadata Schema (ADMS)",
+      "http://schema.org/": "Schema.org (SCHEMA)",
+      "http://xmlns.com/foaf/0.1/": "Friend of a Friend Vocabulary (FOAF)",
+      "http://usefulinc.com/ns/doap#": "Description of a Project (DOAP)",
+      "http://creativecommons.org/ns#": "Creative Commons Rights Expression Language (CC)",
+      "http://www.w3.org/ns/prov#": "Provenance Ontology (PROV)",
+      "http://purl.org/pav/": "Provenance, Authoring and Versioning (PAV)",
+      "http://www.geneontology.org/formats/oboInOwl#": "OboInOwl Mappings (OBOINOWL)",
+      "http://www.w3.org/ns/sparql-service-description#": "SPARQL 1.1 Service Description (SD)",
+      "http://w3id.org/nkos#": "Networked Knowledge Organization Systems Dublin Core Application Profile (NKOS)"
+    }
+  metadataMappings: [ "mod:metadataVoc", "mod:vocabularyUsed", "adms:supportedSchema", "schema:schemaVersion", "voaf:metadataVoc"]
+  
+#Root resources => Ontology object (roots)
+#Classes partition  => Ontology object (classes)
+#Properties partition  => Ontology object (properties)
+#Has version => Ontology object (submissions)
+#Changes => Ontology object (diffFilePath)
 
 ### Media
 
 #Associated media
+associatedMedia:
+  display: "media" 
+  label: "The URL of a media associated to the ontology."
+  helpText: "A media object that encodes this ontology. This property is a synonym for encoding."
+  description: [ 
+    "SCHEMA: A media object that encodes this CreativeWork. This property is a synonym for encoding." ]
+  extractedMetadata: true
+  metadataMappings: [ "schema:associatedMedia" ]
 
 #Depiction
-
-#Logo
-
 depiction:
-  extractedMetadata: true
+  display: "media" 
   label: "Depiction"
-  description: [ "FOAF: A depiction of something.",
-                 "DOAP: Web page with screenshots of project. An image of the item. SCHEMA: An image of the item. This can be a URL or a fully described ImageObject." ]
+  helpText: "The URL of an image or depiction representing the ontology."
+  description: [ 
+    "FOAF: A depiction of something.",
+    "DOAP: Web page with screenshots of project. An image of the item. SCHEMA: An image of the item. This can be a URL or a fully described ImageObject.", 
+    "SCHEMA: An image of the item. This can be a URL or a fully described ImageObject." ]
+  extractedMetadata: true
   metadataMappings: [ "doap:screenshots", "schema:image" ]
-  helpText: "The URL of an image representing the ontology."
-  display: "images"
-
+  
+#Logo
 logo:
-  extractedMetadata: true
+  display: "media" 
   label: "Logo"
-  description: [ "FOAF: A logo representing something.",
-                 "SCHEMA: An associated logo." ]
-  metadataMappings: [ "schema:logo" ]
   helpText: "The URL of the ontology logo."
-  display: "images"
-
-associatedMedia:
+  description: [
+    "FOAF: A logo representing something.",
+    "SCHEMA: An associated logo." ]
   extractedMetadata: true
-  label: "Associated media"
-  description: "SCHEMA: A media object that encodes this CreativeWork. This property is a synonym for encoding"
-  display: "images"
-  helpText: "A media object that encodes this ontology. This property is a synonym for encoding."
+  metadataMappings: [ "schema:logo", "foaf:logo"]
 
 ### Metrics
 
