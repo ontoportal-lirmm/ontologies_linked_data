@@ -1017,110 +1017,131 @@ hierarchyProperty:
 ### Links
 
 #Access URL 
+pullLocation:
+  display: "links" 
+  label: "Access URL"
+  helpText: ""
+  description: [
+      "DCAT: A URL of a resource that gives access to a distribution of the dataset. E.g. landing page, feed, SPARQL endpoint.",
+      "OMV: The location where the ontology can be found.",
+      "DOAP:  Web page from which the project software can be downloaded" ]
+  extractedMetadata: true
+  metadataMappings: [ "doap:download-page" , "dcat:accessURL" , "omv:resourceLocator" ]
 
 #Is format of
+isFormatOf:
+  display: "links" 
+  label: "Is format of"
+  helpText: "A related resource that is substantially the same as the described resource, but in another format."
+  description: [ 
+    "DCTERMS: A related resource that is substantially the same as the described resource, but in another format." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:isFormatOf" ]
 
 #Has format
+hasFormat:
+  display: "links" 
+  label: "Has format"
+  helpText: "A related resource that is substantially the same as the pre-existing described resource, but in another format."
+  description: [ 
+    "DCTERMS: A related resource that is substantially the same as the pre-existing described resource, but in another format." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:hasFormat" ]
 
 #Download URL
-
-#URI look endpoint
-
-#Free-text search endpoint
-
-#Browsing user interface
-
-#Source
-
-#SPARQL endpoint
-
-#Indexed or Included in catalog or repository
-
-pullLocation:
+dataDump:
+  display: "links" 
+  label: "Download URL"
+  helpText: "An RDF dump, partial or complete, of an ontology."
+  description: [
+    "DCAT: The URL of the downloadable file in a given format. E.g. CSV file or RDF file. The format is indicated by the distribution's dcterms:format and/or dcat:mediaType.",
+    "VOID: An RDF dump, partial or complete, of a void:Dataset.",
+    "DOAP: Mirror of software download web page.",
+    "SCHEMA: A downloadable form of this dataset, at a specific location, in a specific format." ]
   extractedMetadata: true
-  description: [ "DCAT: A URL of a resource that gives access to a distribution of the dataset. E.g. landing page, feed, SPARQL endpoint.",
-                 "OMV: The location where the ontology can be found.",
-                 "DOAP:  Web page from which the project software can be downloaded" ]
-  metadataMappings: [ "doap:download-page" , "dcat:accessURL" , "omv:resourceLocator" ]
-  label: "Access URL"
-  display: "links"
-
-uriLookupEndpoint:
-  extractedMetadata: true
-  description: "VOID: A protocol endpoint for simple URI lookups for a void:Dataset."
-  label: "URI Lookup Endpoint"
-  helpText: "A protocol endpoint for simple URI lookups for the ontology."
-  display: "links"
-
-openSearchDescription:
-  extractedMetadata: true
-  label: "Free-text search endpoint"
-  description: "VOID: An OpenSearch description document for a free-text search service over a void:Dataset. "
-  metadataMappings: [ "doap:service-endpoint" ]
-  display: "links"
-
-endpoint:
-  extractedMetadata: true
-  label: "SPARQL endpoint"
-  description: [ "SD: Relates an instance of sd:Service to a SPARQL endpoint that implements the SPARQL Protocol service for the service. The object of the sd:endpoint property is an IRI.",
-                 "VOID: A SPARQL protocol endpoint that allows SPARQL query access to a void:Dataset." ]
-  metadataMappings: [ "void:sparqlEndpoint" ]
-  display: "links"
+  metadataMappings: [ "void:dataDump", "schema:distribution", "doap:download-mirror", "dcat:downloadURL" ]
 
 csvDump:
+  display: "links"
   label: "CSV dump"
-  display: "links"
+  helpText: "A CSV dump, partial or complete, of an ontology."
+  extractedMetadata: false
 
-
-dataDump:
+#URI look endpoint
+uriLookupEndpoint:
+  display: "links" 
+  label: "URI Lookup Endpoint"
+  helpText: "A protocol endpoint for simple URI lookups for the ontology."
+  description: [ 
+    "VOID: A protocol endpoint for simple URI lookups for a void:Dataset." ]
   extractedMetadata: true
-  label: "Download URL"
-  description: [ "DCAT: The URL of the downloadable file in a given format. E.g. CSV file or RDF file. The format is indicated by the distribution's dcterms:format and/or dcat:mediaType.",
-                 "VOID: An RDF dump, partial or complete, of a void:Dataset.",
-                 "DOAP: Mirror of software download web page.",
-                 "SCHEMA: A downloadable form of this dataset, at a specific location, in a specific format." ]
-  metadataMappings: [ "schema:distribution", "doap:download-mirror" ]
-  display: "links"
+  metadataMappings: [ "void:uriLookupEndpoint" ]
 
+#Free-text search endpoint
+openSearchDescription:
+  display: "links" 
+  label: "Free-text search endpoint"
+  helpText: "An open search description document for a free-text search service over an ontology."
+  description: [ 
+    "VOID: An OpenSearch description document for a free-text search service over a void:Dataset." ]
+  extractedMetadata: true
+  metadataMappings: [ "void:openSearchDescription" ]
+
+#Browsing user interface
+ui:
+  display: "links" 
+  label: "Browsing user interface"
+  helpText: "The user interface (URL) where the ontology may be browsed or searched."
+  description: [ 
+    "MOD: The user interface (URL) where the ontology may be browsed or searched." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:browsingUI" ]
+
+#Source
 source:
-  extractedMetadata: true
-  description: [ "CTERMS: A related resource from which the described resource is derived",
-                 "SCHEMA: A resource from which this work is derived or from which it is a modification or adaptation.",
-                 "PROV: A derivation is a transformation of an entity into another, an update of an entity resulting in a new one, or the construction of a new entity based on a pre-existing entity.",
-                 "PROV: Influence is the capacity of an entity, activity, or agent to have an effect on the character, development, or behavior of another by means of usage, start, end, generation, invalidation, communication, derivation, attribution, association, or delegation.",
-                 "PAV: Derived from a different resource.",
-                 "NKOS: A resource used as the source for a derivative resource." ]
+  display: "links" 
   label: "Source"
-  metadataMappings: [ "dc:source", "prov:wasInfluencedBy", "prov:wasDerivedFrom", "pav:derivedFrom", "schema:isBasedOn", "nkos:basedOn", "mod:sourceOntology" ]
   helpText: "A related resource from which the described resource is derived."
-  display: "links"
-
-
-isFormatOf:
+  description: [ 
+    "DCTERMS: A related resource from which the described resource is derived.",
+    "SCHEMA: A resource from which this work is derived or from which it is a modification or adaptation.",
+    "PROV:prov:wasDerivedFrom: A derivation is a transformation of an entity into another, an update of an entity resulting in a new one, or the construction of a new entity based on a pre-existing entity.",
+    "PROV:wasInfluencedBy: Influence is the capacity of an entity, activity, or agent to have an effect on the character, development, or behavior of another by means of usage, start, end, generation, invalidation, communication, derivation, attribution, association, or delegation.",
+    "PAV: Derived from a different resource.",
+    "NKOS: A resource used as the source for a derivative resource.", 
+    "MOD: The ontology(ies) referred to while creating the present ontology." ]
   extractedMetadata: true
-  label: "Is format of"
-  description: "DCTERMS: A related resource that is substantially the same as the described resource, but in another format"
-  helpText: "URL to the original document that describe this ontology in a not ontological format (i.e.: the OBO original file)"
-  display: "links"
+  metadataMappings: [ "ns:propname", ".." ]
 
-
-hasFormat:
+#SPARQL endpoint
+endpoint:
+  display: "links" 
+  label: "SPARQL endpoint"
+  helpText: "Relates an instance of sd:Service to a SPARQL endpoint that implements the SPARQL Protocol service for the service."
+  description: [ 
+    "SD: Relates an instance of sd:Service to a SPARQL endpoint that implements the SPARQL Protocol service for the service. The object of the sd:endpoint property is an IRI.",
+    "VOID: A SPARQL protocol endpoint that allows SPARQL query access to a void:Dataset." ]
   extractedMetadata: true
-  label: "Has format"
-  description: "DCTERMS: A related resource that is substantially the same as the described resource, but in another format"
-  helpText: "URL to a document that describe this ontology in a not ontological format (i.e.: the OBO original file) generated from this ontology."
-  display: "links"
-
-
+  metadataMappings: [ "sd:endpoint", "void:sparqlEndpoint" ]
+  
+#Indexed or Included in catalog or repository
 includedInDataCatalog:
-  extractedMetadata: true
-  label: "Indexed or Included in catalog or repository"
-  description: "SCHEMA: A data catalog which contains this dataset."
+  display: "links" 
+  label: "Indexed or included in catalog or repository"
   helpText: "A data catalog which contains this ontology (i.e.: OBOfoundry, aber-owl, EBI, VEST registry...)."
+  description: [ 
+    "SCHEMA: A data catalog which contains this dataset." ]
+  extractedMetadata: true
   enforcedValues: {
     "bioportal.bioontology.org": "NCBO BioPortal",
     "agroportal.lirmm.fr": "AgroPortal",
     "bioportal.lirmm.fr": "SIFR BioPortal",
+    "ecoportal.lifewatchitaly.eu": "LifeWatch EcoPortal",
+    "medportal.bmicc.cn": "MedPortal",
+    "matportal.org": "MatPortal",
+    "industryportal.enit.fr": "IndustryPortal", 
+    "earthportal.eu": "EarthPortal", 
+    "biodivportal.gfbio.org": "BiodivPortal",
     "ebi.ac.uk/ols": "EBI OLS",
     "ontobee.org": "Ontobee",
     "ontohub.org": "OntoHub",
@@ -1129,9 +1150,6 @@ includedInDataCatalog:
     "onki.fi": "ONKI Ontology Library Service",
     "mmisw.org": "MMI ORR",
     "cor.esipfed.org": "ESIP COR",
-    "ecoportal.lifewatchitaly.eu": "LifeWatch EcoPortal",
-    "matportal.org": "MatPortal",
-    "medportal.bmicc.cn": "MedPortal",
     "hetop.eu": "CISMeF HeTOP",
     "finto.fi": "FINTO",
     "vocabs.ardc.edu.au": "ANDC RVA" ,
@@ -1154,205 +1172,210 @@ includedInDataCatalog:
     "vocab.linkeddata.es": "VOCAB OEG",
     "liveschema.eu": "LiveSchema",
     "protegewiki.stanford.edu/wiki/Protege_Ontology_Library": "Protege Ontology Library"
-  }
-  display: "links"
-
+    }
+    metadataMappings: [ "schema:includedInDataCatalog" ]
 
 ### Relation
 
 #Imports
+useImports:
+  display: "relations"
+  label: "Imports"
+  helpText: "References another ontology metadata instance that describes an ontology containing definitions, whose meaning is considered to be part of the meaning of the ontology described by this ontology metadata instance."
+  description: [ 
+    "OWL: References another OWL ontology containing definitions, whose meaning is considered to be part of the meaning of the importing ontology.",
+    "OMV: References another ontology metadata instance that describes an ontology containing definitions, whose meaning is considered to be part of the meaning of the ontology described by this ontology metadata instance.",
+    "DCTERMS: A related resource that is required by the described resource to support its function, delivery, or coherence.",
+    "VOAF: Indicates that the subject vocabulary extends the expressivity of the object vocabulary by declaring subsumption relationships, using object vocabulary class as domain or range of a subject vocabulary property, defining local restrictions etc." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:useImports", "owl:imports", "voaf:extends", "dcterms:requires", "oboInOwl:import" ]
 
 #Prior version
-
+hasPriorVersion:
+  display: "relations"
+  label: "Prior version"
+  helpText: "Contains a reference to another ontology metadata instance."
+  description: [ 
+    "OWL: c This identifies the specified ontology as a prior version of the containing ontology.",
+    "OMV: Contains a reference to another ontology metadata instance.",
+    "DCTERMS: A related resource of which the described resource is a version, edition, or adaptation.",
+    "PROV: A revision is a derivation for which the resulting entity is a revised version of some original. The implication here is that the resulting entity contains substantial content from the original.",
+    "DOOR: Prior version relation from OWL.",
+    "ADMS: A link to the previous version of the Asset." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:hasPriorVersion", "owl:priorVersion", "dcterms:isVersionOf", "door:priorVersion", "prov:wasRevisionOf", "adms:prev" ]
+  
 #Is part of (view of) => Ontology object (bpm:viewOf)
 
 #Has part (has views)
+hasPart:
+  display: "relations"
+  label: "Has part (has views)"
+  helpText: "A related resource that is included either physically or logically in the described resource."
+  description: [ 
+    "DCTERMS: A related resource that is included either physically or logically in the described resource.",
+     "SCHEMA: Indicates an item or CreativeWork that is part of this item, or CreativeWork (in some sense).",
+     "ADMS: Links to a sample of an Asset (which is itself an Asset)." ]
+  extractedMetadata: true
+  metadataMappings: [ "dcterms:hasPart", "schema:hasPart", "oboInOwl:hasSubset", "adms:sample" ]
 
 #Specializes
-
+explanationEvolution:
+  display: "relations"
+  label: "Specializes"
+  helpText: "Evolution which involves only at the syntactic level."
+  description: [ 
+    "DOOR: Evolution which involves only at the syntactic level.",
+    "PROV: An entity that is a specialization of another shares all aspects of the latter, and additionally presents more specific aspects of the same thing as the latter.",
+    "VOAF:Indicates that the subject vocabulary defines some subclasses or subproperties of the object vocabulary, or local restrictions on those.",
+    "MOD: An ontology that is a specialization of another and presents more specific aspects." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:specializes", "door:explanationEvolution", "voaf:specializes", "prov:specializationOf" ]
+  
 #Generalizes
+generalizes:
+  display: "relations"
+  label: "Generalizes"
+  helpText: "Indicates that the subject vocabulary generalizes by some superclasses or super properties the object vocabulary."
+  description: [ 
+    "VOAF: Indicates that the subject vocabulary generalizes by some superclasses or super properties the object vocabulary.",
+    "MOD: An ontology that is a generalization of another and presents more generic aspects.",
+    "PROV: Inverse property of specializationOf." ]
+  extractedMetadata: true
+  metadataMappings: [ "voaf:generalizes", "mod:generalizes", "prov:generalizationOf" ]
 
 #Used by
-
+usedBy:
+  display: "relations"
+  label: "Used by"
+  helpText: "Indicates that the subject vocabulary is used by the object vocabulary."
+  description: [ 
+    "VOAF: Indicates that the subject vocabulary is used by the object vocabulary.",
+    "NKOS: Agent using the described KOS.",
+    "MOD: Ontologies that use the described ontology." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:usedBy", "voaf:usedBy", "nkos:usedBy" ]
+  
 #Relies on
-
 #Relation
-
 #Generaly related to
+ontologyRelatedTo:
+  display: "relations"
+  label: "Generally related to or relies on"
+  helpText: "An ontology is related to another or relies/uses another one."
+  description: [ 
+    "DCTERMS: A related resource.",
+    "VOAF: Indicates that the subject vocabulary uses or extends some class or property of the object vocabulary.", 
+    "MOD: A general property for different kind of case when a semantic resource relies or reuses another one.",
+    "VOID: A vocabulary that is used in the dataset.",
+    "DOOR: An ontology is related to another if one of the DOOR relations is satisfied." ]
+  extractedMetadata: true
+  metadataMappings: [ "door:ontologyRelatedTo", "dc:relation", "dcterms:relation", "voaf:reliesOn", "mod:reliesOn", "void:vocabulary"]
 
 #Similar to
-
+similarTo:
+  display: "relations"
+  label: "Similar to"
+  helpText: "Represents the meaning of 'how an ontology overlap/cover parts of the same area of interest of another ontology."
+  description: [ 
+    "VOAF: Used to assert that two vocabularies are similar in scope and objectives, independently of the fact that they otherwise refer to each other.",
+    "DOOR: Represents the meaning of 'how an ontology overlap/cover parts of the same area of interest of another ontology.",
+    "MOD: Ontologies that are similar or thematically close to the described ontology." ]
+  extractedMetadata: true
+  metadataMappings: [ "voaf:similar", "mod:similar", "door:similarTo" ]
+  
 #Comes from the same domain
-
+comesFromTheSameDomain:
+  display: "relations"
+  label: "Comes from the same domain"
+  helpText: "If the two ontologies come from the same domain (without any other details)."
+  description: [ 
+    "DOOR: If the two ontologies come from the same domain (without any other details)."
+    "MOD: Ontologies that come from the same domain or discipline than the described ontology, not necessariliy similar or close." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:comesFromTheSameDomain", "door:comesFromTheSameDomain" ]
+  
 #Has equivalences with
-
+isAlignedTo:
+  display: "relations"
+  label: "Has equivalences with"
+  helpText: "Links two ontologies if there exists an alignment which covers a substantial part of the vocabulary (i.e., a proportion greater than a threshold)."
+  description: [ 
+    "VOAF: Indicates that the subject vocabulary declares some equivalent classes or properties with the object vocabulary.",
+    "DOOR: Links two ontologies if there exists an alignment which covers a substantial part of the vocabulary (i.e., a proportion greater than a threshold).",
+    "NKOS: A related resource with which the described resource is aligned.", 
+    "MOD: Ontologies to which the described ontology is aligned or has equivalences or mappigns with." ]
+  extractedMetadata: true
+  metadataMappings: [ "door:isAlignedTo", "voaf:hasEquivalencesWith", "nkos:alignedWith", "mod:hasEquivalencesWith"]
+  
 #Backward Compatible
-
+isBackwardCompatibleWith:
+  display: "relations"
+  label: "Backward compatible"
+  helpText: "The ontology metadata instance which describes an ontology that is a compatible prior version of the ontology described by this ontology metadata Instance."
+  description: [
+    "OWL: This identifies the specified ontology as a prior version of the containing ontology, and further indicates that it is backward compatible with it.",
+    "OMV: The ontology metadata instance which describes an ontology that is a compatible prior version of the ontology described by this ontology metadata Instance.",
+    "DOOR: The relation of being a compatible new version from owl." ]
+  extractedMetadata: true
+  metadataMappings: [ "omv:isBackwardCompatibleWith", "owl:backwardCompatibleWith", "door:backwardCompatibleWith" ]
+  
 #Incompatible
+isIncompatibleWith:
+  display: "relations"
+  label: "Incompatible"
+  helpText: "The described ontology is a later version of the ontology described by the metadata specified, but is not backward compatible with it. It can be used to explicitly state that ontology cannot upgrade to use the new version without checking whether changes are required."
+  description: [
+    "OWL: This indicates that the containing ontology is a later version of the referenced ontology, but is not backward compatible with it.",
+    "OMV: The described ontology is a later version of the ontology described by the metadata specified, but is not backward compatible with it. It can be used to explicitly state that ontology cannot upgrade to use the new version without checking whether changes are required." ]
+  extractedMetadata: true
+  metadataMappings: [ "owl:incompatibleWith", "door:owlIncompatibleWith", "omv:isIncompatibleWith" ]
 
 #Disparate modelling with
+hasDisparateModelling:
+  display: "relations"
+  label: "Disparate modelling with"
+  helpText: ""
+  description: [ 
+    "DOOR: Disagreements related  to  the  conceptualization  of  the  ontologies. Two ontologies are considered to have disparate modeling if they represent corresponding entities in different ways, e.g.  as an instance in one case and a class in the other.",
+    "MOD: Ontologies that are considered to have a different model, because they represent corresponding entities in different ways e.g., an instance in one case and a class in the other for the same concept." ]
+  extractedMetadata: true
+  metadataMappings: [ "door:hasDisparateModelling", "mod:hasDisparateModellingWith" ]
 
 #Has disjunctions with 
+hasDisjunctionsWith:
+  display: "relations"
+  label: "Has disjunctions with"
+  helpText: "Indicates that the subject vocabulary declares some disjunct classes with the object vocabulary."
+  description: [ 
+    "VOAF: Indicates that the subject vocabulary declares some disjunct classes with the object vocabulary."
+    "MOD: Indicates that the subject ontologies declares some disjunct classes with the object ontologies." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:hasDisjunctionsWith", "voaf:hasDisjunctionsWith" ]
 
 #Translation
-
-#Translation of
-
-useImports:
-  extractedMetadata: true
-  label: "Imports"
-  description: [ "OWL: References another OWL ontology containing definitions, whose meaning is considered to be part of the meaning of the importing ontology.",
-                 "OMV: References another ontology metadata instance that describes an ontology containing definitions, whose meaning is considered to be part of the meaning of the ontology described by this ontology metadata instance.",
-                 "DCTERMS: A related resource that is required by the described resource to support its function, delivery, or coherence.",
-                 "VOAF: Indicates that the subject vocabulary extends the expressivity of the object vocabulary by declaring subsumption relationships, using object vocabulary class as domain or range of a subject vocabulary property, defining local restrictions etc ...." ]
-  metadataMappings: [ "owl:imports", "door:imports", "void:vocabulary", "voaf:extends", "dcterms:requires", "oboInOwl:import" ]
-  helpText: "References another ontology metadata instance that describes an ontology containing definitions, whose meaning is considered to be part of the meaning of the ontology described by this ontology metadata instance"
-  display: "relations"
-
-hasPriorVersion:
-  extractedMetadata: true
-  label: "Prior version"
-  description: [ "OWL:  This identifies the specified ontology as a prior version of the containing ontology.",
-                 "OMV: Contains a reference to another ontology metadata instance.",
-                 "DCTERMS: A related resource of which the described resource is a version, edition, or adaptation.",
-                 "PROV: A revision is a derivation for which the resulting entity is a revised version of some original. The implication here is that the resulting entity contains substantial content from the original.",
-                 "DOOR: Prior version relation from OWL.",
-                 "ADMS: A link to the previous version of the Asset" ]
-  metadataMappings: [ "owl:priorVersion", "dcterms:isVersionOf", "door:priorVersion", "prov:wasRevisionOf", "adms:prev", "pav:previousVersion", "pav:hasEarlierVersion" ]
-  helpText: "An URI to the prior version of the ontology"
-  example: 'http://data.agroportal.lirmm.fr/ontologies/GO/submissions/208'
-  display: "relations"
-
-isBackwardCompatibleWith:
-  extractedMetadata: true
-  label: "Backward compatible"
-  description: [ "OWL: This identifies the specified ontology as a prior version of the containing ontology, and further indicates that it is backward compatible with it.",
-                 "OMV: The ontology metadata instance which describes an ontology that is a compatible prior version of the ontology described by this ontology metadata Instance.",
-                 "DOOR: The relation of being a compatible new version from owl" ]
-  metadataMappings: [ "owl:backwardCompatibleWith", "door:backwardCompatibleWith" ]
-  helpText: "URI of an ontology that has its prior version compatible with the described ontology"
-  display: "relations"
-
-isIncompatibleWith:
-  extractedMetadata: true
-  label: "Incompatible"
-  description: [ "OWL: This indicates that the containing ontology is a later version of the referenced ontology, but is not backward compatible with it.",
-                 "OMV: The described ontology is a later version of the ontology described by the metadata specified, but is not backward compatible with it. It can be used to explicitly state that ontology cannot upgrade to use the new version without checking whether changes are required." ]
-  metadataMappings: [ "owl:incompatibleWith", "door:owlIncompatibleWith" ]
-  helpText: "URI of an ontology that is a prior version of this ontology, but not compatible"
-  display: "relations"
-
 workTranslation:
-  extractedMetadata: true
-  description: [ "MOD: A pointer to the translated ontology(ies) for an existing ontology. ",
-                 "SCHEMA: A work that is a translation of the content of this work.",
-                 "ADMS: Links Assets that are translations of each other." ]
-  helpText: "A ontology that is a translation of the content of this ontology."
-  metadataMappings: [ "mod:translation " ]
-  label: "Translated from"
   display: "relations"
-
-
+  label: ""
+  helpText: "A work that is a translation of the content of this work."
+  description: [
+    "MOD: Ontologies which are translations from the described ontology. ",
+    "SCHEMA: A work that is a translation of the content of this work.",
+     "ADMS: Links Assets that are translations of each other." ]
+  extractedMetadata: true
+  metadataMappings: [ "mod:translation", "schema:workTranslation", "adms:translation" ]
+  
+#Translation of
 translationOfWork:
-  extractedMetadata: true
-  description: [ "SCHEMA: The work that this work has been translated from.",
-                 "ADMS: Links Assets that are translations of each other." ]
-  metadataMappings: [ "adms:translation" ]
-  helpText: "The ontology that this ontology has been translated from."
+  display: "relations"
   label: "Translation of"
-  display: "relations"
-
-
-ontologyRelatedTo:
+  helpText: "The work that this work has been translated from."
+  description: [ 
+    "SCHEMA: The work that this work has been translated from.",
+    "ADMS: Links Assets that are translations of each other." ]
   extractedMetadata: true
-  label: "Generally related to"
-  description: [ "DCTERMS: A related resource",
-                 "VOAF: Indicates that the subject vocabulary uses or extends some class or property of the object vocabulary" ]
-  metadataMappings: [ "dc:relation", "dcterms:relation", "voaf:reliesOn" ]
-  helpText: "An ontology that uses or extends some class or property of the described ontology"
-  display: "relations"
-
-
-comesFromTheSameDomain:
-  extractedMetadata: true
-  description: "DOOR: If the two ontologies come from the same domain (without any other details)."
-  helpText: "Ontologies that come from the same domain"
-  label: "From the same domain than"
-  display: "relations"
-
-
-similarTo:
-  extractedMetadata: true
-  label: "Similar to"
-  description: [ "VOAF: Used to assert that two vocabularies are similar in scope and objectives, independently of the fact that they otherwise refer to each other.",
-                 "DOOR: Represents the meaning of 'how an ontology overlap/cover parts of the same area of interest of another ontology." ]
-  metadataMappings: [ "voaf:similar" ]
-  helpText: "Vocabularies that are similar in scope and objectives, independently of the fact that they otherwise refer to each other."
-  display: "relations"
-
-isAlignedTo:
-  extractedMetadata: true
-  label: "Has equivalences with"
-  description: [ "VOAF: Indicates that the subject vocabulary declares some equivalent classes or properties with the object vocabulary.",
-                 "DOOR: Links two ontologies if there exists an alignment which covers a substantial part of the vocabulary (i.e., a proportion greater than a threshold).",
-                 "NKOS: A related resource with which the described resource is aligned." ]
-  metadataMappings: [ "voaf:hasEquivalencesWith", "nkos:alignedWith" ]
-  helpText: "Ontologies that have an alignment which covers a substantial part of the described ontology"
-  display: "relations"
-
-explanationEvolution:
-  extractedMetadata: true
-  description: [ "DOOR: Evolution which involves only at the syntactic level.",
-                 "PROV: An entity that is a specialization of another shares all aspects of the latter, and additionally presents more specific aspects of the same thing as the latter.",
-                 "VOAF:Indicates that the subject vocabulary defines some subclasses or subproperties of the object vocabulary, or local restrictions on those" ]
-  metadataMappings: [ "voaf:specializes", "prov:specializationOf" ]
-  label: "Specialization of"
-  helpText: "If the ontology is a latter version that is semantically equivalent to another ontology."
-  display: "relations"
-
-generalizes:
-  extractedMetadata: true
-  description: [ "VOAF: Indicates that the subject vocabulary generalizes by some superclasses or super properties the object vocabulary.",
-                 "PROV: Inverse property of specializationOf." ]
-  label: "Generalization of"
-  helpText: "Vocabulary that is generalized by some superclasses or superproperties by the described ontology"
-  display: "relations"
-
-hasDisparateModelling:
-  extractedMetadata: true
-  description: "DOOR: Disagreements related  to  the  conceptualization  of  the  ontologies. Two ontologies are considered to have disparate modeling if they represent corresponding entities in different ways, e.g.  as an instance in one case and a class in the other.."
-  label: "Disparate modelling with"
-  helpText: "URI of an ontology that is considered to have a different model, because they represent corresponding entities in different ways.&lt;br&gt;e.g. an instance in one case and a class in the other for the same concept"
-  display: "relations"
-
-hasPart:
-  extractedMetadata: true
-  label: "Has part (has views)"
-  description: [ "DCTERMS: A related resource that is included either physically or logically in the described resource.",
-                 "SCHEMA: Indicates an item or CreativeWork that is part of this item, or CreativeWork (in some sense).",
-                 "ADMS: Links to a sample of an Asset (which is itself an Asset)." ]
-  metadataMappings: [ "schema:hasPart", "oboInOwl:hasSubset", "adms:includedAsset" ]
-  helpText: "A related ontology that is included either physically or logically in the described ontology."
-  display: "relations"
-
-
-usedBy:
-  extractedMetadata: true
-  label: "Used by"
-  description: [ "VOAF: Indicates that the subject vocabulary is used by the object vocabulary.",
-                 "NKOS: Agent using the described KOS" ]
-  metadataMappings: [ "nkos:usedBy" ]
-  helpText: "Ontologies that use the described ontology."
-  display: "relations"
-
-hasDisjunctionsWith:
-  extractedMetadata: true
-  label: "Disparate modelling with"
-  description: "VOAF: Indicates that the subject vocabulary declares some disjunct classes with the object vocabulary"
-  helpText: "Ontology that declares some disjunct classes with the described ontology."
-  display: "relations"
-
-
+  metadataMappings: [ "adms:translation", "schema:translationOfWork" ]
+  
 ### Content
 
 #Identifier pattern
@@ -1450,6 +1473,8 @@ obsoleteParent:
   metadataMappings: [ "doap:download-page" , "dcat:accessURL" , "omv:resourceLocator" ]
   label: "Root of obsolete branch"
   display: "content"
+
+
 
 
 
