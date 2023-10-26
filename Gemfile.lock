@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 69466682c1e9cb2c338539195013dbec9714ca7d
+  revision: 5979402d5138850fb9bdb34edfa350e9af1b5d22
   branch: development
   specs:
     goo (0.0.2)
@@ -164,7 +164,7 @@ GEM
     rexml (3.2.6)
     rsolr (1.1.2)
       builder (>= 2.1.2)
-    rubocop (1.57.0)
+    rubocop (1.57.1)
       base64 (~> 0.1.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -213,7 +213,6 @@ GEM
 
 PLATFORMS
   x86_64-darwin-21
-  x86_64-linux
 
 DEPENDENCIES
   activesupport (~> 4)
@@ -249,4 +248,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.3.23
+   2.4.12
