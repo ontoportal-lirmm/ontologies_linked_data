@@ -775,7 +775,7 @@ usedOntologyEngineeringTool:
     "OBO-Edit",
     "SWOOP",
     "OntoStudio",
-    "Altova"
+    "Altova",
     "OilEd",
     "IsaViz",
     "WebODE",
@@ -784,8 +784,7 @@ usedOntologyEngineeringTool:
     "VocBench",
     "TopBraid",
     "NeOn-Toolkit",
-    "Another tool"
-  ]
+    "Another tool" ]
   metadataMappings: [ "omv:usedOntologyEngineeringTool", "mod:toolUsed", "pav:createdWith", "oboInOwl:auto-generated-by" ]
 
 #Accrual method
