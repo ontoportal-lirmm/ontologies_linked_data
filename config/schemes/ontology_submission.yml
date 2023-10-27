@@ -41,7 +41,7 @@ versionIRI:
   helpText: "The property that identifies the version IRI of an ontology."
   example: 'https://w3id.org/myontology/3.2.0'
   description: [ 
-    "OWL: The property that identifies the version IRI of an ontology."
+    "OWL: The property that identifies the version IRI of an ontology.",
     "ACRO: description." ]
   extractedMetadata: true
 
