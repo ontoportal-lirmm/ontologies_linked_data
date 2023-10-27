@@ -73,7 +73,11 @@ status:
     "IDOT: State of a resource (physical location providing access to data or information about the identified entity). This should be based on a recent manual or automatic check of the resource. Possible values are: 'up', 'down', 'probably up', 'obsolete resource', 'restricted access' and 'unknown'.",
     "ADMS : Links to the status of the Asset or Asset Distribution in the context of a particular workflow process. Since Status is defined using a skos:Concept, that is the defined range for this property." ]
   extractedMetadata: true
-  enforcedValues: [ "alpha", "beta", "production", "retired" ]
+  enforcedValues: [ 
+    "alpha",
+    "beta",
+    "production",
+    "retired" ]
   metadataMappings: [ "omv:status", "mod:status", "adms:status", "idot:state" ]
   
 #Deprecated
@@ -765,7 +769,7 @@ usedOntologyEngineeringTool:
     "MOD: The tool used for the creation of an ontology.",
     "OMV: Information about the tool used to create the ontology." ]
   extractedMetadata: true
-  enforcedValues: {
+  enforcedValues: [
     "Protégé",
     "OWL API",
     "OBO-Edit",
@@ -781,7 +785,7 @@ usedOntologyEngineeringTool:
     "TopBraid",
     "NeOn-Toolkit",
     "Another tool"
-  }
+  ]
   metadataMappings: [ "omv:usedOntologyEngineeringTool", "mod:toolUsed", "pav:createdWith", "oboInOwl:auto-generated-by" ]
 
 #Accrual method
