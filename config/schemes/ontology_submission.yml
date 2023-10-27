@@ -310,11 +310,10 @@ description:
   metadataMappings: [ "omv:description", "dc:description", "dcterms:description", "doap:description", "schema:description", "oboInOwl:remark" ]
 
 #Homepage
-  homepage:
+homepage:
   display: "description" 
   label: "Homepage"
-  helpText: ""
-  example: ''
+  helpText: "Ontology homepage."
   description: [ 
     "FOAF: A homepage for some thing.", 
     "MOD: An unambiguous reference to the resource within a given context.", 
@@ -523,7 +522,6 @@ hasContributor:
     "DOAP: Project contributor" ]
   extractedMetadata: false
   metadataMappings: [ "omv:hasContributor", "dc:contributor", "dcterms:contributor", "doap:helper", "schema:contributor", "pav:contributedBy" ]
-  helpText: "Contributors to the creation of the ontology."
   
 #Curator
 curatedBy:
@@ -950,7 +948,7 @@ authorProperty:
   metadataMappings: [ "mod:authorProperty" ]
 
 #Object obsolete property
- obsoleteProperty:
+obsoleteProperty:
   display: "object description properties"
   label: "Object obsolete property"
   helpText: ""
@@ -1177,7 +1175,7 @@ includedInDataCatalog:
     "liveschema.eu": "LiveSchema",
     "protegewiki.stanford.edu/wiki/Protege_Ontology_Library": "Protege Ontology Library"
     }
-    metadataMappings: [ "schema:includedInDataCatalog" ]
+  metadataMappings: [ "schema:includedInDataCatalog" ]
 
 ### Relation
 
@@ -1294,7 +1292,7 @@ comesFromTheSameDomain:
   label: "Comes from the same domain"
   helpText: "If the two ontologies come from the same domain (without any other details)."
   description: [ 
-    "DOOR: If the two ontologies come from the same domain (without any other details)."
+    "DOOR: If the two ontologies come from the same domain (without any other details).",
     "MOD: Ontologies that come from the same domain or discipline than the described ontology, not necessariliy similar or close." ]
   extractedMetadata: true
   metadataMappings: [ "mod:comesFromTheSameDomain", "door:comesFromTheSameDomain" ]
@@ -1352,7 +1350,7 @@ hasDisjunctionsWith:
   label: "Has disjunctions with"
   helpText: "Indicates that the subject vocabulary declares some disjunct classes with the object vocabulary."
   description: [ 
-    "VOAF: Indicates that the subject vocabulary declares some disjunct classes with the object vocabulary."
+    "VOAF: Indicates that the subject vocabulary declares some disjunct classes with the object vocabulary.",
     "MOD: Indicates that the subject ontologies declares some disjunct classes with the object ontologies." ]
   extractedMetadata: true
   metadataMappings: [ "mod:hasDisjunctionsWith", "voaf:hasDisjunctionsWith" ]
@@ -1462,7 +1460,7 @@ metadataVoc:
     "ADMS: A schema according to which the Asset Repository can provide data about its content, e.g. ADMS.",
     "MOD: A vocabulary(ies) that is used and/or referred to create the current ontology." ]
   extractedMetadata: false
-    enforcedValues: { 
+  enforcedValues: {
       "http://w3id.org/nkos/nkostype#classification_schema": "Classification scheme",
       "http://www.w3.org/2000/01/rdf-schema#": "RDF Schema (RDFS)",
       "http://www.w3.org/2002/07/owl#": "OWL 2 Web Ontology Language (OWL)",
@@ -1487,8 +1485,7 @@ metadataVoc:
       "http://purl.org/pav/": "Provenance, Authoring and Versioning (PAV)",
       "http://www.geneontology.org/formats/oboInOwl#": "OboInOwl Mappings (OBOINOWL)",
       "http://www.w3.org/ns/sparql-service-description#": "SPARQL 1.1 Service Description (SD)",
-      "http://w3id.org/nkos#": "Networked Knowledge Organization Systems Dublin Core Application Profile (NKOS)"
-    }
+      "http://w3id.org/nkos#": "Networked Knowledge Organization Systems Dublin Core Application Profile (NKOS)" }
   metadataMappings: [ "mod:metadataVoc", "mod:vocabularyUsed", "adms:supportedSchema", "schema:schemaVersion", "voaf:metadataVoc"]
   
 #Root resources => Ontology object (roots)
