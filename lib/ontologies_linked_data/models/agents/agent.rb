@@ -63,7 +63,7 @@ module LinkedData
           usages = usages.transform_values{|x| x.flatten.map(&:to_s)}
 
           agent.instance_variable_set("@usages", usages)
-          agent.loaded_attributes.add(:children)
+          agent.loaded_attributes.add(:usages)
         end
       end
 
