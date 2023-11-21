@@ -117,7 +117,7 @@ hasOntologyLanguage:
 hasFormalityLevel:
   display: "general" 
   label: "Formality level"
-  helpText: "Level of formality of the ontology."
+  helpText: "Level of formality of the ontology (as defined by the NKOS KOS Types Vocabulary)."
   description: [ 
     "MOD: The level of formality of an ontology (as defined by the NKOS KOS Types Vocabulary).",
     "OMV: Level of formality of the ontology." ]
@@ -143,7 +143,7 @@ hasFormalityLevel:
 hasOntologySyntax:
   display: "general" 
   label: "Syntax"
-  helpText: "The presentation syntax for the ontology langage."
+  helpText: "The syntax of the ontology source file (as defined by W3C formats)."
   description: [ 
     "MOD: The syntax of this current ontology distribution (as defined by W3C formats).",
     "OMV: The presentation syntax for the ontology langage.",
@@ -353,7 +353,7 @@ notes:
 keywords:
   display: "description" 
   label: "Keywords"
-  helpText: "List of keywords related to an ontology."
+  helpText: "List of (comma separated) keywords related to an ontology."
   description: [ 
     "SCHEMA: Keywords or tags used to describe some item. Multiple textual entries in a keywords list are typically delimited by commas, or by repeating the property.",
     "OMV: List of keywords related to an ontology.",
@@ -399,7 +399,7 @@ abstract:
 publication:
   display: "description" 
   label: "Bibliographic reference"
-  helpText: "List of bibliographic references describing the ontology and its applications."
+  helpText: "An URL to a bibliographic reference (preferrely a DOI) describing the ontology and its applications."
   description: [ 
     "SCHEMA: A citation or reference to another creative work, such as another publication, web page, scholarly article, etc.",
     "DCTERMS: A bibliographic reference for the resource.",
@@ -447,7 +447,7 @@ modificationDate:
 valid:
   display: "dates"
   label: "Validity date"
-  helpText: "Date (often a range) of validity of a resource."
+  helpText: "Date of end of validity of a the ontology."
   description: [ 
     "DCTERMS: Date (often a range) of validity of a resource.",
     "SCHEMA: The end date and time of the item.",
@@ -1049,7 +1049,7 @@ hasFormat:
 dataDump:
   display: "links" 
   label: "Download URL"
-  helpText: "An RDF dump, partial or complete, of an ontology."
+  helpText: "The URL of the downloadable file of the ontology in any format."
   description: [
     "DCAT: The URL of the downloadable file in a given format. E.g. CSV file or RDF file. The format is indicated by the distribution's dcterms:format and/or dcat:mediaType.",
     "VOID: An RDF dump, partial or complete, of a void:Dataset.",
@@ -1191,7 +1191,7 @@ useImports:
 hasPriorVersion:
   display: "relations"
   label: "Prior version"
-  helpText: "Contains a reference to another ontology metadata instance."
+  helpText: "A reference to the previous version of the ontology."
   description: [ 
     "OWL: c This identifies the specified ontology as a prior version of the containing ontology.",
     "OMV: Contains a reference to another ontology metadata instance.",
@@ -1255,11 +1255,11 @@ usedBy:
   
 #Relies on
 #Relation
-#Generaly related to
+#Generally related to
 ontologyRelatedTo:
   display: "relations"
-  label: "Generally related to or relies on"
-  helpText: "An ontology is related to another or relies/uses another one."
+  label: "Generally related to"
+  helpText: "An ontology is somehow related to another one."
   description: [ 
     "DCTERMS: A related resource.",
     "VOAF: Indicates that the subject vocabulary uses or extends some class or property of the object vocabulary.", 
@@ -1305,7 +1305,7 @@ isAlignedTo:
   extractedMetadata: true
   metadataMappings: [ "door:isAlignedTo", "voaf:hasEquivalencesWith", "nkos:alignedWith", "mod:hasEquivalencesWith"]
   
-#Backward Compatible
+#Backward compatible
 isBackwardCompatibleWith:
   display: "relations"
   label: "Backward compatible"
@@ -1494,8 +1494,8 @@ metadataVoc:
 #Associated media
 associatedMedia:
   display: "media" 
-  label: "The URL of a media associated to the ontology."
-  helpText: "A media object that encodes this ontology. This property is a synonym for encoding."
+  label: "Associated media"
+  helpText: "The URL of a media (video, image) associated to the ontology (not displayed on the ontology summary page)."
   description: [ 
     "SCHEMA: A media object that encodes this CreativeWork. This property is a synonym for encoding." ]
   extractedMetadata: true
@@ -1505,7 +1505,7 @@ associatedMedia:
 depiction:
   display: "media" 
   label: "Depiction"
-  helpText: "The URL of an image or depiction representing the ontology."
+  helpText: "The URL of an image or depiction representing the ontology (displayed on the ontology summary page)."
   description: [ 
     "FOAF: A depiction of something.",
     "DOAP: Web page with screenshots of project. An image of the item. SCHEMA: An image of the item. This can be a URL or a fully described ImageObject.", 
