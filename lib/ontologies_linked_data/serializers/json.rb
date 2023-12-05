@@ -6,8 +6,11 @@ module LinkedData
       CONTEXTS = {}
 
       def self.serialize(obj, options = {})
+
+
         hash = obj.to_flex_hash(options) do |hash, hashed_obj|
           current_cls = hashed_obj.respond_to?(:klass) ? hashed_obj.klass : hashed_obj.class
+          result_lang = self.get_languages(get_object_submission(hashed_obj), options[:lang]) if result_lang.nil?
 
           # Add the id to json-ld attribute
           if current_cls.ancestors.include?(LinkedData::Hypermedia::Resource) && !current_cls.embedded? && hashed_obj.respond_to?(:id)
@@ -40,37 +43,35 @@ module LinkedData
             context = {"@context" => context_hash}
             hash.merge!(context)
           end
-
-          if hash.key?('@context')
-            hash['@context']['@language'] = options[:lang]
-          else
-            hash['@context'] = {'@language' => options[:lang]}
-          end
+          hash['@context']['@language'] = result_lang if hash['@context']
         end
         MultiJson.dump(hash)
       end
 
       private
 
-      def self.get_languages(submission, user_languages)
-        
-        if submission
-          
-          submission.bring :naturalLanguage
-          langauges = get_submission_languages(submission.naturalLanguage)
-                  
-          # intersection of the two arrays , if the requested language is not :all
-          result_lang = user_languages == :all ? langauges : Array(user_languages) & langauges
-          result_lang = result_lang.first if result_lang.length == 1
+      def self.get_object_submission(obj)
+        obj.class.respond_to?(:attributes) && obj.class.attributes.include?(:submission) ? obj.submission : nil
+      end
 
+      def self.get_languages(submission, user_languages)
+        result_lang = user_languages
+
+        if submission
+          submission.bring :naturalLanguage
+          languages = get_submission_languages(submission.naturalLanguage)
+          # intersection of the two arrays , if the requested language is not :all
+          result_lang = user_languages == :all ? languages : Array(user_languages) & languages
+          result_lang = result_lang.first if result_lang.length == 1
         end
 
-        return result_lang
+        result_lang
       end
 
       def self.get_submission_languages(submission_natural_language = [])
-        submission_natural_language.map { |natural_language| natural_language["iso639"] && natural_language.split('/').last[0..1].to_sym }.compact
-      end 
+        submission_natural_language = submission_natural_language.values.flatten if submission_natural_language.is_a?(Hash)
+        submission_natural_language.map { |natural_language| natural_language.to_s['iso639'] && natural_language.to_s.split('/').last[0..1].to_sym }.compact
+      end
 
       def self.type(current_cls, hashed_obj)
         if current_cls.respond_to?(:type_uri)
@@ -147,20 +148,19 @@ module LinkedData
         params = options[:params]
         params.nil? ||
           (params["no_context"].nil? ||
-                     !params["no_context"].eql?("true")) &&
-          (params["display_context"].nil? ||
-                    !params["display_context"].eql?("false"))
+            !params["no_context"].eql?("true")) &&
+            (params["display_context"].nil? ||
+              !params["display_context"].eql?("false"))
       end
 
       def self.generate_links?(options)
         params = options[:params]
         params.nil? ||
           (params["no_links"].nil? ||
-                     !params["no_links"].eql?("true")) &&
-          (params["display_links"].nil? ||
-                    !params["display_links"].eql?("false"))
+            !params["no_links"].eql?("true")) &&
+            (params["display_links"].nil? ||
+              !params["display_links"].eql?("false"))
       end
     end
   end
 end
-
