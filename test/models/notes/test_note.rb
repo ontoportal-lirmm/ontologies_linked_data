@@ -23,7 +23,7 @@ class TestNote < LinkedData::TestCase
                                                                     process_submission: true,
                                                                     process_options: {process_rdf: true, extract_metadata: false})
     ontology = ontologies.first
-    cls = LinkedData::Models::Class.where.include(:prefLabel).in(ontology.latest_submission).read_only.page(1, 1).first
+    cls = LinkedData::Models::Class.where.include(:prefLabel).in(ontology.latest_submission).read_only.first
     return ontology, cls
   end
 
