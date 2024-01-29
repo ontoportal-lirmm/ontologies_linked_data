@@ -641,7 +641,7 @@ module LinkedData
               logger.info("error deleting owlapi.rdf")
             end
           end
-          owlapi = owlapi_parser(logger: nil)
+          owlapi = owlapi_parser(logger: logger)
 
           if !reasoning
             owlapi.disable_reasoner
