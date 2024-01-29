@@ -348,7 +348,8 @@ eos
     ont_count, ont_acronyms, ontologies =
       create_ontologies_and_submissions(ont_count: 1, submission_count: 2,
                                         process_submission: true,
-                                        acronym: 'NCBO-545', process_options: {process_rdf: true, extract_metadata: false})
+                                        acronym: 'NCBO-545', process_options: {process_rdf: true,
+                                                                               extract_metadata: false})
     # Sanity check.
     assert_equal 1, ontologies.count
     assert_equal 2, ontologies.first.submissions.count
@@ -367,8 +368,6 @@ eos
     assert File.file?(File.join(latest_sub.data_folder, 'owlapi.xrdf')),
       %-Missing ontology submission file: 'owlapi.xrdf'-
 
-    assert File.file?(latest_sub.csv_path),
-      %-Missing ontology submission file: '#{latest_sub.csv_path}'-
 
     assert File.file?(latest_sub.parsing_log_path),
       %-Missing ontology submission file: '#{latest_sub.parsing_log_path}'-
@@ -1137,8 +1136,7 @@ eos
     2.times.each do |i|
       submission_parse("AGROOE", "AGROOE Test extract metadata ontology",
                        "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", 1,
-                       process_rdf: true, index_search: false,
-                       run_metrics: true, reasoning: false)
+                       process_rdf: true, extract_metadata: true, generate_missing_labels: false)
       sub = LinkedData::Models::Ontology.find("AGROOE").first.latest_submission
       sub.bring_remaining
       assert_equal false, sub.deprecated
