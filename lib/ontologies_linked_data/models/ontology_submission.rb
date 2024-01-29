@@ -110,7 +110,7 @@ module LinkedData
       attribute :conformsToKnowledgeRepresentationParadigm, namespace: :omv
       attribute :usedOntologyEngineeringMethodology, namespace: :omv
       attribute :usedOntologyEngineeringTool, namespace: :omv, type: %i[list]
-      attribute :accrualMethod, namespace: :dct, type: %i[list uri]
+      attribute :accrualMethod, namespace: :dct, type: %i[list]
       attribute :accrualPeriodicity, namespace: :dct
       attribute :accrualPolicy, namespace: :dct
       attribute :competencyQuestion, namespace: :mod, type: :list
@@ -149,7 +149,7 @@ module LinkedData
       attribute :translationOfWork, namespace: :schema, type: %i[uri list]
 
       # Content metadata
-      attribute :uriRegexPattern, namespace: :void, type: :uri
+      attribute :uriRegexPattern, namespace: :void
       attribute :preferredNamespaceUri, namespace: :vann, type: :uri
       attribute :preferredNamespacePrefix, namespace: :vann
       attribute :exampleIdentifier, namespace: :idot
@@ -179,14 +179,13 @@ module LinkedData
 
       def self.agents_attrs
         [:hasCreator, :publisher, :copyrightHolder, :hasContributor,
-         :translator, :endorsedBy, :fundedBy, :curatedBy  ]
+         :translator, :endorsedBy, :fundedBy, :curatedBy]
       end
       # Hypermedia settings
-      embed *[:contact, :ontology]  + agents_attrs
+      embed *[:contact, :ontology, :metrics]  + agents_attrs
       def self.embed_values_hash
         out = {
-          submissionStatus: [:code], hasOntologyLanguage: [:acronym], metrics: %i[classes individuals properties],
-
+          submissionStatus: [:code], hasOntologyLanguage: [:acronym]
         }
 
         agent_attributes = LinkedData::Models::Agent.goo_attrs_to_load +
@@ -225,6 +224,9 @@ module LinkedData
         @mutex.synchronize(&block)
       end
 
+      def self.agents_attr_uris
+        agents_attrs.map{ |x| self.attribute_uri(x) }
+      end
 
       def self.ontology_link(m)
         ontology_link = ""

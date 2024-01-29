@@ -16,13 +16,41 @@ module LinkedData
       attribute :identifiers, namespace: :adms, property: :identifier, enforce: %i[Identifier list unique_identifiers]
       attribute :affiliations, enforce: %i[Agent list is_organization], namespace: :org, property: :memberOf
       attribute :creator, type: :user, enforce: [:existence]
-
       embed :identifiers, :affiliations
       embed_values affiliations: LinkedData::Models::Agent.goo_attrs_to_load + [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load]
+      serialize_methods :usages
 
       write_access :creator
       access_control_load :creator
 
+
+      def self.load_agents_usages(agents = [], agent_attributes =  OntologySubmission.agents_attr_uris)
+        q = Goo.sparql_query_client.select(:id, :property, :agent, :status).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id,LinkedData::Models::OntologySubmission.attribute_uri(:submissionStatus),:status], [:id, :property, :agent])
+        q = q.filter("?status = <#{RDF::URI.new(LinkedData::Models::SubmissionStatus.id_prefix + 'RDF')}> || ?status = <#{RDF::URI.new(LinkedData::Models::SubmissionStatus.id_prefix + 'UPLOADED')}>")
+        q = q.filter(agent_attributes.map{|attr| "?property = <#{attr}>"}.join(' || '))
+
+        data = q.each_solution.group_by{|x| x[:agent]}
+
+        agents_usages = data.transform_values do |values|
+          r = values.select { |value| value[:status]['RDF'] }
+          r = values.select { |value| value[:status]['UPLOADED'] } if r.empty?
+          r.reject{|x| x[:property].nil? }.map{|x| [x[:id], x[:property]]}
+        end
+
+        agents.each do |agent|
+          usages = agents_usages[agent.id]
+          usages = usages ? usages.group_by(&:shift) : {}
+          usages = usages.transform_values{|x| x.flatten.map(&:to_s)}
+
+          agent.instance_variable_set("@usages", usages)
+          agent.loaded_attributes.add(:usages)
+        end
+      end
+
+      def usages(force_update: false)
+        self.class.load_agents_usages([self]) if  !instance_variable_defined?("@usages")  || force_update
+        @usages
+      end
 
       def unique_identifiers(inst, attr)
         inst.bring(attr) if inst.bring?(attr)
