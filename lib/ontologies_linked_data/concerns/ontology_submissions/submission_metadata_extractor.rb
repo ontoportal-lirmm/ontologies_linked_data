@@ -3,29 +3,21 @@ module LinkedData
     module OntologySubmission
       module MetadataExtractor
 
-        def extract_metadata(logger, user_params)
-
+        def extract_metadata(logger, user_params, heavy_extraction: true)
           version_info = extract_version
           ontology_iri = extract_ontology_iri
-
           self.version = version_info if version_info
           self.uri = ontology_iri if ontology_iri
 
-          begin
-            # Extract metadata directly from the ontology
-            extract_ontology_metadata(logger, user_params)
-            logger.info('Additional metadata extracted.')
-          rescue StandardError => e
-            e.backtrace
-            logger.error("Error while extracting additional metadata: #{e}")
-          end
-
-          begin
-            # Set default metadata
-            set_default_metadata
-            logger.info('Default metadata set.')
-          rescue StandardError => e
-            logger.error("Error while setting default metadata: #{e}")
+          if heavy_extraction
+            begin
+              # Extract metadata directly from the ontology
+              extract_ontology_metadata(logger, user_params)
+              logger.info('Additional metadata extracted.')
+            rescue StandardError => e
+              e.backtrace
+              logger.error("Error while extracting additional metadata: #{e}")
+            end
           end
 
           if self.valid?
@@ -33,7 +25,6 @@ module LinkedData
           else
             logger.error("Error while extracting additional metadata: #{self.errors}")
           end
-
         end
 
         def extract_version
@@ -203,7 +194,7 @@ eos
             query_metadata = "PREFIX #{prefix}: <#{uri}>\n" + query_metadata
           end
 
-          #logger.info(query_metadata)
+          # logger.info(query_metadata)
           # This hash will contain the "literal" metadata for each object (uri or literal) pointed by the metadata predicate
           hash_results = {}
           Goo.sparql_query_client.query(query_metadata).each_solution do |sol|
@@ -270,4 +261,7 @@ eos
     end
   end
 end
+
+
+
 
