@@ -1088,6 +1088,7 @@ eos
 
           if options.empty?
             process_rdf = true
+            generate_missing_labels = true
             extract_metadata = true
             index_search = true
             index_properties = true
@@ -1098,7 +1099,8 @@ eos
             archive = false
           else
             process_rdf = options[:process_rdf] == true ? true : false
-            extract_metadata = options[:extract_metadata] == true ? true : false
+            generate_missing_labels = options[:generate_missing_labels].nil? ? process_rdf : options[:generate_missing_labels]
+            extract_metadata = options[:extract_metadata].nil? ?  process_rdf : options[:extract_metadata]
             index_search = options[:index_search] == true ? true : false
             index_properties = options[:index_properties] == true ? true : false
             index_commit = options[:index_commit] == true ? true : false
@@ -1166,9 +1168,9 @@ eos
               end
             end
 
-            extract_metadata(logger, options[:params]) if extract_metadata || process_rdf
+            extract_metadata(logger, options[:params], heavy_extraction: extract_metadata)
 
-            if process_rdf
+            if process_rdf && generate_missing_labels
               file_path = self.uploadFilePath
               callbacks = {
                 missing_labels: {
@@ -1189,20 +1191,20 @@ eos
               raw_paging = LinkedData::Models::Class.in(self).include(:prefLabel, :synonym, :label)
               loop_classes(logger, raw_paging, callbacks)
 
-              status = LinkedData::Models::SubmissionStatus.find("OBSOLETE").first
-              begin
-                generate_obsolete_classes(logger, file_path)
-                add_submission_status(status)
-                self.save
-              rescue Exception => e
-                logger.error("#{e.class}: #{e.message}\n#{e.backtrace.join("\n\t")}")
-                logger.flush
-                add_submission_status(status.get_error_status)
-                self.save
-                # if obsolete fails the parsing fails
-                raise e
+                status = LinkedData::Models::SubmissionStatus.find("OBSOLETE").first
+                begin
+                  generate_obsolete_classes(logger, file_path)
+                  add_submission_status(status)
+                  self.save
+                rescue Exception => e
+                  logger.error("#{e.class}: #{e.message}\n#{e.backtrace.join("\n\t")}")
+                  logger.flush
+                  add_submission_status(status.get_error_status)
+                  self.save
+                  # if obsolete fails the parsing fails
+                  raise e
+                end
               end
-            end
 
             parsed = ready?(status: %i[rdf rdf_labels])
 

@@ -18,11 +18,6 @@ module LinkedData
               e.backtrace
               logger.error("Error while extracting additional metadata: #{e}")
             end
-
-          if self.valid?
-            self.save
-          else
-            logger.error("Error while extracting additional metadata: #{self.errors}")
           end
 
           if self.valid?
@@ -30,7 +25,6 @@ module LinkedData
           else
             logger.error("Error while extracting additional metadata: #{self.errors}")
           end
-
         end
 
         def extract_version
@@ -200,7 +194,7 @@ eos
             query_metadata = "PREFIX #{prefix}: <#{uri}>\n" + query_metadata
           end
 
-          #logger.info(query_metadata)
+          # logger.info(query_metadata)
           # This hash will contain the "literal" metadata for each object (uri or literal) pointed by the metadata predicate
           hash_results = {}
           Goo.sparql_query_client.query(query_metadata).each_solution do |sol|
