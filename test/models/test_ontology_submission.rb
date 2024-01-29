@@ -412,7 +412,7 @@ SELECT DISTINCT * WHERE {
     bro35.bring(:submissions)
     sub35 = bro35.submissions.first
     # Calculate the ontology diff: bro35 - bro34
-    tmp_log = Logger.new(TestLogFile.new)
+    tmp_log = Logger.new($stdout)
     sub35.diff(tmp_log, sub34)
     assert(sub35.diffFilePath != nil, 'Failed to create submission diff file.')
   end
@@ -590,17 +590,7 @@ SELECT DISTINCT * WHERE {
 
   def test_download_ontology_file
     begin
-      server_port = Random.rand(55000..65535) # http://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic.2C_private_or_ephemeral_ports
-      server_url = 'http://localhost:' + server_port.to_s
-      server_thread = Thread.new do
-        Rack::Server.start(
-          app: lambda do |e|
-            [200, {'Content-Type' => 'text/plain'}, ['test file']]
-          end,
-          Port: server_port
-        )
-      end
-      Thread.pass
+      server_url, server_thread, server_port  = start_server
       sleep 3  # Allow the server to startup
       assert(server_thread.alive?, msg="Rack::Server thread should be alive, it's not!")
       ont_count, ont_names, ont_models = create_ontologies_and_submissions(ont_count: 1, submission_count: 1)

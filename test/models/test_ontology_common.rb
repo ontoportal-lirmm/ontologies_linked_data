@@ -1,4 +1,5 @@
 require_relative "../test_case"
+require 'rack'
 
 module LinkedData
   class TestOntologyCommon < LinkedData::TestCase
@@ -51,6 +52,10 @@ module LinkedData
     #   delete            = true  # delete any existing submissions
     ##############################################
     def submission_parse(acronym, name, ontologyFile, id, parse_options={})
+      if Goo.backend_vo?
+        old_slices = Goo.slice_loading_size
+        Goo.slice_loading_size = 20
+      end
       return if ENV["SKIP_PARSING"]
       parse_options[:process_rdf].nil? && parse_options[:process_rdf] = true
       parse_options[:index_search].nil? && parse_options[:index_search] = false
@@ -114,6 +119,10 @@ module LinkedData
       rescue Exception => e
         puts "Error, logged in #{tmp_log.instance_variable_get("@logdev").dev.path}"
         raise e
+      ensure
+        if Goo.backend_vo?
+          Goo.slice_loading_size = old_slices
+        end
       end
     end
 
@@ -205,6 +214,44 @@ eos
           end
         end
         assert (count > 0)
+      end
+    end
+
+    def start_server
+      max_retries = 5
+      retries = 0
+      server_port = Random.rand(55000..65535)
+
+      while port_in_use?(server_port)
+        retries += 1
+        break if retries >= max_retries
+        server_port = Random.rand(55000..65535)
+      end
+
+      raise "Could not find an available port after #{max_retries} retries" if retries >= max_retries
+
+      server_url = 'http://localhost:' + server_port.to_s
+      server_thread = Thread.new do
+        Rack::Server.start(
+          app: lambda do |e|
+            [200, {'Content-Type' => 'text/plain'}, ['test file']]
+          end,
+          Port: server_port
+        )
+      end
+      Thread.pass
+
+      [server_url, server_thread, server_port]
+    end
+
+    private
+    def port_in_use?(port)
+      begin
+        server = TCPServer.new(port)
+        server.close
+        false
+      rescue Errno::EADDRINUSE
+        true
       end
     end
   end
