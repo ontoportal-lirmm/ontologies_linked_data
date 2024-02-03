@@ -3,6 +3,49 @@ module LinkedData
   module Models
 
     class OntologyProperty < LinkedData::Models::Base
+      model :ontology_property, name_with: ->(p) { uuid_uri_generator(p) }
+
+
+      def self.index_schema(schema_generator)
+        schema_generator.add_field(:label, 'text_general', indexed: true, stored: true, multi_valued: true)
+        schema_generator.add_field(:labelExact, 'string_ci', indexed: true, stored: false, multi_valued: true)
+        schema_generator.add_field(:labelSuggest, 'text_suggest', indexed: true, stored: false, multi_valued: true, omit_norms: true)
+        schema_generator.add_field(:labelSuggestEdge, 'text_suggest_edge', indexed: true, stored: false, multi_valued: true)
+        schema_generator.add_field(:labelSuggestNgram, 'text_suggest_ngram', indexed: true, stored: false, multi_valued: true, omit_norms: true)
+
+        schema_generator.add_field(:labelGenerated, 'text_general', indexed: true, stored: true, multi_valued: true)
+        schema_generator.add_field(:labelGeneratedExact, 'string_ci', indexed: true, stored: false, multi_valued: true)
+        schema_generator.add_field(:labelGeneratedSuggest, 'text_suggest', indexed: true, stored: false, multi_valued: true, omit_norms: true)
+        schema_generator.add_field(:labelGeneratedSuggestEdge, 'text_suggest_edge', indexed: true, stored: false, multi_valued: true)
+        schema_generator.add_field(:labelGeneratedSuggestNgram, 'text_suggest_ngram', indexed: true, stored: false, multi_valued: true, omit_norms: true)
+
+        schema_generator.add_field(:definition, 'string', indexed: true, stored: true, multi_valued: true)
+        schema_generator.add_field(:submissionAcronym, 'string', indexed: true, stored: true, multi_valued: false)
+        schema_generator.add_field(:parents, 'string', indexed: true, stored: true, multi_valued: true)
+        schema_generator.add_field(:ontologyType, 'string', indexed: true, stored: true, multi_valued: false)
+        schema_generator.add_field(:propertyType, 'string', indexed: true, stored: true, multi_valued: false)
+        schema_generator.add_field(:ontologyId, 'string', indexed: true, stored: true, multi_valued: false)
+        schema_generator.add_field(:submissionId, 'pint', indexed: true, stored: true, multi_valued: false)
+
+        schema_generator.add_copy_field(:label, '_text_')
+        schema_generator.add_copy_field(:label, 'labelExact')
+        schema_generator.add_copy_field(:label, 'labelSuggest')
+        schema_generator.add_copy_field(:label, 'labelSuggestEdge')
+        schema_generator.add_copy_field(:label, 'labelSuggestNgram')
+
+        schema_generator.add_copy_field(:labelGenerated, '_text_')
+        schema_generator.add_copy_field(:labelGenerated, 'labelGeneratedExact')
+        schema_generator.add_copy_field(:labelGenerated, 'labelGeneratedSuggest')
+        schema_generator.add_copy_field(:labelGenerated, 'labelGeneratedSuggestEdge')
+        schema_generator.add_copy_field(:labelGenerated, 'labelGeneratedSuggestNgram')
+      end
+
+
+      enable_indexing(:prop_search_core1, :property) do
+        index_schema(schema_generator)
+      end
+
+
 
       def retrieve_ancestors
         retrieve_ancestors_descendants(:ancestors)
