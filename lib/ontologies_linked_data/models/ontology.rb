@@ -454,7 +454,7 @@ module LinkedData
         OntologyProperty.indexCommit(nil) if commit
       end
 
-      def unindex_by_acronym(commit=true, search_backend= :main)
+      def unindex_by_acronym(commit=true)
         self.bring(:acronym) if self.bring?(:acronym)
         query = "submissionAcronym:#{acronym}"
         Class.unindexByQuery(query)
