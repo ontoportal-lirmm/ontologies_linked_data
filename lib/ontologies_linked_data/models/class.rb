@@ -172,7 +172,7 @@ module LinkedData
 
       end
 
-      enable_indexing(:term_search_core1) do
+      enable_indexing(:term_search_core1) do |schema_generator|
         index_schema(schema_generator)
       end
 

@@ -17,10 +17,8 @@ if ENV['COVERAGE'] == 'true' || ENV['CI'] == 'true'
 end
 
 require_relative 'test_log_file'
-require "goo"
-require_relative '../lib/ontologies_linked_data/config/config'
-require_relative '../config/config'
 require_relative '../lib/ontologies_linked_data'
+require_relative '../config/config'
 
 if ENV['OVERRIDE_CONFIG'] == 'true'
   SOLR_HOST = ENV.include?('SOLR_HOST') ? ENV['SOLR_HOST'] : 'localhost'

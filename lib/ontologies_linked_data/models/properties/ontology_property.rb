@@ -8,17 +8,8 @@ module LinkedData
 
       def self.index_schema(schema_generator)
         schema_generator.add_field(:label, 'text_general', indexed: true, stored: true, multi_valued: true)
-        schema_generator.add_field(:labelExact, 'string_ci', indexed: true, stored: false, multi_valued: true)
-        schema_generator.add_field(:labelSuggest, 'text_suggest', indexed: true, stored: false, multi_valued: true, omit_norms: true)
-        schema_generator.add_field(:labelSuggestEdge, 'text_suggest_edge', indexed: true, stored: false, multi_valued: true)
-        schema_generator.add_field(:labelSuggestNgram, 'text_suggest_ngram', indexed: true, stored: false, multi_valued: true, omit_norms: true)
-
         schema_generator.add_field(:labelGenerated, 'text_general', indexed: true, stored: true, multi_valued: true)
-        schema_generator.add_field(:labelGeneratedExact, 'string_ci', indexed: true, stored: false, multi_valued: true)
-        schema_generator.add_field(:labelGeneratedSuggest, 'text_suggest', indexed: true, stored: false, multi_valued: true, omit_norms: true)
-        schema_generator.add_field(:labelGeneratedSuggestEdge, 'text_suggest_edge', indexed: true, stored: false, multi_valued: true)
-        schema_generator.add_field(:labelGeneratedSuggestNgram, 'text_suggest_ngram', indexed: true, stored: false, multi_valued: true, omit_norms: true)
-
+    
         schema_generator.add_field(:definition, 'string', indexed: true, stored: true, multi_valued: true)
         schema_generator.add_field(:submissionAcronym, 'string', indexed: true, stored: true, multi_valued: false)
         schema_generator.add_field(:parents, 'string', indexed: true, stored: true, multi_valued: true)
@@ -27,21 +18,17 @@ module LinkedData
         schema_generator.add_field(:ontologyId, 'string', indexed: true, stored: true, multi_valued: false)
         schema_generator.add_field(:submissionId, 'pint', indexed: true, stored: true, multi_valued: false)
 
-        schema_generator.add_copy_field(:label, '_text_')
-        schema_generator.add_copy_field(:label, 'labelExact')
-        schema_generator.add_copy_field(:label, 'labelSuggest')
-        schema_generator.add_copy_field(:label, 'labelSuggestEdge')
-        schema_generator.add_copy_field(:label, 'labelSuggestNgram')
-
-        schema_generator.add_copy_field(:labelGenerated, '_text_')
-        schema_generator.add_copy_field(:labelGenerated, 'labelGeneratedExact')
-        schema_generator.add_copy_field(:labelGenerated, 'labelGeneratedSuggest')
-        schema_generator.add_copy_field(:labelGenerated, 'labelGeneratedSuggestEdge')
-        schema_generator.add_copy_field(:labelGenerated, 'labelGeneratedSuggestNgram')
+        %i[label labelGenerated].each do |field|
+          schema_generator.add_copy_field(field, '_text_')
+          schema_generator.add_copy_field(field, "#{field}_Exact")
+          schema_generator.add_copy_field(field, "#{field}_Suggest")
+          schema_generator.add_copy_field(field, "#{field}_SuggestEdge")
+          schema_generator.add_copy_field(field, "#{field}_SuggestNgram")
+        end
       end
 
 
-      enable_indexing(:prop_search_core1, :property) do
+      enable_indexing(:prop_search_core1, :property) do |schema_generator|
         index_schema(schema_generator)
       end
 
@@ -277,7 +264,7 @@ eos
         }
 
         all_attrs = self.to_hash
-        std = [:id, :label, :definition, :parents]
+        std = %i[id label definition parents]
 
         std.each do |att|
           cur_val = all_attrs[att]
@@ -331,7 +318,7 @@ eos
           rec_i = recursions[i]
           path = paths[rec_i]
           p = path.last
-          p.bring(parents: [:label, :definition]) if p.bring?(:parents)
+          p.bring(parents: %i[label definition]) if p.bring?(:parents)
 
           unless p.loaded_attributes.include?(:parents)
             # fail safely
@@ -356,7 +343,7 @@ eos
       end
 
       def self.partially_load_children(models, threshold, submission)
-        ld = [:label, :definition]
+        ld = %i[label definition]
         single_load = []
         query = self.in(submission).models(models)
         query.aggregate(:count, :children).all

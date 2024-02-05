@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: df31c26b11dedaa80d2f646c624be95c88fa722f
+  revision: 8308441f435f7dd09e22afb22c817f229a585c5a
   branch: feature/add-model-based-search
   specs:
     goo (0.0.2)
@@ -116,7 +116,7 @@ GEM
     multi_json (1.15.0)
     multipart-post (2.3.0)
     net-http-persistent (2.9.4)
-    net-imap (0.4.9.1)
+    net-imap (0.4.10)
       date
       net-protocol
     net-pop (0.1.2)
