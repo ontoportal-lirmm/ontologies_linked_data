@@ -20,10 +20,10 @@ module LinkedData
 
         %i[label labelGenerated].each do |field|
           schema_generator.add_copy_field(field, '_text_')
-          schema_generator.add_copy_field(field, "#{field}_Exact")
-          schema_generator.add_copy_field(field, "#{field}_Suggest")
-          schema_generator.add_copy_field(field, "#{field}_SuggestEdge")
-          schema_generator.add_copy_field(field, "#{field}_SuggestNgram")
+          schema_generator.add_copy_field(field, "#{field}Exact")
+          schema_generator.add_copy_field(field, "#{field}Suggest")
+          schema_generator.add_copy_field(field, "#{field}SuggestEdge")
+          schema_generator.add_copy_field(field, "#{field}SuggestNgram")
         end
       end
 

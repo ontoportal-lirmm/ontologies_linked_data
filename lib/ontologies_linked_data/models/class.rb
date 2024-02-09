@@ -145,27 +145,27 @@ module LinkedData
 
         %w[prefLabel synonym].each do |field|
 
-          schema_generator.add_field("#{field}_Exact", 'string', indexed: true, stored: false, multi_valued: true)
-          schema_generator.add_field("#{field}_Suggest", 'text_suggest', indexed: true, stored: false, multi_valued: true, omit_norms: true)
-          schema_generator.add_field("#{field}_SuggestEdge", 'text_suggest_edge', indexed: true, stored: false, multi_valued: true)
-          schema_generator.add_field("#{field}_SuggestNgram", 'text_suggest_ngram', indexed: true, stored: false, multi_valued: true, omit_norms: true)
+          schema_generator.add_field("#{field}Exact", 'string', indexed: true, stored: false, multi_valued: true)
+          schema_generator.add_field("#{field}Suggest", 'text_suggest', indexed: true, stored: false, multi_valued: true, omit_norms: true)
+          schema_generator.add_field("#{field}SuggestEdge", 'text_suggest_edge', indexed: true, stored: false, multi_valued: true)
+          schema_generator.add_field("#{field}SuggestNgram", 'text_suggest_ngram', indexed: true, stored: false, multi_valued: true, omit_norms: true)
 
           schema_generator.add_copy_field(field, '_text_')
-          schema_generator.add_copy_field(field, "#{field}_Exact")
-          schema_generator.add_copy_field(field, "#{field}_Suggest")
-          schema_generator.add_copy_field(field, "#{field}_SuggestEdge")
-          schema_generator.add_copy_field(field, "#{field}_SuggestNgram")
+          schema_generator.add_copy_field(field, "#{field}Exact")
+          schema_generator.add_copy_field(field, "#{field}Suggest")
+          schema_generator.add_copy_field(field, "#{field}SuggestEdge")
+          schema_generator.add_copy_field(field, "#{field}SuggestNgram")
 
           schema_generator.add_dynamic_field("#{field}_*", 'text_general', indexed: true, stored: true, multi_valued: true)
-          schema_generator.add_dynamic_field("#{field}_Exact_*", 'string', indexed: true, stored: false, multi_valued: true)
-          schema_generator.add_dynamic_field("#{field}_Suggest_*", 'text_suggest', indexed: true, stored: false, multi_valued: true, omit_norms: true)
-          schema_generator.add_dynamic_field("#{field}_SuggestEdge_*", 'text_suggest_edge', indexed: true, stored: false, multi_valued: true)
-          schema_generator.add_dynamic_field("#{field}_SuggestNgram_*", 'text_suggest_ngram', indexed: true, stored: false, multi_valued: true, omit_norms: true)
+          schema_generator.add_dynamic_field("#{field}Exact_*", 'string', indexed: true, stored: false, multi_valued: true)
+          schema_generator.add_dynamic_field("#{field}Suggest_*", 'text_suggest', indexed: true, stored: false, multi_valued: true, omit_norms: true)
+          schema_generator.add_dynamic_field("#{field}SuggestEdge_*", 'text_suggest_edge', indexed: true, stored: false, multi_valued: true)
+          schema_generator.add_dynamic_field("#{field}SuggestNgram_*", 'text_suggest_ngram', indexed: true, stored: false, multi_valued: true, omit_norms: true)
 
-          schema_generator.add_copy_field("#{field}_*", "#{field}_Exact_*")
-          schema_generator.add_copy_field("#{field}_*", "#{field}_Suggest_*")
-          schema_generator.add_copy_field("#{field}_*", "#{field}_SuggestEdge_*")
-          schema_generator.add_copy_field("#{field}_*", "#{field}_SuggestNgram_*")
+          schema_generator.add_copy_field("#{field}_*", "#{field}Exact_*")
+          schema_generator.add_copy_field("#{field}_*", "#{field}Suggest_*")
+          schema_generator.add_copy_field("#{field}_*", "#{field}SuggestEdge_*")
+          schema_generator.add_copy_field("#{field}_*", "#{field}SuggestNgram_*")
         end
 
         schema_generator.add_dynamic_field('definition_*', 'text_general', indexed: true, stored: true, multi_valued: true)
