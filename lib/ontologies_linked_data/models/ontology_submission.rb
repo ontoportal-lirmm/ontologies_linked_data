@@ -215,6 +215,7 @@ module LinkedData
       read_restriction_based_on ->(sub) { sub.ontology }
       access_control_load ontology: %i[administeredBy acl viewingRestriction]
 
+      enable_indexing(:ontology_metadata)
       def initialize(*args)
         super(*args)
         @mutex = Mutex.new
@@ -1214,7 +1215,7 @@ eos
               raise Exception, "The submission #{self.ontology.acronym}/submissions/#{self.submissionId} cannot be indexed because it has not been successfully parsed" unless parsed
               status = LinkedData::Models::SubmissionStatus.find("INDEXED").first
               begin
-                index(logger, index_commit, false)
+                index_terms(logger, index_commit, false)
                 add_submission_status(status)
               rescue Exception => e
                 logger.error("#{e.class}: #{e.message}\n#{e.backtrace.join("\n\t")}")
@@ -1324,7 +1325,7 @@ eos
         self
       end
 
-      def index(logger, commit = true, optimize = true)
+      def index_terms(logger, commit = true, optimize = true)
         page = 0
         size = 1000
         count_classes = 0
@@ -1560,7 +1561,7 @@ eos
             prev_sub = self.ontology.latest_submission()
 
             if prev_sub
-              prev_sub.index(LinkedData::Parser.logger || Logger.new($stderr))
+              prev_sub.index_terms(LinkedData::Parser.logger || Logger.new($stderr))
               prev_sub.index_properties(LinkedData::Parser.logger || Logger.new($stderr))
             end
           end

@@ -88,6 +88,8 @@ module LinkedData
       # Cache
       cache_timeout 3600
 
+      enable_indexing(:ontology_metadata)
+
       def self.validate_acronym(inst, attr)
         inst.bring(attr) if inst.bring?(attr)
         acronym = inst.send(attr)
@@ -445,6 +447,10 @@ module LinkedData
 
       def unindex(commit=true)
         unindex_by_acronym(commit)
+      end
+
+      def embedded_doc
+        "#{self.acronym} #{self.name} #{self.viewingRestriction}"
       end
 
       def unindex_properties(commit=true)
