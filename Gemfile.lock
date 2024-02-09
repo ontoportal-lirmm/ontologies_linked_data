@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 9d5c23d170e5739d3635861de1af7eec3b988009
+  revision: e1ad9ac55eca2b249e3dc7826b3f6227582d1b57
   branch: feature/add-model-based-search
   specs:
     goo (0.0.2)
@@ -149,7 +149,7 @@ GEM
     rake (10.5.0)
     rdf (1.0.8)
       addressable (>= 2.2)
-    redis (5.0.8)
+    redis (5.1.0)
       redis-client (>= 0.17.0)
     redis-client (0.19.1)
       connection_pool

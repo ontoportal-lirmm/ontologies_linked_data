@@ -23,6 +23,11 @@ module LinkedData
       write_access :creator
       access_control_load :creator
 
+      enable_indexing(:agents_metadata)
+
+      def embedded_doc
+        "#{self.name} #{self.acronym} #{self.email} #{self.agentType}"
+      end
 
       def self.load_agents_usages(agents = [], agent_attributes =  OntologySubmission.agents_attr_uris)
         q = Goo.sparql_query_client.select(:id, :property, :agent, :status).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id,LinkedData::Models::OntologySubmission.attribute_uri(:submissionStatus),:status], [:id, :property, :agent])
