@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: e1ad9ac55eca2b249e3dc7826b3f6227582d1b57
+  revision: a74645bbe5f801b64839f4f38461a456b3b90fc5
   branch: feature/add-model-based-search
   specs:
     goo (0.0.2)
