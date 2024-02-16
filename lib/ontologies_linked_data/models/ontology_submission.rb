@@ -45,7 +45,7 @@ module LinkedData
 
       # Ontology metadata
       # General metadata
-      attribute :URI, namespace: :omv,  type: :uri, enforce: %i[existence distinct_of_identifier]
+      attribute :URI, namespace: :omv,  type: :uri, enforce: %i[existence distinct_of_identifier], fuzzy_search: true
       attribute :versionIRI, namespace: :owl, type: :uri, enforce: [:distinct_of_URI]
       attribute :version, namespace: :omv
       attribute :status, namespace: :omv, enforce: %i[existence], default: ->(x) { 'production' }
@@ -58,7 +58,7 @@ module LinkedData
       attribute :identifier, namespace: :dct, type: %i[list uri], enforce: [:distinct_of_URI]
 
       # Description metadata
-      attribute :description, namespace: :omv, enforce: %i[concatenate existence]
+      attribute :description, namespace: :omv, enforce: %i[concatenate existence], fuzzy_search: true
       attribute :homepage, namespace: :foaf, type: :uri
       attribute :documentation, namespace: :omv, type: :uri
       attribute :notes, namespace: :omv, type: :list
@@ -1049,7 +1049,7 @@ eos
         self.submissionStatus = nil
         status = LinkedData::Models::SubmissionStatus.find("ARCHIVED").first
         add_submission_status(status)
-
+        unindex
         # Delete everything except for original ontology file.
         ontology.bring(:submissions)
         submissions = ontology.submissions
