@@ -90,6 +90,8 @@ module LinkedData
 
       enable_indexing(:ontology_metadata)
 
+      after_save :index_latest_submission
+
       def self.validate_acronym(inst, attr)
         inst.bring(attr) if inst.bring?(attr)
         acronym = inst.send(attr)
@@ -445,12 +447,26 @@ module LinkedData
         self
       end
 
+      def index_latest_submission
+        last_s = latest_submission(status: :any)
+        return if last_s.nil?
+
+        last_s.ontology = self
+        last_s.index_update([:ontology])
+      end
+
       def unindex(commit=true)
         unindex_by_acronym(commit)
       end
 
       def embedded_doc
-        "#{self.acronym} #{self.name} #{self.viewingRestriction}"
+        doc = indexable_object
+        doc.delete(:id)
+        doc.delete(:resource_id)
+        doc.delete('ontology_viewOf_resource_model_t')
+        doc['ontology_viewOf_t'] = self.viewOf.id.to_s  unless self.viewOf.nil?
+        doc[:resource_model_t] = doc.delete(:resource_model)
+        doc
       end
 
       def unindex_properties(commit=true)
