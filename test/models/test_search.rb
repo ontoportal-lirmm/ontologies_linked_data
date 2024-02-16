@@ -30,8 +30,8 @@ class TestSearch < LinkedData::TestCase
       select_ont = created_ontologies.select{|ont_created| ont_created.id.to_s.eql?(ont['id'])}.first
       refute_nil select_ont
       select_ont.bring_remaining
-      assert_equal ont['name_t'], select_ont.name
-      assert_equal ont['acronym_t'], select_ont.acronym
+      assert_equal ont['name_text'], select_ont.name
+      assert_equal ont['acronym_text'], select_ont.acronym
       assert_equal ont['viewingRestriction_t'], select_ont.viewingRestriction
       assert_equal ont['ontologyType_t'], select_ont.ontologyType.id
     end
@@ -44,9 +44,9 @@ class TestSearch < LinkedData::TestCase
     submissions.each do |sub|
       created_sub = LinkedData::Models::OntologySubmission.find(RDF::URI.new(sub['id'])).first&.bring_remaining
       refute_nil created_sub
-      assert_equal sub['description_t'], created_sub.description
+      assert_equal sub['description_text'], created_sub.description
       assert_equal sub['submissionId_i'], created_sub.submissionId
-      assert_equal sub['URI_t'], created_sub.URI
+      assert_equal sub['URI_text'], created_sub.URI
       assert_equal sub['status_t'], created_sub.status
       assert_equal sub['deprecated_b'], created_sub.deprecated
       assert_equal sub['hasOntologyLanguage_t'], created_sub.hasOntologyLanguage.id.to_s
@@ -60,7 +60,14 @@ class TestSearch < LinkedData::TestCase
       assert_equal sub['endpoint_txt'], created_sub.endpoint
       assert_equal sub['uploadFilePath_t'], created_sub.uploadFilePath
       assert_equal sub['submissionStatus_txt'], created_sub.submissionStatus.map(&:id)
-      assert_equal sub['ontology_t'], created_sub.ontology.bring_remaining.embedded_doc
+      embed_doc = created_sub.ontology.bring_remaining.embedded_doc
+      embed_doc.each do |k,v|
+        if v.is_a?(Array)
+          assert_equal v, Array(sub["ontology_#{k}"])
+        else
+          assert_equal v, sub["ontology_#{k}"]
+        end
+      end
     end
   end
 
@@ -96,11 +103,11 @@ class TestSearch < LinkedData::TestCase
       refute_nil select_agent
       select_agent.bring_remaining
 
-      assert_equal a['name_t'], select_agent.name
-      assert_equal a['email_t'], select_agent.email
+      assert_equal a['name_text'], select_agent.name
+      assert_equal a['email_text'], select_agent.email
       assert_equal a['agentType_t'], select_agent.agentType
       assert_equal(a['affiliations_txt'], select_agent.affiliations&.map{ |x| x.bring_remaining.embedded_doc })
-      assert_equal(a['identifiers_txt'], select_agent.identifiers&.map{ |x| x.bring_remaining.embedded_doc })
+      assert_equal(a['identifiers_texts'], select_agent.identifiers&.map{ |x| x.bring_remaining.embedded_doc })
       assert_equal a['creator_t'], select_agent.creator.bring_remaining.embedded_doc
     end
 

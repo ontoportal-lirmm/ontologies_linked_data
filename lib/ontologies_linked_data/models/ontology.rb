@@ -460,6 +460,7 @@ module LinkedData
       end
 
       def embedded_doc
+        self.administeredBy.map{|x| x.bring_remaining}
         doc = indexable_object
         doc.delete(:id)
         doc.delete(:resource_id)
