@@ -26,8 +26,8 @@ module LinkedData
 
       model :ontology, :name_with => :acronym
       attribute :acronym, namespace: :omv,
-        enforce: [:unique, :existence, lambda { |inst,attr| validate_acronym(inst,attr) } ]
-      attribute :name, :namespace => :omv, enforce: [:unique, :existence]
+        enforce: [:unique, :existence, lambda { |inst,attr| validate_acronym(inst,attr) } ], fuzzy_search: true
+      attribute :name, :namespace => :omv, enforce: [:unique, :existence], fuzzy_search: true
       attribute :submissions, inverse: { on: :ontology_submission, attribute: :ontology },
                 metadataMappings: ["dct:hasVersion", "pav:hasCurrentVersion", "pav:hasVersion", "prov:generalizationOf", "adms:next"]
       attribute :projects,
