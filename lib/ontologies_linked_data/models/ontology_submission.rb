@@ -1340,7 +1340,7 @@ eos
           begin
             logger.info("Indexing ontology terms: #{self.ontology.acronym}...")
             t0 = Time.now
-            self.ontology.unindex(false)
+            self.ontology.unindex_all_data(false)
             logger.info("Removed ontology terms index (#{Time.now - t0}s)"); logger.flush
 
             paging = LinkedData::Models::Class.in(self).include(:unmapped).aggregate(:count, :children).page(page, size)
@@ -1547,8 +1547,7 @@ eos
         index_commit = options[:index_commit] == false ? false : true
 
         super(*args)
-        self.ontology.unindex(index_commit)
-        self.ontology.unindex_properties(index_commit)
+        self.ontology.unindex_all_data(index_commit)
 
         self.bring(:metrics) if self.bring?(:metrics)
         self.metrics.delete if self.metrics

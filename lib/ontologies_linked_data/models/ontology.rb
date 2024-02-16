@@ -424,9 +424,8 @@ module LinkedData
         end
 
         # remove index entries
-        unindex(index_commit)
-        unindex_properties(index_commit)
-
+        unindex_all_data(index_commit)
+       
         # delete all files
         ontology_dir = File.join(LinkedData.settings.repository_folder, self.acronym.to_s)
         FileUtils.rm_rf(ontology_dir)
@@ -455,8 +454,9 @@ module LinkedData
         last_s.index_update([:ontology])
       end
 
-      def unindex(commit=true)
+      def unindex_all_data(commit=true)
         unindex_by_acronym(commit)
+        unindex_properties(commit)
       end
 
       def embedded_doc
