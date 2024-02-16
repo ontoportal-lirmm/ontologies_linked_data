@@ -7,13 +7,13 @@ module LinkedData
 
       model :Agent, namespace: :foaf, name_with: lambda { |cc| uuid_uri_generator(cc) }
       attribute :agentType, enforce: [:existence], enforcedValues: %w[person organization]
-      attribute :name, namespace: :foaf, enforce: %i[existence]
+      attribute :name, namespace: :foaf, enforce: %i[existence], fuzzy_search: true
 
       attribute :homepage, namespace: :foaf
-      attribute :acronym, namespace: :skos, property: :altLabel
-      attribute :email, namespace: :foaf, property: :mbox, enforce: %i[email unique]
+      attribute :acronym, namespace: :skos, property: :altLabel, fuzzy_search: true
+      attribute :email, namespace: :foaf, property: :mbox, enforce: %i[email unique], fuzzy_search: true
 
-      attribute :identifiers, namespace: :adms, property: :identifier, enforce: %i[Identifier list unique_identifiers]
+      attribute :identifiers, namespace: :adms, property: :identifier, enforce: %i[Identifier list unique_identifiers], fuzzy_search: true
       attribute :affiliations, enforce: %i[Agent list is_organization], namespace: :org, property: :memberOf
       attribute :creator, type: :user, enforce: [:existence]
       embed :identifiers, :affiliations
