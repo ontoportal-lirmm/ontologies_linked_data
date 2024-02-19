@@ -5,6 +5,7 @@ module LinkedData
     JSONP = :jsonp
     XML = :xml
     TURTLE = :turtle
+    NTRIPLES = :ntriples
     DEFAULT = JSON
 
     def self.all

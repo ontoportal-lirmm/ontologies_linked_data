@@ -1,8 +1,29 @@
 require 'xml'
+require 'rdf/raptor'
 
 module LinkedData
   module Serializers
     class XML
+      
+      def self.serialize(hashes, options = {})
+        subject = RDF::URI.new(hashes["id"])
+        hashes.delete("id")
+        RDF::Writer.for(:rdfxml).buffer(options) do |writer|
+            hashes.each do |p, o|
+                predicate = RDF::URI.new(p)
+                if o.is_a?(Array)
+                    o.each do |item|
+                        writer << RDF::Statement.new(subject, predicate, item)
+                    end
+                else
+                    writer << RDF::Statement.new(subject, predicate, o)
+                end
+
+            end
+        end
+      end
+
+=begin
       def self.serialize(obj, options)
         formatted_hash = obj.to_flex_hash(options) do |hash, hashed_obj|
           if hashed_obj.is_a?(Goo::Base::Resource) || hashed_obj.is_a?(Struct)
@@ -128,6 +149,8 @@ module LinkedData
           (params["display_links"].nil? ||
                     !params["display_links"].eql?("false"))
       end
+=end
+
     end
   end
 end
