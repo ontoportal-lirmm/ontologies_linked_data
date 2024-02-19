@@ -21,6 +21,7 @@ gem 'rubyzip', '~> 1.0'
 gem 'thin'
 gem 'request_store'
 gem 'jwt'
+gem 'rdf-raptor'
 
 # Testing
 group :test do

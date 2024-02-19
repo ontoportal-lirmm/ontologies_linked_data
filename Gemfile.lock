@@ -226,8 +226,6 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
-  x86_64-darwin-21
-  x86_64-darwin-22
   x86_64-darwin-23
   x86_64-linux
 
@@ -252,6 +250,7 @@ DEPENDENCIES
   rack (~> 1.0)
   rack-test (~> 0.6)
   rake (~> 10.0)
+  rdf-raptor
   request_store
   rest-client
   rsolr (~> 1.0)
