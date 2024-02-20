@@ -21,7 +21,6 @@ gem 'rubyzip', '~> 1.0'
 gem 'thin'
 gem 'request_store'
 gem 'jwt'
-gem 'rdf-raptor'
 
 # Testing
 group :test do
@@ -38,5 +37,5 @@ group :development do
   gem 'rubocop', require: false
 end
 # NCBO gems (can be from a local dev path or from rubygems/git)
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'feature/update-rdf'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'master'

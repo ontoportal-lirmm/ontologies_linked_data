@@ -1,4 +1,3 @@
-require 'rdf/raptor'
 
 module LinkedData
     module Serializers

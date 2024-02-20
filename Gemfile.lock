@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: b216f302cd53dc6c774762769a4fa5b475af99a1
+  revision: 0a30e18a5d0ed52e47382df7a2483581a68bcec8
   branch: development
   specs:
     goo (0.0.2)
@@ -250,7 +250,6 @@ DEPENDENCIES
   rack (~> 1.0)
   rack-test (~> 0.6)
   rake (~> 10.0)
-  rdf-raptor
   request_store
   rest-client
   rsolr (~> 1.0)
