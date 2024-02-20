@@ -3,7 +3,7 @@ require 'rdf/raptor'
 module LinkedData
     module Models
       
-        class Resource < LinkedData::Models::Base
+        class Resource
             
             def initialize(graph, id)
                 @id = id 
@@ -15,17 +15,24 @@ module LinkedData
                 @hash
             end
             
-            def generate_model(hashes)
+            def to_object
+                hashes = self.to_hash
                 class_name = "GeneratedModel_#{Time.now.to_i}"
-                model_schema = ::Class.new(Resource)
+                
+                model_schema = ::Class.new(LinkedData::Models::Base)
                 Object.const_set(class_name, model_schema)
-                model_schema.model(:resource, name_with: :id)
+
+                model_schema.model(:resource, name_with: :id, rdf_type: lambda { |*x| self.to_hash[Goo.namespaces[:rdf][:type].to_s] })
+                values_hash = {}
                 hashes.each do |predicate, value|
                     namespace, attr = namespace_predicate(predicate)
                     next if namespace.nil?
                     model_schema.attribute(attr.to_sym, property: namespace.to_s, enforce: get_type(value))
+                    values_hash[attr.to_sym] = value
                 end
-                model_schema
+    
+                values_hash[:id] = hashes["id"]
+                model_schema.new(values_hash)
             end
 
             def to_json()
@@ -44,6 +51,13 @@ module LinkedData
                 LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::TURTLE)
             end
 
+
+            def namespaces
+                to_hash.keys.map do |x| 
+                    namespace, id = namespace_predicate(x)
+                    namespace
+                end.compact.uniq
+            end                 
 
             private
 
