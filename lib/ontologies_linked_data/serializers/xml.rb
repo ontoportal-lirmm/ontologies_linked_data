@@ -1,25 +1,45 @@
-require 'xml'
-require 'rdf/raptor'
-
 module LinkedData
   module Serializers
     class XML
-      
-      def self.serialize(hashes, options = {})
-        subject = RDF::URI.new(hashes["id"])
-        hashes.delete("id")
-        RDF::Writer.for(:rdfxml).buffer(options) do |writer|
-            hashes.each do |p, o|
-                predicate = RDF::URI.new(p)
-                if o.is_a?(Array)
-                    o.each do |item|
-                        writer << RDF::Statement.new(subject, predicate, item)
-                    end
-                else
-                    writer << RDF::Statement.new(subject, predicate, o)
-                end
 
+      def self.serialize(hashes, options = {})
+        subject = hashes["id"]
+        hashes.delete("id")
+
+        graph = RDF::Graph.new
+        hashes.each do |property_url, val|
+          Array(val).each do |v|
+            graph << RDF::Statement.new(subject, RDF::URI.new(property_url), v)
+          end
+        end
+
+
+        prefixes = { }
+        ns_count = 0
+
+        graph.each_statement do |statement|
+          uris = []
+          uris << statement.predicate.to_s
+          uris << statement.object.to_s
+          uris.each do |uri|
+            regex = /^(?<namespace>.*[\/#])(?<id>[^\/#]+)$/
+            match = regex.match(uri)
+            if match
+              [match[:namespace], match[:id]]
+              prefix, namespace = Goo.namespaces.select { |k, v| v.to_s.eql?(match[:namespace]) }.first
+              if prefix
+                prefixes[prefix] = namespace.to_s
+              else
+                prefixes["test#{ns_count}".to_sym] = match[:namespace]
+                ns_count += 1
+              end
             end
+          end
+
+        end
+
+        RDF::RDFXML::Writer.buffer(prefixes: prefixes) do |writer|
+          writer << graph
         end
       end
 
