@@ -59,7 +59,7 @@ class TestResource < LinkedData::TestOntologyCommon
     )
     ont = LinkedData::Models::Ontology.find("TEST-TRIPLES").first
     sub = ont.latest_submission
-        assert(!sub.id.empty?,"Failed submission TEST-TRIPLES")
+    assert(!sub.id.empty?,"Failed submission TEST-TRIPLES")
   end
 
   def test_generate_model
@@ -116,23 +116,29 @@ class TestResource < LinkedData::TestOntologyCommon
 
     refute_empty result
     expected_result = %(
-           {
-            @context: {
-                TestPredicate11: "http://example.org/TestPredicate11",
-                TestPredicate12: "http://example.org/TestPredicate12",
-                TestPredicate13: "http://example.org/TestPredicate13",
-                TestPredicate14: "http://example.org/TestPredicate14",
-                TestPredicate15: "http://example.org/TestPredicate15",
-            }, 
-            @id: "http://example.org/TestSubject1", 
-            @type: "http://www.w3.org/2002/07/owl#Ontology", 
-            TestPredicate12: "http://example.org/test", 
-            TestPredicate14: true, 
-            TestPredicate13: 1, 
-            TestPredicate15: 1.9,
-            TestPredicate11: "TestObject11"
-            }
-        )
+      {
+        "@context": {
+          "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+          "foaf": "http://xmlns.com/foaf/0.1/"
+        },
+        "@id": "http://example.org/person1",
+        "@type": "foaf:Person",
+        "foaf:age": {
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "@value": "30"
+        },
+        "foaf:email": {
+          "@id": "mailto:john@example.com"
+        },
+        "foaf:gender": "male",
+        "foaf:hasInterest": [
+          "Hiking",
+          "Cooking"
+        ],
+        "foaf:name": "JohnDoe"
+      }
+    )
+
     assert_equal expected_result, result
   end
 
@@ -140,20 +146,21 @@ class TestResource < LinkedData::TestOntologyCommon
     result = @@resource1.to_xml
     refute_empty result
     expected_result = %(
-            <?xml version="1.0" encoding="UTF-8" ?>
-            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                     xmlns:foaf="http://xmlns.com/foaf/0.1/">
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+                 xmlns:foaf="http://xmlns.com/foaf/0.1/">
 
-              <foaf:Person  rdf:about="http://example.org/person1">
-                <foaf:gender>male</foaf:gender>
-                <foaf:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</foaf:age>
-                <foaf:email rdf:resource="mailto:john@example.com"/>
-                <foaf:name>John Doe</foaf:name>
-                <foaf:hasInterest>Hiking</foaf:hasInterest>
-                <foaf:hasInterest>Cooking</foaf:hasInterest>
-              </foaf:Person>
-            </rdf:RDF>
-        )
+          <foaf:Person rdf:about="http://example.org/person1">
+            <foaf:gender>male</foaf:gender>
+            <foaf:hasInterest>Hiking</foaf:hasInterest>
+            <foaf:hasInterest>Cooking</foaf:hasInterest>
+            <foaf:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</foaf:age>
+            <foaf:email rdf:resource="mailto:john@example.com"/>
+            <foaf:name>John Doe</foaf:name>
+          </foaf:Person>
+        </rdf:RDF>
+      
+    )
 
     a = result.gsub(' ', '').gsub("\n", '')
     b = expected_result.gsub(' ', '').gsub("\n", '')
@@ -169,12 +176,12 @@ class TestResource < LinkedData::TestOntologyCommon
     expected_result = %(
           <http://example.org/person1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .
           <http://example.org/person1> <http://xmlns.com/foaf/0.1/gender> "male" .
-          <http://example.org/person1> <http://xmlns.com/foaf/0.1/age> "30"^^<http://www.w3.org/2001/XMLSchema#integer> .
-          <http://example.org/person1> <http://xmlns.com/foaf/0.1/email> <mailto:john@example.com> .
-          <http://example.org/person1> <http://xmlns.com/foaf/0.1/name> "John Doe" .
           <http://example.org/person1> <http://xmlns.com/foaf/0.1/hasInterest> "Hiking" .
           <http://example.org/person1> <http://xmlns.com/foaf/0.1/hasInterest> "Cooking" .
-        )
+          <http://example.org/person1> <http://xmlns.com/foaf/0.1/age> "30"^^<http://www.w3.org/2001/XMLSchema#integer> .
+          <http://example.org/person1> <http://xmlns.com/foaf/0.1/email> <mailto:john@example.com> .
+          <http://example.org/person1> <http://xmlns.com/foaf/0.1/name> "JohnDoe" .
+    )
     a = result.gsub(' ', '').gsub("\n", '')
     b = expected_result.gsub(' ', '').gsub("\n", '')
 
@@ -182,23 +189,25 @@ class TestResource < LinkedData::TestOntologyCommon
   end
 
   def test_resource_serialization_turtle
-    skip
     result = @@resource1.to_turtle
     refute_empty result
     expected_result = %(
-            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-            @prefix owl: <http://www.w3.org/2002/07/owl#> .
-            
-            <http://example.org/TestSubject1> a owl:Ontology ;
-                <http://example.org/TestPredicate12> <http://example.org/test> ;
-                <http://example.org/TestPredicate14> true ;
-                <http://example.org/TestPredicate13> 1 ;
-                <http://example.org/TestPredicate15> "1.9"^^<http://www.w3.org/2001/XMLSchema#float> ;
-                <http://example.org/TestPredicate11> "TestObject11" .
-            
-        )
+        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+        
+        <http://example.org/person1>
+            a foaf:Person ;
+            foaf:age "30" ;
+            foaf:email <mailto:john@example.com> ;
+            foaf:gender "male" ;
+            foaf:hasInterest "Cooking", "Hiking" ;
+            foaf:name "John Doe" .
+              
+    )
+    a = result.gsub(' ', '').gsub("\n", '')
+    b = expected_result.gsub(' ', '').gsub("\n", '')
 
-    assert_equal expected_result, result
+    assert_equal b, a
   end
 
 end

@@ -12,33 +12,7 @@ module LinkedData
             graph << RDF::Statement.new(subject, RDF::URI.new(property_url), v)
           end
         end
-
-
-        prefixes = { }
-        ns_count = 0
-
-        graph.each_statement do |statement|
-          uris = []
-          uris << statement.predicate.to_s
-          uris << statement.object.to_s
-          uris.each do |uri|
-            regex = /^(?<namespace>.*[\/#])(?<id>[^\/#]+)$/
-            match = regex.match(uri)
-            if match
-              [match[:namespace], match[:id]]
-              prefix, namespace = Goo.namespaces.select { |k, v| v.to_s.eql?(match[:namespace]) }.first
-              if prefix
-                prefixes[prefix] = namespace.to_s
-              else
-                prefixes["test#{ns_count}".to_sym] = match[:namespace]
-                ns_count += 1
-              end
-            end
-          end
-
-        end
-
-        RDF::RDFXML::Writer.buffer(prefixes: prefixes) do |writer|
+        RDF::RDFXML::Writer.buffer(prefixes: options) do |writer|
           writer << graph
         end
       end

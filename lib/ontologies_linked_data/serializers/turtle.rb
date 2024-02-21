@@ -5,7 +5,7 @@ module LinkedData
         def self.serialize(hashes, options = {})
             subject = RDF::URI.new(hashes["id"])
             hashes.delete("id")
-            RDF::Writer.for(:turtle).buffer(options) do |writer|
+            RDF::Writer.for(:turtle).buffer(prefixes: options) do |writer|
                 hashes.each do |p, o|
                     predicate = RDF::URI.new(p)
                     if o.is_a?(Array)

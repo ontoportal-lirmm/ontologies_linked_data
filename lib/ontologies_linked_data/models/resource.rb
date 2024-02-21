@@ -46,24 +46,45 @@ module LinkedData
       end
 
       def to_xml
-        LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::XML)
+        LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::XML, namespaces)
       end
 
       def to_ntriples()
-        LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::NTRIPLES)
+        LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::NTRIPLES, namespaces)
       end
 
       def to_turtle()
-        LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::TURTLE)
+        LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::TURTLE, namespaces)
       end
 
 
       def namespaces
-        to_hash.keys.map do |x|
-          namespace, id = namespace_predicate(x)
-          namespace
-        end.compact.uniq
-      end
+        prefixes = { }
+        ns_count = 0
+        id_namespace, id = namespace_predicate(to_hash['id'])
+        to_hash.each do |key, value|
+            uris = []
+            uris << key
+            Array(value).each do |v|
+              uris << v
+            end
+            uris.each do |uri|
+              namespace, id = namespace_predicate(uri)
+              unless namespace.nil?
+                if namespace != id_namespace && namespace != Goo.vocabulary(:rdf).to_s
+                    prefix, prefix_namespace = Goo.namespaces.select { |k, v| v.to_s.eql?(namespace) }.first
+                    if prefix
+                      prefixes[prefix] = prefix_namespace.to_s
+                    else
+                      prefixes["test#{ns_count}".to_sym] = namespace
+                      ns_count += 1
+                    end
+                end
+              end
+            end
+        end
+        return prefixes
+      end  
 
       private
 
@@ -122,7 +143,7 @@ module LinkedData
 
       def namespace_predicate(property_url)
         regex = /^(?<namespace>.*[\/#])(?<id>[^\/#]+)$/
-        match = regex.match(property_url)
+        match = regex.match(property_url.to_s)
         return [match[:namespace], match[:id]] if match
       end
 
