@@ -220,7 +220,7 @@ GEM
     unicode-display_width (2.5.0)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    webmock (3.21.2)
+    webmock (3.22.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -263,4 +263,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.21
+   2.5.5
