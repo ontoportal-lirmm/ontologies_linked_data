@@ -1,12 +1,14 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: ec99ed8d742fc8d458911cb0e74fa23d31cdd158
+  revision: 83ac6f6c87aa6f960d3ee71ae85c6ed23c939785
   branch: feature/add-model-based-search
   specs:
     goo (0.0.2)
-      addressable (~> 2.8)
       pry
-      rdf (= 1.0.8)
+      rdf (= 3.2.11)
+      rdf-raptor
+      rdf-rdfxml
+      rdf-vocab
       redis
       rest-client
       rsolr
@@ -36,6 +38,7 @@ GEM
       public_suffix (>= 2.0.2, < 6.0)
     ansi (1.5.0)
     ast (2.4.2)
+    base64 (0.2.0)
     bcrypt (3.1.20)
     bigdecimal (3.1.6)
     builder (3.2.4)
@@ -89,11 +92,13 @@ GEM
       concurrent-ruby (~> 1.0)
     json (2.7.1)
     json_pure (2.7.1)
-    jwt (2.7.1)
+    jwt (2.8.0)
+      base64
     language_server-protocol (3.17.0.3)
     launchy (2.5.2)
       addressable (~> 2.8)
     libxml-ruby (2.9.0)
+    link_header (0.0.8)
     logger (1.6.0)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
@@ -147,8 +152,21 @@ GEM
       rack (>= 1.0, < 3)
     rainbow (3.1.1)
     rake (10.5.0)
-    rdf (1.0.8)
-      addressable (>= 2.2)
+    rdf (3.2.11)
+      link_header (~> 0.0, >= 0.0.8)
+    rdf-raptor (3.2.0)
+      ffi (~> 1.15)
+      rdf (~> 3.2)
+    rdf-rdfxml (3.2.2)
+      builder (~> 3.2)
+      htmlentities (~> 4.3)
+      rdf (~> 3.2)
+      rdf-xsd (~> 3.2)
+    rdf-vocab (3.2.7)
+      rdf (~> 3.2, >= 3.2.4)
+    rdf-xsd (3.2.1)
+      rdf (~> 3.2)
+      rexml (~> 3.2)
     redis (5.1.0)
       redis-client (>= 0.17.0)
     redis-client (0.20.0)
@@ -202,14 +220,12 @@ GEM
     unicode-display_width (2.5.0)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    webmock (3.20.0)
+    webmock (3.22.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
-  x86_64-darwin-21
-  x86_64-darwin-22
   x86_64-darwin-23
   x86_64-linux
 
