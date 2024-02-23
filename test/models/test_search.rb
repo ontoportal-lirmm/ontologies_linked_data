@@ -115,4 +115,23 @@ class TestSearch < LinkedData::TestCase
     @agents.each { |a| a.delete }
     @@user1.delete
   end
+
+  def test_search_ontology_data
+    ont_count, ont_acronyms, created_ontologies = create_ontologies_and_submissions({
+                                                                                      process_submission: true,
+                                                                                      process_options: {
+                                                                                        process_rdf: true, extract_metadata: false,
+                                                                                        generate_missing_labels: false,
+                                                                                        index_search: false,
+                                                                                      },
+                                                                                      acronym: 'BROTEST',
+                                                                                      name: 'ontTEST Bla',
+                                                                                      file_path: 'test/data/ontology_files/thesaurusINRAE_nouv_structure.skos',
+                                                                                      ont_count: 1,
+                                                                                      submission_count: 1
+                                                                                    })
+    ont_sub = LinkedData::Models::Ontology.find("BROTEST-0").first
+    ont_sub  = ont_sub.latest_submission
+    ont_sub.index_all_data(Logger.new($stdout))
+  end
 end

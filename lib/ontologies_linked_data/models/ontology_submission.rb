@@ -1325,6 +1325,118 @@ eos
         self
       end
 
+      def update_doc(doc, property, value)
+        existent_prop = doc["#{property}_t"] || doc["#{property}_txt"]
+        if existent_prop || value.is_a?(Array)
+          doc.delete("#{property}_t")
+          doc["#{property}_txt"] = Array(existent_prop) + Array(value).map(&:to_s)
+        else
+          doc["#{property}_t"] = value.to_s
+        end
+        doc
+      end
+
+      def index_all_data(logger, commit = true, optimize = true)
+        page = 1
+        size = 1000
+        count_ids = 0
+        total_time = 0
+        old_count = -1
+        ontology = self.bring(:ontology).ontology
+                       .bring(:acronym).acronym
+
+        conn = SOLR::SolrConnector.new(Goo.search_conf, :ontology_data)
+        conn.init
+        begin
+          conn.delete_by_query("ontology_t:#{ontology}")
+        rescue StandardError => e
+          puts e.message
+        end
+
+        indexed_ids = Set.new
+        all_ids = Set.new
+
+        while count_ids != old_count && old_count <= 1500
+          ids = {}
+          old_count = count_ids
+          time = Benchmark.realtime do
+            query = Goo.sparql_query_client.select(:id, :p, :v)
+                       .distinct
+                       .from(RDF::URI.new(self.id))
+                       .where([:id, :p, :v])
+                       .limit(size)
+                       .offset((page - 1) * size)
+                       .order_by(:id)
+
+            query.each_solution do |sol|
+              all_ids << sol[:id].to_s
+              doc = ids[sol[:id]]
+              doc ||= {
+                id: "#{sol[:id]}_#{ontology}", submission_id_t: self.id.to_s,
+                ontology_t: ontology, resource_model: self.class.model_name,
+                resource_id: sol[:id]
+              }
+
+              property = sol[:p]
+              value = sol[:v]
+
+              if property.to_s.eql?(RDF.type.to_s)
+                update_doc(doc, 'type', value)
+              else
+                update_doc(doc, property, value)
+              end
+
+              ids[sol[:id]] = doc
+            end
+
+            new_to_index = []
+            already_indexed = {}
+            ids.each do |k, doc|
+              if indexed_ids.include?(k)
+                already_indexed[k.to_s] = doc
+              else
+                indexed_ids << k
+                new_to_index << doc
+              end
+            end
+            conn.index_document(new_to_index, commit: false) unless new_to_index.empty?
+            count_ids += new_to_index.size
+            unless already_indexed.empty?
+              response = conn.search('*',
+                                     fq: already_indexed.keys.map { |x| "resource_id:\"#{x}\"" }.join(' OR '),
+                                     rows: already_indexed.size
+              )
+
+              response['response']['docs'].each do |old_doc|
+                id = old_doc['resource_id']
+
+                old_doc.each do |k, v|
+                  next if %w[submission_id_t ontology_t].include?(k)
+
+                  if k.end_with?('_t')
+                    prop = k.split('_t').first.gsub('___', '://').gsub('_', '/')
+                  elsif k.end_with?('_txt')
+                    prop = k.split('_txt').first.gsub('___', '://').gsub('_', '/')
+                  else
+                    next
+                  end
+                  update_doc(already_indexed[id], prop, v)
+                end
+              end
+              conn.index_document(already_indexed.values, commit: false)
+            end
+          end
+
+          conn.index_commit
+          logger.info("Index ids of #{id} page: #{page} in #{time} sec. #{indexed_ids.size} of #{all_ids.size} ids.") unless ids.empty?
+          total_time += time
+          page += 1
+        end
+
+        logger.info("Completed indexing all ontology data: #{self.id} in #{total_time} sec. #{all_ids.size} ids.")
+        logger.flush
+      end
+
       def index_terms(logger, commit = true, optimize = true)
         page = 0
         size = 1000
