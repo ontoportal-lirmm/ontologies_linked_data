@@ -18,10 +18,10 @@ module LinkedData
 
           begin
             conn.delete_by_query("ontology_t:#{ontology}")
-            conn
           rescue StandardError => e
             puts e.message
           end
+          conn
         end
 
         def fetch_triples(ids, ontology, page, size, all_ids)
