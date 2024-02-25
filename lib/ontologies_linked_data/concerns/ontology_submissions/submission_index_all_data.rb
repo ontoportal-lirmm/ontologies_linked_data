@@ -2,13 +2,22 @@ module LinkedData
   module Concerns
     module OntologySubmission
       module IndexAllData
-        def update_doc(doc, property, value)
-          existent_prop = doc["#{property}_t"] || doc["#{property}_txt"]
-          if existent_prop || value.is_a?(Array)
-            doc.delete("#{property}_t")
-            doc["#{property}_txt"] = Array(existent_prop) + Array(value).map(&:to_s)
-          else
-            doc["#{property}_t"] = value.to_s
+        def update_doc(doc, property, new_val)
+          unescaped_prop = property.gsub('___', '://')
+
+          unescaped_prop = unescaped_prop.gsub('_', '/')
+          existent_val = doc["#{unescaped_prop}_t"] || doc["#{unescaped_prop}_txt"]
+
+          if !existent_val && !property['#']
+            unescaped_prop = unescaped_prop.sub(%r{/([^/]+)$}, '#\1') # change latest '/' with '#'
+            existent_val = doc["#{unescaped_prop}_t"] || doc["#{unescaped_prop}_txt"]
+          end
+
+          if existent_val && new_val || new_val.is_a?(Array)
+            doc.delete("#{unescaped_prop}_t")
+            doc["#{unescaped_prop}_txt"] = Array(existent_val) + Array(new_val).map(&:to_s)
+          elsif existent_val.nil? && new_val
+            doc["#{unescaped_prop}_t"] = new_val.to_s
           end
           doc
         end
@@ -39,14 +48,10 @@ module LinkedData
             doc ||= {
               id: "#{sol[:id]}_#{ontology}", submission_id_t: self.id.to_s,
               ontology_t: ontology, resource_model: self.class.model_name,
-              resource_id: sol[:id]
+              resource_id: sol[:id].to_s
             }
 
-            if sol[:id].to_s.eql?('http://opendata.inrae.fr/thesaurusINRAE/c_0015b5e0')
-              puts "#{sol.to_a.join(' ')} \n"
-            end
-
-            property = sol[:p]
+            property = sol[:p].to_s
             value = sol[:v]
 
             if property.to_s.eql?(RDF.type.to_s)
@@ -54,8 +59,7 @@ module LinkedData
             else
               update_doc(doc, property, value)
             end
-
-            ids[sol[:id]] = doc
+            ids[sol[:id].to_s] = doc
           end
           count
         end
@@ -104,19 +108,20 @@ module LinkedData
         def fetch_index_documents(indexed, conn)
           indexed = indexed.to_h
           response = post_to_solr(Goo.search_conf, 'ontology_data',
+                                  q: '*',
                                   fq: indexed.keys.map { |x| "resource_id:\"#{x}\"" }.join(' OR '),
                                   rows: indexed.size)
 
           response['response']['docs'].each do |old_doc|
-            id = old_doc['resource_id']
-
+            id = old_doc['resource_id'].to_s
+            
             old_doc.each do |k, v|
               next if %w[submission_id_t ontology_t].include?(k)
 
               if k.end_with?('_t')
-                prop = k.split('_t').first.gsub('___', '://').gsub('_', '/')
+                prop = k.split('_t').first
               elsif k.end_with?('_txt')
-                prop = k.split('_txt').first.gsub('___', '://').gsub('_', '/')
+                prop = k.split('_txt').first
               else
                 next
               end
@@ -128,7 +133,7 @@ module LinkedData
 
         def index_all_data(logger, commit = true, optimize = true)
           page = 1
-          size = 1000
+          size = 10000
           count_ids = 0
           total_time = 0
           old_count = -1
@@ -141,36 +146,35 @@ module LinkedData
           all_ids = Set.new
           index_ids = 0
           ids = {}
-          time = 0
+
           while count_ids != old_count
             old_count = count_ids
-            time += Benchmark.realtime do
+            count = 0
+            time = Benchmark.realtime do
               count = fetch_triples(ids, ontology, page, size, all_ids)
-              logger.info("Fetched #{count} triples of #{id} page: #{page} in #{time} sec.")
-              count_ids += count
             end
 
-            time += Benchmark.realtime do
-              if ids.size >= 100
+            logger.info("Fetched #{count} triples of #{id} page: #{page} in #{time} sec.") if count.positive?
+
+            count_ids += count
+            total_time += time
+
+            if ids.size >= 100
+              time = Benchmark.realtime do
                 index_ids(ids, indexed_ids, conn)
                 conn.index_commit
                 index_ids = ids.size
                 ids = {}
               end
+              logger.info("Index #{index_ids} ids of #{id} in #{time} sec. Total #{all_ids.size} ids.")
+              total_time += time
             end
 
-            total_time += time
             page += 1
-
-            next unless index_ids.positive?
-
-            logger.info("Index #{index_ids} ids of #{id} in #{time} sec. Total #{all_ids.size} ids.")
-            time = 0
-            index_ids = 0
           end
 
           unless ids.empty?
-            time += Benchmark.realtime do
+            time = Benchmark.realtime do
               index_ids(ids, indexed_ids, conn)
               conn.index_commit
             end

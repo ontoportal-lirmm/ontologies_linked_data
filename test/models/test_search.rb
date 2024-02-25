@@ -2,7 +2,6 @@ require_relative '../test_case'
 
 class TestSearch < LinkedData::TestCase
 
-
   def self.after_suite
     backend_4s_delete
     LinkedData::Models::Ontology.indexClear
@@ -15,19 +14,18 @@ class TestSearch < LinkedData::TestCase
 
   def test_search_ontology
     ont_count, ont_acronyms, created_ontologies = create_ontologies_and_submissions({
-                                        process_submission: false,
-                                        acronym: 'BROTEST',
-                                        name: 'ontTEST Bla',
-                                        file_path: '../../../../test/data/ontology_files/BRO_v3.2.owl',
-                                        ont_count: 3,
-                                        submission_count: 3
-                                      })
+                                                                                      process_submission: false,
+                                                                                      acronym: 'BROTEST',
+                                                                                      name: 'ontTEST Bla',
+                                                                                      file_path: '../../../../test/data/ontology_files/BRO_v3.2.owl',
+                                                                                      ont_count: 3,
+                                                                                      submission_count: 3
+                                                                                    })
 
-
-    ontologies = LinkedData::Models::Ontology.search('*:*', {fq: 'resource_model: "ontology"'})['response']['docs']
+    ontologies = LinkedData::Models::Ontology.search('*:*', { fq: 'resource_model: "ontology"' })['response']['docs']
     assert_equal 3, ontologies.size
     ontologies.each do |ont|
-      select_ont = created_ontologies.select{|ont_created| ont_created.id.to_s.eql?(ont['id'])}.first
+      select_ont = created_ontologies.select { |ont_created| ont_created.id.to_s.eql?(ont['id']) }.first
       refute_nil select_ont
       select_ont.bring_remaining
       assert_equal ont['name_text'], select_ont.name
@@ -36,9 +34,7 @@ class TestSearch < LinkedData::TestCase
       assert_equal ont['ontologyType_t'], select_ont.ontologyType.id
     end
 
-
-
-    submissions = LinkedData::Models::Ontology.search('*:*', {fq: 'resource_model: "ontology_submission"'})['response']['docs']
+    submissions = LinkedData::Models::Ontology.search('*:*', { fq: 'resource_model: "ontology_submission"' })['response']['docs']
     assert_equal 9, submissions.size
 
     submissions.each do |sub|
@@ -52,7 +48,7 @@ class TestSearch < LinkedData::TestCase
       assert_equal sub['hasOntologyLanguage_t'], created_sub.hasOntologyLanguage.id.to_s
       assert_equal sub['released_dt'], created_sub.released.utc.strftime('%Y-%m-%dT%H:%M:%SZ')
       assert_equal sub['creationDate_dt'], created_sub.creationDate.utc.strftime('%Y-%m-%dT%H:%M:%SZ')
-      assert_equal(sub['contact_txt'], created_sub.contact.map{ |x| x.bring_remaining.embedded_doc })
+      assert_equal(sub['contact_txt'], created_sub.contact.map { |x| x.bring_remaining.embedded_doc })
       assert_equal sub['dataDump_t'], created_sub.dataDump
       assert_equal sub['csvDump_t'], created_sub.csvDump
       assert_equal sub['uriLookupEndpoint_t'], created_sub.uriLookupEndpoint
@@ -61,7 +57,7 @@ class TestSearch < LinkedData::TestCase
       assert_equal sub['uploadFilePath_t'], created_sub.uploadFilePath
       assert_equal sub['submissionStatus_txt'], created_sub.submissionStatus.map(&:id)
       embed_doc = created_sub.ontology.bring_remaining.embedded_doc
-      embed_doc.each do |k,v|
+      embed_doc.each do |k, v|
         if v.is_a?(Array)
           assert_equal v, Array(sub["ontology_#{k}"])
         else
@@ -94,20 +90,19 @@ class TestSearch < LinkedData::TestCase
     agent.identifiers = @identifiers
     agent.save
 
-
     agents = LinkedData::Models::Agent.search('*:*')['response']['docs']
 
     assert_equal 3, agents.size
     agents.each do |a|
-      select_agent = @agents.select{|agent_created| agent_created.id.to_s.eql?(a['id'])}.first
+      select_agent = @agents.select { |agent_created| agent_created.id.to_s.eql?(a['id']) }.first
       refute_nil select_agent
       select_agent.bring_remaining
 
       assert_equal a['name_text'], select_agent.name
       assert_equal a['email_text'], select_agent.email
       assert_equal a['agentType_t'], select_agent.agentType
-      assert_equal(a['affiliations_txt'], select_agent.affiliations&.map{ |x| x.bring_remaining.embedded_doc })
-      assert_equal(a['identifiers_texts'], select_agent.identifiers&.map{ |x| x.bring_remaining.embedded_doc })
+      assert_equal(a['affiliations_txt'], select_agent.affiliations&.map { |x| x.bring_remaining.embedded_doc })
+      assert_equal(a['identifiers_texts'], select_agent.identifiers&.map { |x| x.bring_remaining.embedded_doc })
       assert_equal a['creator_t'], select_agent.creator.bring_remaining.embedded_doc
     end
 
@@ -128,12 +123,15 @@ class TestSearch < LinkedData::TestCase
                                                                                       name: 'ontTEST Bla',
                                                                                       file_path: 'test/data/ontology_files/thesaurusINRAE_nouv_structure.skos',
                                                                                       ont_count: 1,
-                                                                                      submission_count: 1
+                                                                                      submission_count: 1,
+                                                                                      ontology_format: 'SKOS'
                                                                                     })
-    ont_sub = LinkedData::Models::Ontology.find("BROTEST-0").first
+    ont_sub = LinkedData::Models::Ontology.find('BROTEST-0').first
     ont_sub = ont_sub.latest_submission
-    ont_sub.index_all_data(Logger.new($stdout))
-
+    time = Benchmark.realtime do
+      ont_sub.index_all_data(Logger.new($stdout))
+    end
+    puts time
     conn = Goo.search_client(:ontology_data)
     response = conn.search('*')
 
@@ -141,6 +139,42 @@ class TestSearch < LinkedData::TestCase
                .first[:c]
                .to_i
 
-    assert_equal count, response["response"]["numFound"]
+    assert_equal count, response['response']['numFound']
+
+    response = conn.search('*', fq: ' resource_id:"http://opendata.inrae.fr/thesaurusINRAE/c_10065"')
+
+    assert_equal 1, response['response']['numFound']
+    doc = response['response']['docs'].first
+
+    expected_doc = {
+      'id' => 'http://opendata.inrae.fr/thesaurusINRAE/c_10065_BROTEST-0',
+      'submission_id_t' => 'http://data.bioontology.org/ontologies/BROTEST-0/submissions/1',
+      'ontology_t' => 'BROTEST-0',
+      'resource_id' => 'http://opendata.inrae.fr/thesaurusINRAE/c_10065',
+      'type_txt' => %w[http://www.w3.org/2004/02/skos/core#Concept http://www.w3.org/2002/07/owl#NamedIndividual],
+      'http___www.w3.org_2004_02_skos_core_inScheme_txt' => %w[http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE http://opendata.inrae.fr/thesaurusINRAE/mt_53],
+      'http___www.w3.org_2004_02_skos_core_broader_t' => 'http://opendata.inrae.fr/thesaurusINRAE/c_9937',
+      'http___www.w3.org_2004_02_skos_core_altLabel_txt' => ['GMO food',
+                                                             'aliment transgénique',
+                                                             'aliment OGM',
+                                                             'transgenic food'],
+      'http___www.w3.org_2004_02_skos_core_prefLabel_txt' => ['genetically modified food',
+                                                              'aliment génétiquement modifié'],
+      'resource_model' => 'ontology_submission'
+    }
+
+    doc.delete('_version_')
+
+    assert_equal expected_doc['id'], doc['id']
+    assert_equal expected_doc['submission_id_t'], doc['submission_id_t']
+    assert_equal expected_doc['ontology_t'], doc['ontology_t']
+    assert_equal expected_doc['resource_id'], doc['resource_id']
+    assert_equal expected_doc['type_txt'].sort, doc['type_txt'].sort
+    assert_equal expected_doc['http___www.w3.org_2004_02_skos_core_inScheme_txt'].sort, doc['http___www.w3.org_2004_02_skos_core_inScheme_txt'].sort
+    assert_equal expected_doc['http___www.w3.org_2004_02_skos_core_broader_t'], doc['http___www.w3.org_2004_02_skos_core_broader_t']
+    assert_equal expected_doc['http___www.w3.org_2004_02_skos_core_altLabel_txt'].sort, doc['http___www.w3.org_2004_02_skos_core_altLabel_txt'].sort
+    assert_equal expected_doc['http___www.w3.org_2004_02_skos_core_prefLabel_txt'].sort, doc['http___www.w3.org_2004_02_skos_core_prefLabel_txt'].sort
+    assert_equal expected_doc['resource_model'], doc['resource_model']
+
   end
 end
