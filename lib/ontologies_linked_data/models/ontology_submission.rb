@@ -127,7 +127,7 @@ module LinkedData
       attribute :openSearchDescription, namespace: :void, type: :uri, default: -> (s) {open_search_default(s)}
       attribute :source, namespace: :dct, type: :list
       attribute :endpoint, namespace: :sd, type: %i[uri list],
-                           default: ->(s) {[RDF::URI.new(LinkedData.settings.sparql_endpoint_url)]}
+                           default: ->(s) { default_sparql_endpoint(s)}
       attribute :includedInDataCatalog, namespace: :schema, type: %i[list uri]
 
       # Relations
