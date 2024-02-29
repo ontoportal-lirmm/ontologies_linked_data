@@ -1,9 +1,10 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: bc4f5a13dd659e5487225dc6d686046065364f2e
+  revision: 10b90c17af12c71bfc95bfb4fc0bba5e47ff77af
   branch: feature/add-model-based-search
   specs:
     goo (0.0.2)
+      addressable (~> 2.8)
       pry
       rdf (= 3.2.11)
       rdf-raptor
@@ -17,7 +18,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: aed51baf4106fd0f3d0e3f9238f0aad9406aa3f0
+  revision: 180c818f7715baac64b2699bb452ef5c756f62c5
   branch: master
   specs:
     sparql-client (1.0.1)
@@ -220,7 +221,7 @@ GEM
     unicode-display_width (2.5.0)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    webmock (3.22.0)
+    webmock (3.23.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)

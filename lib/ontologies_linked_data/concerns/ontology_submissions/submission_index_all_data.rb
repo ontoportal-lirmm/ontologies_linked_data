@@ -26,7 +26,7 @@ module LinkedData
           conn = Goo.init_search_connection(:ontology_data)
 
           begin
-            conn.delete_by_query("ontology_t:#{ontology}")
+            conn.delete_by_query("ontology_t:\"#{ontology}\"")
           rescue StandardError => e
             puts e.message
           end
