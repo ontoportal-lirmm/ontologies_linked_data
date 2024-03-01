@@ -125,8 +125,10 @@ class TestResource < LinkedData::TestOntologyCommon
         "http://example2.org/person5"=>["http://xmlns.com/foaf/0.1/brother", "http://xmlns.com/foaf/0.1/friend"]
       }
     }
-
-    assert_equal expected_result, JSON.parse(MultiJson.dump(result)) 
+    result =  JSON.parse(MultiJson.dump(result))
+    a = sort_nested_hash(result)
+    b = sort_nested_hash(expected_result)
+    assert_equal b, a
   end
 
   def test_resource_serialization_json
@@ -140,30 +142,33 @@ class TestResource < LinkedData::TestOntologyCommon
           {
             "@id": "ns0:person1",
             "@type": "foaf:Person",
-            "foaf:gender": "male",
-            "foaf:hasInterest": ["Cooking", "Hiking"],
+            "foaf:name": "John Doe",
             "foaf:age": {"@type": "http://www.w3.org/2001/XMLSchema#integer", "@value": "30"},
             "foaf:email": {"@id": "mailto:john@example.com"},
-            "foaf:knows": [{"@id": "ns0:person3"}, {"@id": "_:g445960"}, {"@id": "_:g445980"}],
-            "foaf:name": "John Doe"
+            "foaf:gender": "male",
+            "foaf:hasInterest": ["Cooking", "Hiking"],
+            "foaf:knows": [{"@id": "ns0:person3"}, {"@id": "_:g445960"}, {"@id": "_:g445980"}]
           },
           {
             "@id": "_:g445960",
-            "foaf:gender": "female",
+            "foaf:name": "Jane Smith",
             "foaf:age": {"@type": "http://www.w3.org/2001/XMLSchema#integer", "@value": "25"},
             "foaf:email": {"@id": "mailto:jane@example.com"},
-            "foaf:name": "Jane Smith"
+            "foaf:gender": "female"
           },
           {"@id": "_:g445980", "foaf:name": "Jane Smith 2"},
-          {"@id": "ns1:person2", "foaf:mother": {"@id": "ns0:person1"}},
-          {"@id": "ns1:person5", "foaf:brother": {"@id": "ns0:person1"}, "foaf:friend": {"@id": "ns0:person1"}}
+          {"@id": "ns1:person5", "foaf:friend": {"@id": "ns0:person1"}, "foaf:brother": {"@id": "ns0:person1"}},
+          {"@id": "ns1:person2", "foaf:mother": {"@id": "ns0:person1"}}
         ]
       }
     )
-    a = result.gsub(' ', '').gsub("\n", '').gsub(/_:g\d+/, 'blanke_nodes')
-    b = expected_result.gsub(' ', '').gsub("\n", '').gsub(/_:g\d+/, 'blanke_nodes')
+    result = JSON.parse(result.gsub(' ', '').gsub("\n", '').gsub(/_:g\d+/, 'blanke_nodes'))
+    expected_result = JSON.parse(expected_result.gsub(' ', '').gsub("\n", '').gsub(/_:g\d+/, 'blanke_nodes'))
 
-    assert_equal JSON.parse(b), JSON.parse(a)
+    a = sort_nested_hash(result)
+    b = sort_nested_hash(expected_result)
+
+    assert_equal b, a
   end
 
   def test_resource_serialization_xml
@@ -277,5 +282,24 @@ class TestResource < LinkedData::TestOntologyCommon
 
     assert_equal b.sort, a.sort
   end
+
+  private
+
+  def sort_nested_hash(hash)
+    sorted_hash = {}
+  
+    hash.each do |key, value|
+      if value.is_a?(Hash)
+        sorted_hash[key] = sort_nested_hash(value)
+      elsif value.is_a?(Array)
+        sorted_hash[key] = value.map { |item| item.is_a?(Hash) ? sort_nested_hash(item) : item }.sort_by { |item| item.to_s }
+      else
+        sorted_hash[key] = value
+      end
+    end
+  
+    sorted_hash.sort.to_h
+  end
+
 
 end
