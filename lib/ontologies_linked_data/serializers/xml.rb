@@ -1,23 +1,8 @@
+require 'xml'
+
 module LinkedData
   module Serializers
     class XML
-
-      def self.serialize(hashes, options = {})
-        subject = hashes["id"]
-        hashes.delete("id")
-
-        graph = RDF::Graph.new
-        hashes.each do |property_url, val|
-          Array(val).each do |v|
-            graph << RDF::Statement.new(subject, RDF::URI.new(property_url), v)
-          end
-        end
-        RDF::RDFXML::Writer.buffer(prefixes: options) do |writer|
-          writer << graph
-        end
-      end
-
-=begin
       def self.serialize(obj, options)
         formatted_hash = obj.to_flex_hash(options) do |hash, hashed_obj|
           if hashed_obj.is_a?(Goo::Base::Resource) || hashed_obj.is_a?(Struct)
@@ -143,8 +128,6 @@ module LinkedData
           (params["display_links"].nil? ||
                     !params["display_links"].eql?("false"))
       end
-=end
-
     end
   end
 end
