@@ -3,6 +3,25 @@ module LinkedData
   module Concerns
     module OntologySubmission
       module IndexAllData
+
+        module ClassMethods
+          def clear_indexed_content(ontology)
+            conn = Goo.init_search_connection(:ontology_data)
+            begin
+              conn.delete_by_query("ontology_t:\"#{ontology}\"")
+            rescue StandardError => e
+              puts e.message
+            end
+            conn
+          end
+
+        end
+
+        def self.included(base)
+          base.extend(ClassMethods)
+        end
+
+
         def update_doc(doc, property, new_val)
           unescaped_prop = property.gsub('___', '://')
 
@@ -23,16 +42,12 @@ module LinkedData
           doc
         end
 
-        def inti_search_collection(ontology)
-          conn = Goo.init_search_connection(:ontology_data)
 
-          begin
-            conn.delete_by_query("ontology_t:\"#{ontology}\"")
-          rescue StandardError => e
-            puts e.message
-          end
-          conn
+
+        def init_search_collection(ontology)
+          self.class.clear_indexed_content(ontology)
         end
+
 
         def fetch_triples(ids, ontology, page, size, all_ids)
           query = Goo.sparql_query_client.select(:id, :p, :v)
@@ -87,7 +102,6 @@ module LinkedData
           new_to_index
         end
 
-
         def fetch_index_documents(indexed, conn)
           indexed = indexed.to_h
           response = conn.submit_search_query('*', { fq: indexed.keys.map { |x| "resource_id:\"#{x}\"" }.join(' OR '),
@@ -121,7 +135,7 @@ module LinkedData
           ontology = self.bring(:ontology).ontology
                          .bring(:acronym).acronym
 
-          conn = inti_search_collection(ontology)
+          conn = init_search_collection(ontology)
 
           indexed_ids = Set.new
           all_ids = Set.new
@@ -143,7 +157,7 @@ module LinkedData
             if ids.size >= 100
               time = Benchmark.realtime do
                 index_ids(ids, indexed_ids, conn)
-                conn.index_commit
+                conn.index_commit if commit
                 index_ids = ids.size
                 ids = {}
               end
@@ -157,7 +171,7 @@ module LinkedData
           unless ids.empty?
             time = Benchmark.realtime do
               index_ids(ids, indexed_ids, conn)
-              conn.index_commit
+              conn.index_commit if commit
             end
             logger.info("Index #{index_ids} ids of #{id} in #{time} sec. Total #{all_ids.size} ids.")
             total_time += time
