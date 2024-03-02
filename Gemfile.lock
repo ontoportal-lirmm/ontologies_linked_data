@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 10b90c17af12c71bfc95bfb4fc0bba5e47ff77af
-  branch: feature/add-model-based-search
+  revision: 6c51346b6f150a69391794b7909b30592acbbe0e
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -93,7 +93,7 @@ GEM
       concurrent-ruby (~> 1.0)
     json (2.7.1)
     json_pure (2.7.1)
-    jwt (2.8.0)
+    jwt (2.8.1)
       base64
     language_server-protocol (3.17.0.3)
     launchy (2.5.2)
@@ -183,7 +183,7 @@ GEM
     rexml (3.2.6)
     rsolr (1.1.2)
       builder (>= 2.1.2)
-    rubocop (1.60.2)
+    rubocop (1.61.0)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
@@ -194,8 +194,8 @@ GEM
       rubocop-ast (>= 1.30.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.30.0)
-      parser (>= 3.2.1.0)
+    rubocop-ast (1.31.1)
+      parser (>= 3.3.0.4)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     rubyzip (1.3.0)
@@ -248,6 +248,7 @@ DEPENDENCIES
   multi_json (~> 1.0)
   oj (~> 2.0)
   omni_logger
+  parallel (~> 1.24)
   pony
   pry
   rack (~> 1.0)

@@ -1,3 +1,4 @@
+require 'parallel'
 module LinkedData
   module Concerns
     module OntologySubmission
@@ -76,45 +77,25 @@ module LinkedData
             end
           end
 
-          already_indexed.each_slice(1000) do |indexed|
-            new_to_index += fetch_index_documents(indexed, conn)
-          end
-
           conn.index_document(new_to_index, commit: false)
-
-          new_to_index.size
+          new_to_index = new_to_index.size
+          new_to_index += Parallel.map(already_indexed.each_slice(1000), in_threads: 10) do |indexed|
+            to_index = fetch_index_documents(indexed, conn)
+            conn.index_document(to_index, commit: false)
+            to_index.size
+          end.sum
+          new_to_index
         end
 
-        require 'net/http'
-        require 'json'
-
-        def post_to_solr(solr_url, collection_name, query_params)
-          uri = ::URI.parse("#{solr_url}/#{collection_name}/select")
-
-          http = Net::HTTP.new(uri.host, uri.port)
-          request = Net::HTTP::Post.new(uri.request_uri)
-          request.set_form_data(query_params)
-
-          response = http.request(request)
-
-          if response.is_a?(Net::HTTPSuccess)
-            JSON.parse(response.body)
-          else
-            puts "Error: #{response.code} - #{response.message}"
-            nil
-          end
-        end
 
         def fetch_index_documents(indexed, conn)
           indexed = indexed.to_h
-          response = post_to_solr(Goo.search_conf, 'ontology_data',
-                                  q: '*',
-                                  fq: indexed.keys.map { |x| "resource_id:\"#{x}\"" }.join(' OR '),
-                                  rows: indexed.size)
+          response = conn.submit_search_query('*', { fq: indexed.keys.map { |x| "resource_id:\"#{x}\"" }.join(' OR '),
+                                                     rows: indexed.size })
 
           response['response']['docs'].each do |old_doc|
             id = old_doc['resource_id'].to_s
-            
+
             old_doc.each do |k, v|
               next if %w[submission_id_t ontology_t].include?(k)
 
