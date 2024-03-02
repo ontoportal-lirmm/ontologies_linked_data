@@ -56,33 +56,13 @@ services:
     profiles:
       - fs
 
-  solr-term-ut:
-    image: solr:8
-    volumes:
-      - ./test/solr/configsets:/configsets:ro
+  solr-ut:
+    image: solr:8.11.2
     ports:
-     - "8983:8983"
-    command: [ "solr-precreate", "term_search_core1", "/configsets/term_search" ]
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/term_search_core1/admin/ping?wt=json | grep -iq '\"status\":\"OK\"}' || exit 1" ]
-      start_period: 5s
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - 8983:8983
+    command: bin/solr start -cloud -f
 
-  solr-prop-ut:
-    image: solr:8
-    volumes:
-      - ./test/solr/configsets:/configsets:ro
-    ports:
-      - "8984:8983"
-    command: [ "solr-precreate", "prop_search_core1", "/configsets/property_search" ]
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/prop_search_core1/admin/ping?wt=json | grep -iq '\"status\":\"OK\"}' || exit 1" ]
-      start_period: 5s
-      interval: 10s
-      timeout: 5s
-      retries: 5
+
 
   agraph-ut:
     image: franzinc/agraph:v8.1.0

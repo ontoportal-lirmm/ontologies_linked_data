@@ -448,14 +448,17 @@ module LinkedData
       end
 
       def unindex_properties(commit=true)
-        unindex_by_acronym(commit, :property)
-      end
-
-      def unindex_by_acronym(commit=true, connection_name=:main)
         self.bring(:acronym) if self.bring?(:acronym)
         query = "submissionAcronym:#{acronym}"
-        Ontology.unindexByQuery(query, connection_name)
-        Ontology.indexCommit(nil, connection_name) if commit
+        OntologyProperty.unindexByQuery(query)
+        OntologyProperty.indexCommit(nil) if commit
+      end
+
+      def unindex_by_acronym(commit=true)
+        self.bring(:acronym) if self.bring?(:acronym)
+        query = "submissionAcronym:#{acronym}"
+        Class.unindexByQuery(query)
+        Class.indexCommit(nil) if commit
       end
 
       def restricted?

@@ -1514,14 +1514,14 @@ eos
 
           props.each_slice(size) do |prop_batch|
             t = Time.now
-            LinkedData::Models::Class.indexBatch(prop_batch, :property)
+            LinkedData::Models::OntologyProperty.indexBatch(prop_batch)
             logger.info("Page #{page} of ontology properties indexed in #{Time.now - t} seconds."); logger.flush
             page += 1
           end
 
           if commit
             t0 = Time.now
-            LinkedData::Models::Class.indexCommit(nil, :property)
+            LinkedData::Models::OntologyProperty.indexCommit(nil)
             logger.info("Ontology properties index commit in #{Time.now - t0} seconds.")
           end
         end
@@ -1531,7 +1531,7 @@ eos
         if optimize
           logger.info("Optimizing ontology properties index...")
           time = Benchmark.realtime do
-            LinkedData::Models::Class.indexOptimize(nil, :property)
+            LinkedData::Models::OntologyProperty.indexOptimize(nil )
           end
           logger.info("Completed optimizing ontology properties index in #{time} seconds.")
         end
