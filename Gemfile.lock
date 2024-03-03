@@ -246,6 +246,7 @@ DEPENDENCIES
   multi_json (~> 1.0)
   oj (~> 2.0)
   omni_logger
+  parallel (~> 1.24)
   pony
   pry
   rack (~> 1.0)
