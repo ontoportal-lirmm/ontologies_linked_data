@@ -22,7 +22,7 @@ module LinkedData
         end
 
         def index_sorted_ids(ids, ontology, conn, logger, commit = true)
-          total_triples = Parallel.map(ids.each_slice(100), in_threads: 10) do |ids_slice|
+          total_triples = Parallel.map(ids.each_slice(1000), in_threads: 10) do |ids_slice|
             index_ids = 0
             triples_count = 0
             documents = {}
@@ -48,7 +48,7 @@ module LinkedData
 
         def index_all_data(logger, commit = true)
           page = 1
-          size = 1000
+          size = 10_000
           count_ids = 0
           total_time = 0
           total_triples = 0
@@ -76,8 +76,9 @@ module LinkedData
 
             logger.info("Fetched #{count} ids of #{id} page: #{page} in #{time} sec.")
 
-            total_triples += index_sorted_ids(ids, ontology, conn, logger, commit)
-
+            total_time += Benchmark.realtime do
+              total_triples += index_sorted_ids(ids, ontology, conn, logger, commit)
+            end
           end
           logger.info("Completed indexing all ontology data: #{self.id} in #{total_time} sec. (#{count_ids} ids / #{total_triples} triples)")
           logger.flush
