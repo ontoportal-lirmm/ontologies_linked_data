@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 10b90c17af12c71bfc95bfb4fc0bba5e47ff77af
-  branch: feature/add-model-based-search
+  revision: 6c51346b6f150a69391794b7909b30592acbbe0e
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -114,7 +114,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2024.0206)
+    mime-types-data (3.2024.0305)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-reporters (0.14.24)
@@ -173,7 +173,7 @@ GEM
       rexml (~> 3.2)
     redis (5.1.0)
       redis-client (>= 0.17.0)
-    redis-client (0.20.0)
+    redis-client (0.21.0)
       connection_pool
     regexp_parser (2.9.0)
     request_store (1.6.0)
@@ -230,6 +230,7 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
+  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
@@ -249,6 +250,7 @@ DEPENDENCIES
   multi_json (~> 1.0)
   oj (~> 2.0)
   omni_logger
+  parallel (~> 1.24)
   pony
   pry
   rack (~> 1.0)
@@ -267,4 +269,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.21
+   2.4.22

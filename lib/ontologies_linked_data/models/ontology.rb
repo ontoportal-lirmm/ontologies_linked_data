@@ -482,6 +482,7 @@ module LinkedData
         query = "submissionAcronym:#{acronym}"
         Class.unindexByQuery(query)
         Class.indexCommit(nil) if commit
+        OntologySubmission.clear_indexed_content(acronym)
       end
 
       def restricted?

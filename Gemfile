@@ -21,6 +21,7 @@ gem 'rubyzip', '~> 1.0'
 gem 'thin'
 gem 'request_store'
 gem 'jwt'
+gem "parallel", "~> 1.24"
 gem 'json-ld', '~> 3.0.2'
 
 # Testing
@@ -38,5 +39,6 @@ group :development do
   gem 'rubocop', require: false
 end
 # NCBO gems (can be from a local dev path or from rubygems/git)
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'feature/add-model-based-search'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'master'
+
