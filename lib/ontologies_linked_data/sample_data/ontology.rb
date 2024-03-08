@@ -44,7 +44,7 @@ module LinkedData
 
           o = LinkedData::Models::Ontology.new({
                                                  acronym: acronym_count,
-                                                 name: name || "#{acronym_count} Ontology",
+                                                 name: name ? "#{name}#{count > 0 ? count : ''}" : "#{acronym_count} Ontology",
                                                  administeredBy: [u],
                                                  summaryOnly: false,
                                                  ontologyType: ontology_type

@@ -6,6 +6,11 @@ module LinkedData
       attribute :email, enforce: [:existence]
 
       embedded true
+
+      def embedded_doc
+        "#{self.name} #{self.email}"
+      end
+
     end
   end
 end
