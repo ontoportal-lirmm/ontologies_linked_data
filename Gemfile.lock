@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 1be1c83158177935cfc77230d42054de984e2d09
+  revision: 6c51346b6f150a69391794b7909b30592acbbe0e
   branch: development
   specs:
     goo (0.0.2)
@@ -230,6 +230,7 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
+  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
@@ -249,6 +250,7 @@ DEPENDENCIES
   multi_json (~> 1.0)
   oj (~> 2.0)
   omni_logger
+  parallel (~> 1.24)
   pony
   pry
   rack (~> 1.0)
@@ -267,4 +269,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.21
+   2.4.22

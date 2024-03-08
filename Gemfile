@@ -22,6 +22,8 @@ gem 'thin'
 gem 'request_store'
 gem 'jwt'
 gem 'json-ld', '~> 3.0.2'
+gem "parallel", "~> 1.24"
+
 
 # Testing
 group :test do
@@ -40,3 +42,4 @@ end
 # NCBO gems (can be from a local dev path or from rubygems/git)
 gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'master'
+
