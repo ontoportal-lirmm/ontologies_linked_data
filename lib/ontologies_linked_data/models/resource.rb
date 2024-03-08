@@ -21,7 +21,7 @@ module LinkedData
         model_schema = ::Class.new(LinkedData::Models::Base)
         Object.const_set(class_name, model_schema)
 
-        model_schema.model(:resource, name_with: :id, rdf_type: lambda { |*x| self.to_hash[Goo.namespaces[:rdf][:type].to_s] })
+        model_schema.model(:resource, name_with: :id, rdf_type: lambda { |*_x| self.to_hash[Goo.namespaces[:rdf][:type].to_s] })
         values_hash = {}
         hashes.each do |predicate, value|
           namespace, attr = namespace_predicate(predicate)
@@ -39,11 +39,11 @@ module LinkedData
           values_hash[attr.to_sym] = value.is_a?(Array) ? values : values.first
         end
 
-        values_hash[:id] = hashes["id"]
+        values_hash[:id] = hashes['id']
         model_schema.new(values_hash)
       end
 
-      def to_json()
+      def to_json
         LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::JSONLD, namespaces)
       end
 
@@ -51,145 +51,113 @@ module LinkedData
         LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::RDF_XML, namespaces)
       end
 
-      def to_ntriples()
+      def to_ntriples
         LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::NTRIPLES, namespaces)
       end
 
-      def to_turtle()
+      def to_turtle
         LinkedData::Serializers.serialize(to_hash, LinkedData::MediaTypes::TURTLE, namespaces)
       end
 
-
       def namespaces
-        prefixes = { }
+        prefixes = {}
         ns_count = 0
         hash = to_hash
-        reverse = hash["reverse"]
-        hash.delete("reverse")
+        reverse = hash.delete('reverse')
 
         hash.each do |key, value|
-            uris = []
-            uris << key
-            Array(value).each do |v|
-              if v.is_a?(Hash)
-                v.each do |blank_predicate, blank_value|
-                  uris << blank_predicate
-                  uris << blank_value
-                end
-              else
-                uris << v
-              end
-            end
-            uris.each do |uri|
-              namespace, id = namespace_predicate(uri)
-              unless namespace.nil?
-                if !prefixes.value?(namespace)
-                    prefix, prefix_namespace = Goo.namespaces.select { |k, v| v.to_s.eql?(namespace) }.first
-                    if prefix
-                      prefixes[prefix] = prefix_namespace.to_s
-                    else
-                      prefixes["ns#{ns_count}".to_sym] = namespace
-                      ns_count += 1
-                    end
-                end
-              end
-            end
+          uris = [key]
+          uris += Array(value).map { |v| v.is_a?(Hash) ? v.to_a.flatten : v }.flatten
+          prefixes, ns_count = transform_to_prefixes(ns_count, prefixes, uris)
         end
 
-        reverse.each do |key, value|
-          uris = []
-          uris << key
-          Array(value).each do |v|
-            uris << v
-          end
-          uris.each do |uri|
-            namespace, id = namespace_predicate(uri)
-            unless namespace.nil?
-              if !prefixes.value?(namespace)
-                  prefix, prefix_namespace = Goo.namespaces.select { |k, v| v.to_s.eql?(namespace) }.first
-                  if prefix
-                    prefixes[prefix] = prefix_namespace.to_s
-                  else
-                    prefixes["ns#{ns_count}".to_sym] = namespace
-                    ns_count += 1
-                  end
-              end
-            end
-          end
-        end
-        return prefixes
-      end  
+        reverse.each { |key, uris| prefixes, ns_count = transform_to_prefixes(ns_count, prefixes, [key] + Array(uris)) }
+
+        prefixes
+      end
 
       private
 
+      def transform_to_prefixes(ns_count, prefixes, uris)
+        uris.each do |uri|
+          namespace, id = namespace_predicate(uri)
+          next if namespace.nil? || prefixes.value?(namespace)
+
+          prefix, prefix_namespace = Goo.namespaces.select { |_k, v| v.to_s.eql?(namespace) }.first
+          if prefix
+            prefixes[prefix] = prefix_namespace.to_s
+          else
+            prefixes["ns#{ns_count}".to_sym] = namespace
+            ns_count += 1
+          end
+        end
+        [prefixes, ns_count]
+      end
+
       def fetch_related_triples(graph, id)
         direct_fetch_query = Goo.sparql_query_client.select(:predicate, :object)
-                   .from(RDF::URI.new(graph))
-                   .where([RDF::URI.new(id), :predicate, :object])
-        
-        inverse_fetch_query = Goo.sparql_query_client.select(:subject, :predicate)
-                   .from(RDF::URI.new(graph))
-                   .where([:subject, :predicate, RDF::URI.new(id)])
+                                .from(RDF::URI.new(graph))
+                                .where([RDF::URI.new(id), :predicate, :object])
 
-        hashes = { "id" => RDF::URI.new(id) }
+        inverse_fetch_query = Goo.sparql_query_client.select(:subject, :predicate)
+                                 .from(RDF::URI.new(graph))
+                                 .where([:subject, :predicate, RDF::URI.new(id)])
+
+        hashes = { 'id' => RDF::URI.new(id) }
 
         direct_fetch_query.each_solution do |solution|
           predicate = solution[:predicate].to_s
           value = solution[:object]
-          if value.is_a?(RDF::Node) && !Array(hashes[predicate]).any?{|x| x.is_a?(Hash)}
-            bnode_fetch_query = Goo.sparql_query_client.select(:b, :predicate, :object).from(RDF::URI.new(graph)).where([RDF::URI.new(id), solution[:predicate], :b],[:b, :predicate, :object])
-            
-            bnodes_hash = {}
-            bnode_fetch_query.each_solution do |s|
-              bnode_id = s[:b].to_s
-              bnode_predicate = s[:predicate].to_s
-              bnode_value = s[:object]
-              if bnodes_hash[bnode_id]
-                bnodes_hash[bnode_id][s[:predicate].to_s] = s[:object]
-              else
-                bnodes_hash[bnode_id] = {s[:predicate].to_s => s[:object]}
-              end
-            end
-            value = bnodes_hash.values
+
+          if value.is_a?(RDF::Node) && Array(hashes[predicate]).none? { |x| x.is_a?(Hash) }
+            value = fetch_b_nodes_triples(graph, id, solution[:predicate])
           elsif value.is_a?(RDF::Node)
-              next
+            next
           end
 
-          if hashes[predicate]
-            hashes[predicate] = Array(hashes[predicate]) + Array(value)
-          else
-            hashes[predicate] = value
-          end
+          hashes[predicate] = hashes[predicate] ? (Array(hashes[predicate]) + Array(value)) : value
         end
 
-        hashes["reverse"] = {}
+        hashes['reverse'] = {}
         inverse_fetch_query.each_solution do |solution|
           subject = solution[:subject].to_s
           predicate = solution[:predicate]
 
-          if hashes["reverse"][subject]
-            if hashes["reverse"][subject].is_a?(Array)
-              hashes["reverse"][subject] << predicate
+          if hashes['reverse'][subject]
+            if hashes['reverse'][subject].is_a?(Array)
+              hashes['reverse'][subject] << predicate
             else
-              hashes["reverse"][subject] = [predicate, hashes["reverse"][subject]]
+              hashes['reverse'][subject] = [predicate, hashes['reverse'][subject]]
             end
           else
-            hashes["reverse"][subject] = predicate
+            hashes['reverse'][subject] = predicate
           end
 
         end
-        
+
         hashes
       end
 
-      def stringify_hash(hashes)
-        hashes.transform_values do |value|
-          if value.is_a?(Array)
-            value.map(&:to_s)
+      def fetch_b_nodes_triples(graph, id, predicate)
+        b_node_fetch_query = Goo.sparql_query_client.select(:b, :predicate, :object)
+                                .from(RDF::URI.new(graph))
+                                .where(
+                                  [RDF::URI.new(id), predicate, :b],
+                                  %i[b predicate object]
+                                )
+
+        b_nodes_hash = {}
+        b_node_fetch_query.each_solution do |s|
+          b_node_id = s[:b].to_s
+          s[:predicate].to_s
+          s[:object]
+          if b_nodes_hash[b_node_id]
+            b_nodes_hash[b_node_id][s[:predicate].to_s] = s[:object]
           else
-            value.to_s
+            b_nodes_hash[b_node_id] = { s[:predicate].to_s => s[:object] }
           end
         end
+        b_nodes_hash.values
       end
 
       def get_type(value)
@@ -211,7 +179,7 @@ module LinkedData
       def namespace_predicate(property_url)
         regex = /^(?<namespace>.*[\/#])(?<id>[^\/#]+)$/
         match = regex.match(property_url.to_s)
-        return [match[:namespace], match[:id]] if match
+        [match[:namespace], match[:id]] if match
       end
 
     end

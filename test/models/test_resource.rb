@@ -43,7 +43,7 @@ class TestResource < LinkedData::TestOntologyCommon
           <http://example2.org/person5> <http://xmlns.com/foaf/0.1/friend> <http://example.org/person1> .
 
         )
-    # TODO test for attribute of type an array
+
     graph = "http://example.org/test_graph"
     Goo.sparql_data_client.execute_append_request(graph, data, '')
 
@@ -57,36 +57,24 @@ class TestResource < LinkedData::TestOntologyCommon
     @resource1&.destroy
   end
 
-
-  def test_parsed_submission
-    skip
-    submission_parse('TEST-TRIPLES',
-                     'TESTTRIPlES name of the ontology',
-                     './test/data/ontology_files/efo_gwas.skos.owl', 2,
-                     process_rdf: true, index_search: false,
-                     run_metrics: false, reasoning: true
-    )
-    ont = LinkedData::Models::Ontology.find("TEST-TRIPLES").first
-    sub = ont.latest_submission
-    assert(!sub.id.empty?,"Failed submission TEST-TRIPLES")
-  end
-
   def test_generate_model
-    skip
     @object = @@resource1.to_object
-    @model =  @object.class
+    @model = @object.class
 
     assert_equal LinkedData::Models::Base, @model.ancestors[1]
 
     @model.model_settings[:attributes].map do |property, val|
       property_url = "#{val[:property]}#{property}"
-      assert_includes  @@resource1.to_hash.keys,  property_url
-            
+      assert_includes @@resource1.to_hash.keys, property_url
 
       hash_value = @@resource1.to_hash[property_url]
       object_value = @object.send(property.to_sym)
-      next if property.to_sym == :knows # Assert when struct exist
-      assert_equal Array(hash_value).map(&:to_s), Array(object_value).map(&:to_s)
+      if property.to_sym == :knows
+        assert_equal  hash_value.map{|x| x.is_a?(Hash) ? x.values : x}.flatten.map(&:to_s).sort,
+                      object_value.map{|x| x.is_a?(String) ? x : x.to_h.values}.flatten.map(&:to_s).sort
+      else
+        assert_equal Array(hash_value).map(&:to_s), Array(object_value).map(&:to_s)
+      end
     end
 
     assert_equal "http://example.org/person1", @object.id.to_s
@@ -100,32 +88,32 @@ class TestResource < LinkedData::TestOntologyCommon
 
     refute_empty result
 
-    expected_result = { 
+    expected_result = {
       "id" => "http://example.org/person1",
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" => "http://xmlns.com/foaf/0.1/Person",
       "http://xmlns.com/foaf/0.1/gender" => "male",
       "http://xmlns.com/foaf/0.1/hasInterest" => %w[Cooking Hiking],
       "http://xmlns.com/foaf/0.1/age" => "30",
       "http://xmlns.com/foaf/0.1/email" => "mailto:john@example.com",
-      "http://xmlns.com/foaf/0.1/knows"=>
-      [ "http://example.org/person3",
-        {
-          "http://xmlns.com/foaf/0.1/gender"=>"female",
-          "http://xmlns.com/foaf/0.1/age"=>"25",
-          "http://xmlns.com/foaf/0.1/email"=>"mailto:jane@example.com",
-          "http://xmlns.com/foaf/0.1/name"=>"Jane Smith"
-        },
-        {
-          "http://xmlns.com/foaf/0.1/name"=>"Jane Smith 2"
-        }
-      ],
+      "http://xmlns.com/foaf/0.1/knows" =>
+        ["http://example.org/person3",
+         {
+           "http://xmlns.com/foaf/0.1/gender" => "female",
+           "http://xmlns.com/foaf/0.1/age" => "25",
+           "http://xmlns.com/foaf/0.1/email" => "mailto:jane@example.com",
+           "http://xmlns.com/foaf/0.1/name" => "Jane Smith"
+         },
+         {
+           "http://xmlns.com/foaf/0.1/name" => "Jane Smith 2"
+         }
+        ],
       "http://xmlns.com/foaf/0.1/name" => "John Doe",
-      "reverse"=>{
-        "http://example2.org/person2"=>"http://xmlns.com/foaf/0.1/mother",
-        "http://example2.org/person5"=>["http://xmlns.com/foaf/0.1/brother", "http://xmlns.com/foaf/0.1/friend"]
+      "reverse" => {
+        "http://example2.org/person2" => "http://xmlns.com/foaf/0.1/mother",
+        "http://example2.org/person5" => ["http://xmlns.com/foaf/0.1/brother", "http://xmlns.com/foaf/0.1/friend"]
       }
     }
-    result =  JSON.parse(MultiJson.dump(result))
+    result = JSON.parse(MultiJson.dump(result))
     a = sort_nested_hash(result)
     b = sort_nested_hash(expected_result)
     assert_equal b, a
@@ -135,7 +123,7 @@ class TestResource < LinkedData::TestOntologyCommon
     result = @@resource1.to_json
 
     refute_empty result
-    expected_result =%(
+    expected_result = %(
       {
         "@context": {"ns0": "http://example.org/", "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "foaf": "http://xmlns.com/foaf/0.1/", "ns1": "http://example2.org/"},
         "@graph": [
@@ -287,7 +275,7 @@ class TestResource < LinkedData::TestOntologyCommon
 
   def sort_nested_hash(hash)
     sorted_hash = {}
-  
+
     hash.each do |key, value|
       if value.is_a?(Hash)
         sorted_hash[key] = sort_nested_hash(value)
@@ -297,9 +285,8 @@ class TestResource < LinkedData::TestOntologyCommon
         sorted_hash[key] = value
       end
     end
-  
+
     sorted_hash.sort.to_h
   end
-
 
 end
