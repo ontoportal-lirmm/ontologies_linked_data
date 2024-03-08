@@ -21,7 +21,9 @@ gem 'rubyzip', '~> 1.0'
 gem 'thin'
 gem 'request_store'
 gem 'jwt'
+gem 'json-ld', '~> 3.0.2'
 gem "parallel", "~> 1.24"
+
 
 # Testing
 group :test do
