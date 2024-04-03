@@ -14,7 +14,8 @@ class TestSearch < LinkedData::TestCase
 
   def test_search_ontology
     ont_count, ont_acronyms, created_ontologies = create_ontologies_and_submissions({
-                                                                                      process_submission: false,
+                                                                                      process_submission: true,
+                                                                                      process_options: {process_rdf: true, extract_metadata: false, run_metrics: true},
                                                                                       acronym: 'BROTEST',
                                                                                       name: 'ontTEST Bla',
                                                                                       file_path: '../../../../test/data/ontology_files/BRO_v3.2.owl',
@@ -23,6 +24,7 @@ class TestSearch < LinkedData::TestCase
                                                                                     })
 
     ontologies = LinkedData::Models::Ontology.search('*:*', { fq: 'resource_model: "ontology"' })['response']['docs']
+
     assert_equal 3, ontologies.size
     ontologies.each do |ont|
       select_ont = created_ontologies.select { |ont_created| ont_created.id.to_s.eql?(ont['id']) }.first
@@ -36,7 +38,6 @@ class TestSearch < LinkedData::TestCase
 
     submissions = LinkedData::Models::Ontology.search('*:*', { fq: 'resource_model: "ontology_submission"' })['response']['docs']
     assert_equal 9, submissions.size
-
     submissions.each do |sub|
       created_sub = LinkedData::Models::OntologySubmission.find(RDF::URI.new(sub['id'])).first&.bring_remaining
       refute_nil created_sub
@@ -55,7 +56,20 @@ class TestSearch < LinkedData::TestCase
       assert_equal sub['openSearchDescription_t'], created_sub.openSearchDescription
       assert_equal sub['endpoint_txt'], created_sub.endpoint
       assert_equal sub['uploadFilePath_t'], created_sub.uploadFilePath
-      assert_equal sub['submissionStatus_txt'], created_sub.submissionStatus.map(&:id)
+      assert_equal sub['submissionStatus_txt'].sort, created_sub.submissionStatus.map{|x| x.id.to_s}.sort
+
+      created_sub.metrics.bring_remaining
+
+      assert_equal sub['metrics_classes_i'], created_sub.metrics.classes
+      assert_equal sub['metrics_individuals_i'], created_sub.metrics.individuals
+      assert_equal sub['metrics_properties_i'], created_sub.metrics.properties
+      assert_equal sub['metrics_maxDepth_i'], created_sub.metrics.maxDepth
+      assert_equal sub['metrics_maxChildCount_i'], created_sub.metrics.maxChildCount
+      assert_equal sub['metrics_averageChildCount_i'], created_sub.metrics.averageChildCount
+      assert_equal sub['metrics_classesWithOneChild_i'], created_sub.metrics.classesWithOneChild
+      assert_equal sub['metrics_classesWithMoreThan25Children_i'], created_sub.metrics.classesWithMoreThan25Children
+      assert_equal sub['metrics_classesWithNoDefinition_i'], created_sub.metrics.classesWithNoDefinition
+
       embed_doc = created_sub.ontology.bring_remaining.embedded_doc
       embed_doc.each do |k, v|
         if v.is_a?(Array)

@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 8ddd2d719617ad082c6964a9efdac153cdd2b48e
-  branch: master
+  revision: 0e554fce49713ce4d5a742a06c2fb59a547caf47
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -41,7 +41,7 @@ GEM
     ast (2.4.2)
     base64 (0.2.0)
     bcrypt (3.1.20)
-    bigdecimal (3.1.6)
+    bigdecimal (3.1.7)
     builder (3.2.4)
     coderay (1.1.3)
     concurrent-ruby (1.2.3)
@@ -114,7 +114,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2024.0206)
+    mime-types-data (3.2024.0305)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-reporters (0.14.24)
@@ -132,7 +132,7 @@ GEM
       net-protocol
     net-protocol (0.2.2)
       timeout
-    net-smtp (0.4.0.1)
+    net-smtp (0.5.0)
       net-protocol
     netrc (0.11.0)
     oj (2.18.5)
@@ -149,7 +149,7 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (5.0.4)
+    public_suffix (5.0.5)
     racc (1.7.3)
     rack (1.6.13)
     rack-test (0.8.3)
@@ -173,7 +173,7 @@ GEM
       rexml (~> 3.2)
     redis (5.1.0)
       redis-client (>= 0.17.0)
-    redis-client (0.20.0)
+    redis-client (0.21.1)
       connection_pool
     regexp_parser (2.9.0)
     request_store (1.6.0)
@@ -186,7 +186,7 @@ GEM
     rexml (3.2.6)
     rsolr (1.1.2)
       builder (>= 2.1.2)
-    rubocop (1.61.0)
+    rubocop (1.62.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
@@ -194,10 +194,10 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.30.0, < 2.0)
+      rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.31.1)
+    rubocop-ast (1.31.2)
       parser (>= 3.3.0.4)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
@@ -224,7 +224,7 @@ GEM
     unicode-display_width (2.5.0)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    webmock (3.20.0)
+    webmock (3.23.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)

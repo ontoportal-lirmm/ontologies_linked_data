@@ -8,7 +8,10 @@ module LinkedData
       embedded true
 
       def embedded_doc
-        "#{self.name} #{self.email}"
+        bring(:name) if bring?(:name)
+        bring(:email) if bring?(:email)
+
+        "#{self.name} | #{self.email}"
       end
 
     end
