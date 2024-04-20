@@ -472,30 +472,8 @@ module LinkedData
         zip_dst
       end
 
-      def delete_old_submission_files
-        path_to_repo = data_folder
-        submission_files = FILES_TO_DELETE.map { |f| File.join(path_to_repo, f) }
-        submission_files.push(csv_path)
-        submission_files.push(parsing_log_path) unless parsing_log_path.nil?
-        FileUtils.rm(submission_files, force: true)
 
-        submission_folders = FOLDERS_TO_DELETE.map { |f| File.join(path_to_repo, f) }
-        submission_folders.each { |d| FileUtils.remove_dir(d) if File.directory?(d) }
-      end
 
-      def zip_submission_uploaded_file
-        self.bring(:uploadFilePath) if self.bring?(:uploadFilePath)
-
-        return self.uploadFilePath if zipped?
-        return self.uploadFilePath if self.uploadFilePath.nil? || self.uploadFilePath.empty?
-
-        return self.uploadFilePath if File.size(self.uploadFilePath) < FILE_SIZE_ZIPPING_THRESHOLD
-
-        old_path = self.uploadFilePath
-        new_path = Utils::FileHelpers.zip_file(old_path)
-        FileUtils.rm(old_path, force: true)
-        new_path
-      end
 
       # accepts another submission in 'older' (it should be an 'older' ontology version)
       def diff(logger, older)
@@ -688,25 +666,6 @@ module LinkedData
 
       def archived?
         return ready?(status: [:archived])
-      end
-
-      def archive_submission
-        self.submissionStatus = nil
-        status = LinkedData::Models::SubmissionStatus.find("ARCHIVED").first
-        add_submission_status(status)
-        unindex
-        # Delete everything except for original ontology file.
-        ontology.bring(:submissions)
-        submissions = ontology.submissions
-        unless submissions.nil?
-          submissions.each { |s| s.bring(:submissionId) }
-          submission = submissions.sort { |a, b| b.submissionId <=> a.submissionId }[0]
-          # Don't perform deletion if this is the most recent submission.
-          if self.submissionId < submission.submissionId
-            delete_old_submission_files
-            self.uploadFilePath = zip_submission_uploaded_file
-          end
-        end
       end
 
       ################################################################
