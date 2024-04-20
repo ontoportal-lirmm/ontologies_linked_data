@@ -607,46 +607,6 @@ module LinkedData
         self.generate_metrics_file(class_count, indiv_count, prop_count)
       end
 
-      def generate_rdf(logger, reasoning: true)
-        mime_type = nil
-
-        if self.hasOntologyLanguage.umls?
-          triples_file_path = self.triples_file_path
-          logger.info("Using UMLS turtle file found, skipping OWLAPI parse")
-          logger.flush
-          mime_type = LinkedData::MediaTypes.media_type_from_base(LinkedData::MediaTypes::TURTLE)
-          generate_umls_metrics_file(triples_file_path)
-        else
-          output_rdf = self.rdf_path
-
-          if File.exist?(output_rdf)
-            logger.info("deleting old owlapi.xrdf ..")
-            deleted = FileUtils.rm(output_rdf)
-
-            if deleted.length > 0
-              logger.info("deleted")
-            else
-              logger.info("error deleting owlapi.rdf")
-            end
-          end
-          owlapi = owlapi_parser(logger: logger)
-
-          owlapi.disable_reasoner if !reasoning
-          triples_file_path, missing_imports = owlapi.parse
-
-          if missing_imports && missing_imports.length > 0
-            self.missingImports = missing_imports
-
-            missing_imports.each do |imp|
-              logger.info("OWL_IMPORT_MISSING: #{imp}")
-            end
-          else
-            self.missingImports = nil
-          end
-          logger.flush
-        end
-        delete_and_append(triples_file_path, logger, mime_type)
-      end
 
       def process_callbacks(logger, callbacks, action_name, &block)
         callbacks.delete_if do |_, callback|
@@ -1544,7 +1504,7 @@ eos
           self.ontology.bring(:submissions)
 
           if self.ontology.submissions.length > 0
-            prev_sub = self.ontology.latest_submission()
+            prev_sub = self.ontology.latest_submission
 
             if prev_sub
               prev_sub.index_terms(LinkedData::Parser.logger || Logger.new($stderr))
@@ -1719,17 +1679,6 @@ eos
         parsable
       end
 
-      private
-
-      def owlapi_parser_input
-        path = if zipped?
-                 self.zip_folder
-               else
-                 self.uploadFilePath
-               end
-        File.expand_path(path)
-      end
-
       def owlapi_parser(logger: Logger.new($stdout))
         unzip_submission(logger)
         LinkedData::Parser::OWLAPICommand.new(
@@ -1739,11 +1688,15 @@ eos
           logger: logger)
       end
 
-      def delete_and_append(triples_file_path, logger, mime_type = nil)
-        Goo.sparql_data_client.delete_graph(self.id)
-        Goo.sparql_data_client.put_triples(self.id, triples_file_path, mime_type)
-        logger.info("Triples #{triples_file_path} appended in #{self.id.to_ntriples}")
-        logger.flush
+      private
+
+      def owlapi_parser_input
+        path = if zipped?
+                 self.zip_folder
+               else
+                 self.uploadFilePath
+               end
+        File.expand_path(path)
       end
 
       def check_http_file(url)
