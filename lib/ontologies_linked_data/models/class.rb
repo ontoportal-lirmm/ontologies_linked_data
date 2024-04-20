@@ -264,6 +264,8 @@ module LinkedData
             puts "Exception getting paths to root for search for #{self.id.to_s}: #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}"
           end
 
+          self.submission.ontology.bring(:ontologyType) if self.submission.ontology.bring?(:ontologyType)
+
           doc[:ontologyId] = self.submission.id.to_s
           doc[:submissionAcronym] = self.submission.ontology.acronym
           doc[:submissionId] = self.submission.submissionId

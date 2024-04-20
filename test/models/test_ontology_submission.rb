@@ -330,13 +330,13 @@ SELECT DISTINCT * WHERE {
 
   def test_process_submission_archive
 
-    old_threshold = LinkedData::Models::OntologySubmission::FILE_SIZE_ZIPPING_THRESHOLD
-    LinkedData::Models::OntologySubmission.const_set(:FILE_SIZE_ZIPPING_THRESHOLD, 0)
+    old_threshold = LinkedData::Services::OntologySubmissionArchiver::FILE_SIZE_ZIPPING_THRESHOLD
+    LinkedData::Services::OntologySubmissionArchiver.const_set(:FILE_SIZE_ZIPPING_THRESHOLD, 0)
 
     ont_count, ont_acronyms, ontologies =
       create_ontologies_and_submissions(ont_count: 1, submission_count: 2,
                                         process_submission: true,
-                                        acronym: 'NCBO-545', process_options: {process_rdf: true,
+                                        acronym: 'NCBO-545', process_options: {process_rdf: true, index_search: true,
                                                                                extract_metadata: false})
     # Sanity check.
     assert_equal 1, ontologies.count
@@ -348,7 +348,8 @@ SELECT DISTINCT * WHERE {
     # Process latest submission.  No files should be deleted.
     latest_sub = sorted_submissions.first
     latest_sub.process_submission(Logger.new(latest_sub.parsing_log_path), {archive: true})
-    assert latest_sub.archived?
+
+    refute latest_sub.archived?
 
     assert File.file?(File.join(latest_sub.data_folder, 'labels.ttl')),
            %-Missing ontology submission file: 'labels.ttl'-
@@ -356,7 +357,7 @@ SELECT DISTINCT * WHERE {
     assert File.file?(File.join(latest_sub.data_folder, 'owlapi.xrdf')),
            %-Missing ontology submission file: 'owlapi.xrdf'-
 
-    refute File.file?(latest_sub.csv_path),
+    assert File.file?(latest_sub.csv_path),
            %-Missing ontology submission file: '#{latest_sub.csv_path}'-
 
     assert File.file?(latest_sub.parsing_log_path),
@@ -368,25 +369,25 @@ SELECT DISTINCT * WHERE {
     old_sub.process_submission(Logger.new(old_sub.parsing_log_path), {archive: true})
     assert old_sub.archived?
 
-    assert_equal false, File.file?(File.join(old_sub.data_folder, 'labels.ttl')),
+    refute File.file?(File.join(old_sub.data_folder, 'labels.ttl')),
                  %-File deletion failed for 'labels.ttl'-
 
-    assert_equal false, File.file?(File.join(old_sub.data_folder, 'mappings.ttl')),
+    refute File.file?(File.join(old_sub.data_folder, 'mappings.ttl')),
                  %-File deletion failed for 'mappings.ttl'-
 
-    assert_equal false, File.file?(File.join(old_sub.data_folder, 'obsolete.ttl')),
+    refute File.file?(File.join(old_sub.data_folder, 'obsolete.ttl')),
                  %-File deletion failed for 'obsolete.ttl'-
 
-    assert_equal false, File.file?(File.join(old_sub.data_folder, 'owlapi.xrdf')),
+    refute File.file?(File.join(old_sub.data_folder, 'owlapi.xrdf')),
                  %-File deletion failed for 'owlapi.xrdf'-
 
-    assert_equal false, File.file?(old_sub.csv_path),
+    refute File.file?(old_sub.csv_path),
                  %-File deletion failed for '#{old_sub.csv_path}'-
 
-    assert_equal false, File.file?(old_sub.parsing_log_path),
+    refute File.file?(old_sub.parsing_log_path),
       %-File deletion failed for '#{old_sub.parsing_log_path}'-
 
-    assert_equal false, File.file?(old_file_path),
+    refute File.file?(old_file_path),
                  %-File deletion failed for '#{old_file_path}'-
 
     assert old_sub.zipped?
@@ -458,8 +459,8 @@ SELECT DISTINCT * WHERE {
 
     submission_parse("BRO", "BRO Ontology",
                      "./test/data/ontology_files/BRO_v3.5.owl", 1,
-                     process_rdf: true, extract_metadata: false,
-                     index_search: true)
+                     process_rdf: true, extract_metadata: false, generate_missing_labels: false,
+                     index_search: true, index_properties: false)
 
 
     res = LinkedData::Models::Class.search("prefLabel:Activity", {:fq => "submissionAcronym:BRO", :start => 0, :rows => 80})
@@ -1106,9 +1107,12 @@ eos
   def test_submission_extract_metadata
     2.times.each do |i|
       submission_parse("AGROOE", "AGROOE Test extract metadata ontology",
-                       "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", 1,
+                       "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", i+1,
                        process_rdf: true, extract_metadata: true, generate_missing_labels: false)
-      sub = LinkedData::Models::Ontology.find("AGROOE").first.latest_submission
+      ont =  LinkedData::Models::Ontology.find("AGROOE").first
+      sub = ont.latest_submission
+      refute_nil sub
+
       sub.bring_remaining
       assert_equal false, sub.deprecated
       assert_equal '2015-09-28', sub.creationDate.to_date.to_s
