@@ -132,6 +132,7 @@ class TestSearch < LinkedData::TestCase
                                                                                         process_rdf: true, extract_metadata: false,
                                                                                         generate_missing_labels: false,
                                                                                         index_search: false,
+                                                                                        index_all_data: true
                                                                                       },
                                                                                       acronym: 'BROTEST',
                                                                                       name: 'ontTEST Bla',
@@ -143,10 +144,7 @@ class TestSearch < LinkedData::TestCase
     ont_sub = LinkedData::Models::Ontology.find('BROTEST-0').first
     ont_sub = ont_sub.latest_submission
 
-    ont_sub.index_all_data(Logger.new($stdout))
-
     conn = Goo.search_client(:ontology_data)
-
     response = conn.search('*')
 
     count = Goo.sparql_query_client.query("SELECT  (COUNT( DISTINCT ?id) as ?c)  FROM <#{ont_sub.id}> WHERE {?id ?p ?v}")

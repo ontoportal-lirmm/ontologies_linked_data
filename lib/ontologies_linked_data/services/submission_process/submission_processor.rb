@@ -44,10 +44,12 @@ module LinkedData
 
             @submission.generate_obsolete_classes(logger) if generate_obsolete_classes?(options)
 
-            if !parsed && (index_search?(options) || index_properties?(options))
+            if !parsed && (index_search?(options) || index_properties?(options) || index_all_data?(options))
               raise StandardError, "The submission #{@submission.ontology.acronym}/submissions/#{@submission.submissionId}
                                 cannot be indexed because it has not been successfully parsed"
             end
+
+            @submission.index_all(logger, commit: process_index_commit?(options)) if index_all_data?(options)
 
             @submission.index_terms(logger, commit: process_index_commit?(options)) if index_search?(options)
 
@@ -87,6 +89,10 @@ module LinkedData
 
       def generate_obsolete_classes?(options)
         options[:generate_obsolete_classes].nil? && process_rdf?(options) || options[:generate_obsolete_classes].eql?(true)
+      end
+      
+      def index_all_data?(options)
+        options.empty? || options[:index_all_data].eql?(true)
       end
 
       def index_search?(options)

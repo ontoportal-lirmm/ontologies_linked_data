@@ -12,17 +12,11 @@ class TestMappingBulkLoad < LinkedData::TestOntologyCommon
     helper.submission_parse(ONT_ACR1,
                             'MappingOntTest1',
                             './test/data/ontology_files/BRO_v3.3.owl', 11,
-                            process_rdf: true, extract_metadata: false,
-                            generate_missing_label: false,
-                            index_search: true, index_properties: false,
-                            diff: false, run_metrics: false)
+                            process_rdf: true, extract_metadata: false, index_search: true)
     helper.submission_parse(ONT_ACR2,
                             'MappingOntTest2',
                             './test/data/ontology_files/CNO_05.owl', 22,
-                            process_rdf: true, extract_metadata: false,
-                            generate_missing_label: false,
-                            index_search: true, index_properties: false,
-                            diff: false, run_metrics: false)
+                            process_rdf: true, extract_metadata: false,  index_search: true)
   end
 
 
