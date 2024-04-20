@@ -12,7 +12,6 @@ module LinkedData
 
     class OntologySubmission < LinkedData::Models::Base
 
-      include LinkedData::Concerns::OntologySubmission::IndexAllData
       include LinkedData::Concerns::SubmissionProcessable
       include LinkedData::Concerns::OntologySubmission::Validators
       include LinkedData::Concerns::OntologySubmission::UpdateCallbacks
@@ -293,6 +292,16 @@ module LinkedData
         logger.debug("File created #{dst} | #{"%o" % File.stat(dst).mode} | umask: #{File.umask}") # NCBO-795
         raise Exception, "Unable to copy #{src} to #{dst}" if not File.exist? dst
         return dst
+      end
+
+      def self.clear_indexed_content(ontology)
+        conn = Goo.init_search_connection(:ontology_data)
+        begin
+          conn.delete_by_query("ontology_t:\"#{ontology}\"")
+        rescue StandardError => e
+          #puts e.message
+        end
+        conn
       end
 
       def valid?
