@@ -475,30 +475,6 @@ module LinkedData
 
 
 
-      # accepts another submission in 'older' (it should be an 'older' ontology version)
-      def diff(logger, older)
-        begin
-          bring_remaining
-          bring :diffFilePath if bring? :diffFilePath
-          older.bring :uploadFilePath if older.bring? :uploadFilePath
-
-          LinkedData::Diff.logger = logger
-          bubastis = LinkedData::Diff::BubastisDiffCommand.new(
-            File.expand_path(older.master_file_path),
-            File.expand_path(self.master_file_path),
-            data_folder
-          )
-          self.diffFilePath = bubastis.diff
-          save
-          logger.info("Bubastis diff generated successfully for #{self.id}")
-          logger.flush
-        rescue Exception => e
-          logger.error("Bubastis diff for #{self.id} failed - #{e.class}: #{e.message}")
-          logger.flush
-          raise e
-        end
-      end
-
       def class_count(logger = nil)
         logger ||= LinkedData::Parser.logger || Logger.new($stderr)
         count = -1
