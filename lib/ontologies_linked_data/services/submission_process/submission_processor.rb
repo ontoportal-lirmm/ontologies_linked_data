@@ -104,7 +104,7 @@ module LinkedData
       end
 
       def process_index_commit?(options)
-        index_search?(options) || index_properties?(options)
+        index_search?(options) || index_properties?(options) || index_all_data?(options)
       end
 
       def process_diff?(options)

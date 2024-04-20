@@ -4,7 +4,15 @@ module LinkedData
     class OntologySubmissionAllDataIndexer < OntologySubmissionProcess
 
       def process(logger, options = nil)
-        index_all_data(logger, options)
+        status = LinkedData::Models::SubmissionStatus.find('INDEXED_ALL_DATA').first
+        begin
+          index_all_data(logger, options)
+          @submission.add_submission_status(status)
+        rescue StandardError
+          @submission.add_submission_status(status.get_error_status)
+        ensure
+          @submission.save
+        end
       end
 
       private
@@ -28,7 +36,7 @@ module LinkedData
             index_ids = documents.size
             documents = {}
           end
-          logger.info("Worker #{Parallel.worker_number} > Indexed #{index_ids} ids of #{@submission.id} in #{time} sec. Total #{documents.size} ids.")
+          logger.info("Worker #{Parallel.worker_number} > Indexed #{index_ids} ids of #{@submission.id} in #{time} sec.")
           triples_count
         end
         total_triples.sum
@@ -67,6 +75,8 @@ module LinkedData
           time = Benchmark.realtime do
             total_triples += index_sorted_ids(ids, ontology, conn, logger, commit)
           end
+          logger.info("Indexed #{total_triples} triples of #{@submission.id} page: #{page} in #{time} sec.")
+
           total_time += time
         end
         logger.info("Completed indexing all ontology data: #{@submission.id} in #{total_time} sec. (#{count_ids} ids / #{total_triples} triples)")
