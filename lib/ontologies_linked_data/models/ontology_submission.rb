@@ -532,35 +532,6 @@ module LinkedData
         metrics
       end
 
-      def generate_metrics_file(class_count, indiv_count, prop_count)
-        CSV.open(self.metrics_path, "wb") do |csv|
-          csv << ["Class Count", "Individual Count", "Property Count"]
-          csv << [class_count, indiv_count, prop_count]
-        end
-      end
-
-      def generate_metrics_file2(class_count, indiv_count, prop_count, max_depth)
-        CSV.open(self.metrics_path, "wb") do |csv|
-          csv << ["Class Count", "Individual Count", "Property Count", "Max Depth"]
-          csv << [class_count, indiv_count, prop_count, max_depth]
-        end
-      end
-
-      def generate_umls_metrics_file(tr_file_path = nil)
-        tr_file_path ||= self.triples_file_path
-        class_count = 0
-        indiv_count = 0
-        prop_count = 0
-
-        File.foreach(tr_file_path) do |line|
-          class_count += 1 if line =~ /owl:Class/
-          indiv_count += 1 if line =~ /owl:NamedIndividual/
-          prop_count += 1 if line =~ /owl:ObjectProperty/
-          prop_count += 1 if line =~ /owl:DatatypeProperty/
-        end
-        self.generate_metrics_file(class_count, indiv_count, prop_count)
-      end
-
 
       def add_submission_status(status)
         valid = status.is_a?(LinkedData::Models::SubmissionStatus)
