@@ -6,6 +6,7 @@ class TestSearch < LinkedData::TestCase
     backend_4s_delete
     LinkedData::Models::Ontology.indexClear
     LinkedData::Models::Agent.indexClear
+    Goo.search_client(:ontology_data)&.clear_all_data
   end
 
   def setup
@@ -15,17 +16,20 @@ class TestSearch < LinkedData::TestCase
   def test_search_ontology
     ont_count, ont_acronyms, created_ontologies = create_ontologies_and_submissions({
                                                                                       process_submission: true,
-                                                                                      process_options: {process_rdf: true, extract_metadata: false, run_metrics: true},
+                                                                                      process_options: {
+                                                                                        process_rdf: true,
+                                                                                        generate_missing_labels: false,
+                                                                                        extract_metadata: false, run_metrics: true },
                                                                                       acronym: 'BROTEST',
                                                                                       name: 'ontTEST Bla',
                                                                                       file_path: '../../../../test/data/ontology_files/BRO_v3.2.owl',
-                                                                                      ont_count: 3,
-                                                                                      submission_count: 3
+                                                                                      ont_count: 2,
+                                                                                      submission_count: 2
                                                                                     })
 
     ontologies = LinkedData::Models::Ontology.search('*:*', { fq: 'resource_model: "ontology"' })['response']['docs']
 
-    assert_equal 3, ontologies.size
+    assert_equal 2, ontologies.size
     ontologies.each do |ont|
       select_ont = created_ontologies.select { |ont_created| ont_created.id.to_s.eql?(ont['id']) }.first
       refute_nil select_ont
@@ -37,7 +41,7 @@ class TestSearch < LinkedData::TestCase
     end
 
     submissions = LinkedData::Models::Ontology.search('*:*', { fq: 'resource_model: "ontology_submission"' })['response']['docs']
-    assert_equal 9, submissions.size
+    assert_equal 4, submissions.size
     submissions.each do |sub|
       created_sub = LinkedData::Models::OntologySubmission.find(RDF::URI.new(sub['id'])).first&.bring_remaining
       refute_nil created_sub
@@ -56,7 +60,7 @@ class TestSearch < LinkedData::TestCase
       assert_equal sub['openSearchDescription_t'], created_sub.openSearchDescription
       assert_equal sub['endpoint_txt'], created_sub.endpoint
       assert_equal sub['uploadFilePath_t'], created_sub.uploadFilePath
-      assert_equal sub['submissionStatus_txt'].sort, created_sub.submissionStatus.map{|x| x.id.to_s}.sort
+      assert_equal sub['submissionStatus_txt'].sort, created_sub.submissionStatus.map { |x| x.id.to_s }.sort
 
       created_sub.metrics.bring_remaining
 
@@ -129,9 +133,10 @@ class TestSearch < LinkedData::TestCase
     ont_count, ont_acronyms, created_ontologies = create_ontologies_and_submissions({
                                                                                       process_submission: true,
                                                                                       process_options: {
-                                                                                        process_rdf: true, extract_metadata: false,
+                                                                                        process_rdf: true,
+                                                                                        extract_metadata: false,
                                                                                         generate_missing_labels: false,
-                                                                                        index_search: false,
+                                                                                        index_all_data: true
                                                                                       },
                                                                                       acronym: 'BROTEST',
                                                                                       name: 'ontTEST Bla',
@@ -143,10 +148,9 @@ class TestSearch < LinkedData::TestCase
     ont_sub = LinkedData::Models::Ontology.find('BROTEST-0').first
     ont_sub = ont_sub.latest_submission
 
-    ont_sub.index_all_data(Logger.new($stdout))
+    refute_empty(ont_sub.submissionStatus.select { |x| x.id['INDEXED_ALL_DATA'] })
 
     conn = Goo.search_client(:ontology_data)
-
     response = conn.search('*')
 
     count = Goo.sparql_query_client.query("SELECT  (COUNT( DISTINCT ?id) as ?c)  FROM <#{ont_sub.id}> WHERE {?id ?p ?v}")
