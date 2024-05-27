@@ -46,18 +46,29 @@ module LinkedData
       module Validators
         include ValidatorsHelpers
 
+        def enforce_agent_type(values, type, attr)
+          Array(values).each do |aff|
+            error = ["is_#{type}", "`#{attr}` must contain only agents of type #{type.capitalize}"]
+
+            return error unless aff.is_a?(LinkedData::Models::Agent)
+
+            aff.bring(:agentType) if aff.bring?(:agentType)
+            return error unless aff.agentType&.eql?(type)
+          end
+          []
+        end
+
         def is_organization(inst, attr)
           inst.bring(attr) if inst.bring?(attr)
           affiliations = inst.send(attr)
 
-          Array(affiliations).each do |aff|
-            aff.bring(:agentType) if aff.bring?(:agentType)
-            unless aff.agentType&.eql?('organization')
-              return  [:is_organization, "`#{attr}` must contain only agents of type Organization"]
-            end
-          end
+          enforce_agent_type(affiliations, 'organization', attr)
+        end
 
-          []
+        def is_person(inst, attr)
+          inst.bring(attr) if inst.bring?(attr)
+          persons = inst.send(attr)
+          enforce_agent_type(persons, 'person', attr)
         end
 
         def is_person(inst, attr)
@@ -77,9 +88,9 @@ module LinkedData
         def lexvo_language(inst, attr)
           values = Array(attr_value(inst, attr))
 
-          return if values.all? { |x| x&.to_s&.start_with?('http://lexvo.org/id/iso639-3') }
+          return if values.all? { |x| x&.to_s&.start_with?('http://lexvo.org/id/iso') }
 
-          [:lexvo_language, "#{attr} values need to be in the lexvo namespace (e.g http://lexvo.org/id/iso639-3/fra)"]
+          [:lexvo_language, "#{attr} values need to be in the lexvo namespace (e.g http://lexvo.org/id/iso639-1/fr)"]
         end
 
         def deprecated_retired_align(inst, attr)
@@ -126,7 +137,7 @@ module LinkedData
           return if views.nil? || views.empty?
 
           parts = attr_value(inst, :hasPart) || []
-          return if views.all? { |v| parts.include?(v.id) }
+          return if views.all? { |v| parts.include?(LinkedData::Models::Base.replace_url_id_to_prefix(v.id)) }
 
           [:include_ontology_views, "#{attr} needs to include all the views of the ontology"]
 
@@ -279,6 +290,11 @@ module LinkedData
           ontology_domain_list
         end
 
+        def default_sparql_endpoint(sub)
+          url = LinkedData.settings.sparql_endpoint_url || ''
+
+          url.strip.blank? ? [] :  [RDF::URI.new(url)]
+        end
         def open_search_default(sub)
           RDF::URI.new("#{LinkedData.settings.rest_url_prefix}search?ontologies=#{sub.ontology.acronym}&q=")
         end

@@ -5,15 +5,7 @@ require 'rack'
 class TestOntology < LinkedData::TestOntologyCommon
 
   def self.before_suite
-    @@port = Random.rand(55000..65535) # http://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic.2C_private_or_ephemeral_ports
-    @@thread = Thread.new do
-      Rack::Server.start(
-        app: lambda do |e|
-          [200, {'Content-Type' => 'text/plain'}, ['test file']]
-        end,
-        Port: @@port
-      )
-    end
+    url , @@thread, @@port= self.new('').start_server
   end
 
   def self.after_suite
@@ -299,7 +291,7 @@ class TestOntology < LinkedData::TestOntologyCommon
   end
 
   def test_ontology_delete
-    count, acronyms, ontologies = create_ontologies_and_submissions(ont_count: 2, submission_count: 1, process_submission: true)
+    count, acronyms, ontologies = create_ontologies_and_submissions(ont_count: 2, submission_count: 1, process_submission: false)
     u, of, contact = ontology_objects()
     o1 = ontologies[0]
     o2 = ontologies[1]
@@ -393,7 +385,7 @@ class TestOntology < LinkedData::TestOntologyCommon
     count, acronyms, ont = create_ontologies_and_submissions(ont_count: 1, submission_count: 3)
     ont = ont.first
     ont.bring(submissions: [:submissionId])
-    sub = ont.submissions[1]
+    sub = ont.submissions.sort_by(&:id)[1]
     sub.bring(*LinkedData::Models::OntologySubmission.attributes)
     sub.set_ready
     sub.save
@@ -426,25 +418,25 @@ class TestOntology < LinkedData::TestOntologyCommon
   # A test to benchmark the time taken by bring_remaining (query not optimized, can take a long time if a lot of value in the list attributes)
   def test_ontology_bring_remaining
     # Creating the users
-    user1 = LinkedData::Models::User.new(:username => "user1", :email => "some@email.org" )
+    user1 = LinkedData::Models::User.new(:username => "user1", :email => "some1@email.org" )
     user1.passwordHash = "some random pass hash"
     user1.save
-    user2 = LinkedData::Models::User.new(:username => "user2", :email => "some@email.org" )
+    user2 = LinkedData::Models::User.new(:username => "user2", :email => "some2@email.org" )
     user2.passwordHash = "some random pass hash"
     user2.save
-    user3 = LinkedData::Models::User.new(:username => "user3", :email => "some@email.org" )
+    user3 = LinkedData::Models::User.new(:username => "user3", :email => "some3@email.org" )
     user3.passwordHash = "some random pass hash"
     user3.save
-    user4 = LinkedData::Models::User.new(:username => "user4", :email => "some@email.org" )
+    user4 = LinkedData::Models::User.new(:username => "user4", :email => "some4@email.org" )
     user4.passwordHash = "some random pass hash"
     user4.save
-    user5 = LinkedData::Models::User.new(:username => "user5", :email => "some@email.org" )
+    user5 = LinkedData::Models::User.new(:username => "user5", :email => "some5@email.org" )
     user5.passwordHash = "some random pass hash"
     user5.save
-    user6 = LinkedData::Models::User.new(:username => "user6", :email => "some@email.org" )
+    user6 = LinkedData::Models::User.new(:username => "user6", :email => "some6@email.org" )
     user6.passwordHash = "some random pass hash"
     user6.save
-    user7 = LinkedData::Models::User.new(:username => "user7", :email => "some@email.org" )
+    user7 = LinkedData::Models::User.new(:username => "user7", :email => "some7@email.org" )
     user7.passwordHash = "some random pass hash"
     user7.save
 

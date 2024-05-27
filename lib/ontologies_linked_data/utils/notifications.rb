@@ -25,6 +25,7 @@ module LinkedData
 
         note.relatedOntology.each do |ont|
           Notifier.notify_subscribed_separately subject, body, ont, 'NOTES'
+          Notifier.notify_mails_grouped subject, body, Notifier.support_mails + Notifier.admin_mails(ont)
         end
       end
 
@@ -32,15 +33,15 @@ module LinkedData
         submission.bring_remaining
         ontology = submission.ontology
         ontology.bring(:name, :acronym)
-        result = submission.ready? ? 'Success' : 'Failure'
+        result = submission.ready? || submission.archived? ? 'Success' : 'Failure'
         status = LinkedData::Models::SubmissionStatus.readable_statuses(submission.submissionStatus)
-
+        ontology_location = "#{LinkedData::Hypermedia.generate_links(ontology)['ui']}?invalidate_cache=true"
         subject = "[#{LinkedData.settings.ui_name}] #{ontology.name} Parsing #{result}"
         body = SUBMISSION_PROCESSED.gsub('%ontology_name%', ontology.name)
                                    .gsub('%ontology_acronym%', ontology.acronym)
                                    .gsub('%statuses%', status.join('<br/>'))
                                    .gsub('%admin_email%', LinkedData.settings.email_sender)
-                                   .gsub('%ontology_location%', LinkedData::Hypermedia.generate_links(ontology)['ui'])
+                                   .gsub('%ontology_location%', ontology_location)
                                    .gsub('%ui_name%', LinkedData.settings.ui_name)
 
         Notifier.notify_subscribed_separately subject, body, ontology, 'PROCESSING'

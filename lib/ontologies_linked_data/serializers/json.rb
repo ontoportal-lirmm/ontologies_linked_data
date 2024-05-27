@@ -6,8 +6,11 @@ module LinkedData
       CONTEXTS = {}
 
       def self.serialize(obj, options = {})
+
+
         hash = obj.to_flex_hash(options) do |hash, hashed_obj|
           current_cls = hashed_obj.respond_to?(:klass) ? hashed_obj.klass : hashed_obj.class
+          result_lang = self.get_languages(get_object_submission(hashed_obj), options[:lang]) if result_lang.nil?
 
           # Add the id to json-ld attribute
           if current_cls.ancestors.include?(LinkedData::Hypermedia::Resource) && !current_cls.embedded? && hashed_obj.respond_to?(:id)
@@ -16,7 +19,7 @@ module LinkedData
           end
 
           # Add the type
-          hash["@type"] = type(current_cls, hashed_obj) if  hash["@id"]
+          hash["@type"] = type(current_cls, hashed_obj) if hash["@id"]
 
           # Generate links
           # NOTE: If this logic changes, also change in xml.rb
@@ -36,21 +39,39 @@ module LinkedData
             end
           elsif (hashed_obj.instance_of?(LinkedData::Models::ExternalClass) || hashed_obj.instance_of?(LinkedData::Models::InterportalClass)) && !current_cls.embedded?
             # Add context for ExternalClass
-            context_hash = {"@vocab" => Goo.vocabulary.to_s, "prefLabel" => "http://data.bioontology.org/metadata/skosprefLabel"}
-            context = {"@context" => context_hash}
+            context_hash = { "@vocab" => Goo.vocabulary.to_s, "prefLabel" => "http://data.bioontology.org/metadata/skosprefLabel" }
+            context = { "@context" => context_hash }
             hash.merge!(context)
           end
-
-          if hash.key?('@context')
-            hash['@context']['@language'] = options[:lang]
-          else
-            hash['@context'] = {'@language' => options[:lang]}
-          end
+          hash['@context']['@language'] = result_lang if hash['@context']
         end
         MultiJson.dump(hash)
       end
 
       private
+
+      def self.get_object_submission(obj)
+        obj.class.respond_to?(:attributes) && obj.class.attributes.include?(:submission) ? obj.submission : nil
+      end
+
+      def self.get_languages(submission, user_languages)
+        result_lang = user_languages
+
+        if submission
+          submission.bring :naturalLanguage
+          languages = get_submission_languages(submission.naturalLanguage)
+          # intersection of the two arrays , if the requested language is not :all
+          result_lang = user_languages == :all ? languages : Array(user_languages) & languages
+          result_lang = result_lang.first if result_lang.length == 1
+        end
+
+        result_lang
+      end
+
+      def self.get_submission_languages(submission_natural_language = [])
+        submission_natural_language = submission_natural_language.values.flatten if submission_natural_language.is_a?(Hash)
+        submission_natural_language.map { |natural_language| natural_language.to_s['iso639'] && natural_language.to_s.split('/').last[0..1].to_sym }.compact
+      end
 
       def self.type(current_cls, hashed_obj)
         if current_cls.respond_to?(:type_uri)
@@ -82,17 +103,17 @@ module LinkedData
 
           if linked_model && linked_model.ancestors.include?(Goo::Base::Resource) && !embedded?(object, attr)
             # linked object
-            predicate = {"@id" => linked_model.type_uri.to_s, "@type" => "@id"}
+            predicate = { "@id" => linked_model.type_uri.to_s, "@type" => "@id" }
           else
             # use the original predicate property if set
-            predicate_attr =  current_cls.model_settings[:attributes][attr][:property] || attr
+            predicate_attr = current_cls.model_settings[:attributes][attr][:property] || attr
             # predicate with custom namespace
             # if the namespace can be resolved by the namespaces added in Goo then it will be resolved.
             predicate = "#{Goo.vocabulary(current_cls.model_settings[:attributes][attr][:namespace])&.to_s}#{predicate_attr}"
           end
           hash[attr] = predicate unless predicate.nil?
         end
-        context = {"@context" => hash}
+        context = { "@context" => hash }
         CONTEXTS[object.hash] = context
         context = remove_unused_attrs(context, serialized_attrs) unless options[:params] && options[:params]["full_context"].eql?("true")
         context
@@ -105,12 +126,12 @@ module LinkedData
         links.each do |link|
           links_context[link.type] = link.type_uri.to_s
         end
-        return {"@context" => links_context}
+        return { "@context" => links_context }
       end
 
       def self.remove_unused_attrs(context, serialized_attrs = [])
-        new_context = context["@context"].reject {|k,v| !serialized_attrs.include?(k) && !k.to_s.start_with?("@")}
-        {"@context" => new_context}
+        new_context = context["@context"].reject { |k, v| !serialized_attrs.include?(k) && !k.to_s.start_with?("@") }
+        { "@context" => new_context }
       end
 
       def self.embedded?(object, attribute)
@@ -127,20 +148,19 @@ module LinkedData
         params = options[:params]
         params.nil? ||
           (params["no_context"].nil? ||
-                     !params["no_context"].eql?("true")) &&
-          (params["display_context"].nil? ||
-                    !params["display_context"].eql?("false"))
+            !params["no_context"].eql?("true")) &&
+            (params["display_context"].nil? ||
+              !params["display_context"].eql?("false"))
       end
 
       def self.generate_links?(options)
         params = options[:params]
         params.nil? ||
           (params["no_links"].nil? ||
-                     !params["no_links"].eql?("true")) &&
-          (params["display_links"].nil? ||
-                    !params["display_links"].eql?("false"))
+            !params["no_links"].eql?("true")) &&
+            (params["display_links"].nil? ||
+              !params["display_links"].eql?("false"))
       end
     end
   end
 end
-
