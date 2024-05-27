@@ -1,12 +1,15 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: c310e3854705b241a6259faad14cf6cd4eb97053
-  branch: ecoportal
+  revision: 8f0a9a5bddba03d9d660a363c4e6618da479db9f
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
       pry
-      rdf (= 1.0.8)
+      rdf (= 3.2.11)
+      rdf-raptor
+      rdf-rdfxml
+      rdf-vocab
       redis
       rest-client
       rsolr
@@ -15,13 +18,12 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: aed51baf4106fd0f3d0e3f9238f0aad9406aa3f0
-  branch: master
+  revision: c96da3ad479724a31ccd6217ab9939dddfaca40e
+  branch: development
   specs:
-    sparql-client (1.0.1)
-      json_pure (>= 1.4)
-      net-http-persistent (= 2.9.4)
-      rdf (>= 1.0)
+    sparql-client (3.2.2)
+      net-http-persistent (~> 4.0, >= 4.0.2)
+      rdf (~> 3.2, >= 3.2.11)
 
 GEM
   remote: https://rubygems.org/
@@ -32,22 +34,25 @@ GEM
       multi_json (~> 1.3)
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
-    addressable (2.8.5)
+    addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
     ansi (1.5.0)
     ast (2.4.2)
-    base64 (0.1.1)
-    bcrypt (3.1.19)
+    base64 (0.2.0)
+    bcrypt (3.1.20)
+    bigdecimal (3.1.7)
     builder (3.2.4)
     coderay (1.1.3)
-    concurrent-ruby (1.2.2)
+    concurrent-ruby (1.2.3)
     connection_pool (2.4.1)
+    crack (1.0.0)
+      bigdecimal
+      rexml
     cube-ruby (0.0.3)
     daemons (1.4.1)
-    date (3.3.3)
+    date (3.3.4)
     docile (1.4.0)
-    domain_name (0.5.20190701)
-      unf (>= 0.0.5, < 1.0.0)
+    domain_name (0.6.20240107)
     email_spec (2.2.2)
       htmlentities (~> 4.3.3)
       launchy (~> 2.1)
@@ -76,7 +81,8 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    ffi (1.15.5)
+    ffi (1.16.3)
+    hashdiff (1.1.0)
     hashie (5.0.0)
     htmlentities (4.3.4)
     http-accept (1.7.0)
@@ -84,14 +90,18 @@ GEM
       domain_name (~> 0.5)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    json (2.6.3)
-    json_pure (2.6.3)
-    jwt (2.7.1)
+    json (2.7.2)
+    json-ld (3.0.2)
+      multi_json (~> 1.12)
+      rdf (>= 2.2.8, < 4.0)
+    jwt (2.8.1)
+      base64
     language_server-protocol (3.17.0.3)
     launchy (2.5.2)
       addressable (~> 2.8)
     libxml-ruby (2.9.0)
-    logger (1.5.3)
+    link_header (0.0.8)
+    logger (1.6.0)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
     mail (2.8.1)
@@ -99,10 +109,10 @@ GEM
       net-imap
       net-pop
       net-smtp
-    method_source (1.0.0)
-    mime-types (3.5.1)
+    method_source (1.1.0)
+    mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.0808)
+    mime-types-data (3.2024.0305)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-reporters (0.14.24)
@@ -112,16 +122,17 @@ GEM
       powerbar
     multi_json (1.15.0)
     multi_xml (0.6.0)
-    multipart-post (2.3.0)
-    net-http-persistent (2.9.4)
-    net-imap (0.3.7)
+    multipart-post (2.4.0)
+    net-http-persistent (4.0.2)
+      connection_pool (~> 2.2)
+    net-imap (0.4.10)
       date
       net-protocol
     net-pop (0.1.2)
       net-protocol
-    net-protocol (0.2.1)
+    net-protocol (0.2.2)
       timeout
-    net-smtp (0.3.3)
+    net-smtp (0.5.0)
       net-protocol
     netrc (0.11.0)
     oauth2 (2.0.9)
@@ -134,8 +145,8 @@ GEM
     oj (2.18.5)
     omni_logger (0.1.4)
       logger
-    parallel (1.23.0)
-    parser (3.2.2.3)
+    parallel (1.24.0)
+    parser (3.3.1.0)
       ast (~> 2.4.1)
       racc
     pony (1.13.1)
@@ -145,21 +156,34 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (5.0.3)
-    racc (1.7.1)
+    public_suffix (5.0.5)
+    racc (1.7.3)
     rack (1.6.13)
     rack-test (0.8.3)
       rack (>= 1.0, < 3)
     rainbow (3.1.1)
     rake (10.5.0)
-    rdf (1.0.8)
-      addressable (>= 2.2)
-    redis (5.0.7)
-      redis-client (>= 0.9.0)
-    redis-client (0.17.0)
+    rdf (3.2.11)
+      link_header (~> 0.0, >= 0.0.8)
+    rdf-raptor (3.2.0)
+      ffi (~> 1.15)
+      rdf (~> 3.2)
+    rdf-rdfxml (3.2.2)
+      builder (~> 3.2)
+      htmlentities (~> 4.3)
+      rdf (~> 3.2)
+      rdf-xsd (~> 3.2)
+    rdf-vocab (3.2.7)
+      rdf (~> 3.2, >= 3.2.4)
+    rdf-xsd (3.2.1)
+      rdf (~> 3.2)
+      rexml (~> 3.2)
+    redis (5.2.0)
+      redis-client (>= 0.22.0)
+    redis-client (0.22.1)
       connection_pool
-    regexp_parser (2.8.1)
-    request_store (1.5.1)
+    regexp_parser (2.9.0)
+    request_store (1.6.0)
       rack (>= 1.4)
     rest-client (2.1.0)
       http-accept (>= 1.7.0, < 2.0)
@@ -169,20 +193,19 @@ GEM
     rexml (3.2.6)
     rsolr (1.1.2)
       builder (>= 2.1.2)
-    rubocop (1.56.3)
-      base64 (~> 0.1.1)
+    rubocop (1.63.4)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
-      parser (>= 3.2.2.3)
+      parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.28.1, < 2.0)
+      rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.29.0)
-      parser (>= 3.2.1.0)
+    rubocop-ast (1.31.3)
+      parser (>= 3.3.1.0)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     rubyzip (1.3.0)
@@ -206,18 +229,19 @@ GEM
       eventmachine (~> 1.0, >= 1.0.4)
       rack (>= 1, < 3)
     thread_safe (0.3.6)
-    timeout (0.4.0)
+    timeout (0.4.1)
     tzinfo (0.3.62)
-    unf (0.1.4)
-      unf_ext
-    unf_ext (0.0.8.2)
-    unicode-display_width (2.4.2)
+    unicode-display_width (2.5.0)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    version_gem (1.1.3)
+    version_gem (1.1.4)
+    webmock (3.23.0)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
-  x86_64-darwin-21
+  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
@@ -229,6 +253,8 @@ DEPENDENCIES
   faraday (~> 1.9)
   ffi
   goo!
+  json-ld (~> 3.0.2)
+  jwt
   libxml-ruby (~> 2.0)
   minitest
   minitest-reporters (>= 0.5.0)
@@ -236,6 +262,7 @@ DEPENDENCIES
   oauth2 (~> 2.0)
   oj (~> 2.0)
   omni_logger
+  parallel (~> 1.24)
   pony
   pry
   rack (~> 1.0)
@@ -251,6 +278,7 @@ DEPENDENCIES
   sparql-client!
   test-unit-minitest
   thin
+  webmock
 
 BUNDLED WITH
-   2.3.23
+   2.4.22
