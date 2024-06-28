@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 4954e565ff6cb593c867bd5a53b21eb53df12bca
-  branch: fix/show-multiple-languages
+  revision: a95245b8c964431505ca6315907440996c59a00d
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -81,7 +81,7 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    ffi (1.17.0)
+    ffi (1.16.3)
     hashdiff (1.1.0)
     hashie (5.0.0)
     htmlentities (4.3.4)
@@ -241,7 +241,7 @@ DEPENDENCIES
   cube-ruby
   email_spec
   faraday (~> 1.9)
-  ffi
+  ffi (~> 1.16.3)
   goo!
   json-ld (~> 3.0.2)
   jwt
