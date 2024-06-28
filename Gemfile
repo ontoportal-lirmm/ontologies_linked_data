@@ -9,7 +9,7 @@ gem 'ffi'
 gem 'libxml-ruby', '~> 2.0'
 gem 'minitest'
 gem 'multi_json', '~> 1.0'
-gem 'oj', '~> 2.0'
+gem 'oj'
 gem 'omni_logger'
 gem 'pony'
 gem 'rack', '~> 1.0'
@@ -40,6 +40,5 @@ group :development do
   gem 'rubocop', require: false
 end
 # NCBO gems (can be from a local dev path or from rubygems/git)
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'fix/show-multiple-languages'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
-
