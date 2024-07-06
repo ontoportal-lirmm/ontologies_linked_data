@@ -10,7 +10,7 @@ module LinkedData
     module Users
       module OAuthAuthentication
 
-        def self.included base
+        def self.included(base)
           base.extend ClassMethods
         end
 

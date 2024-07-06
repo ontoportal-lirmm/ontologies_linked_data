@@ -1,4 +1,5 @@
 require 'set'
+require 'jwt'
 
 module LinkedData
   module Security
@@ -95,6 +96,16 @@ module LinkedData
 
         cookie_apikey(env)
       end
+
+      def find_access_token(env, params)
+        access_token = nil
+        header_auth = env["HTTP_AUTHORIZATION"] || env["Authorization"]
+        if header_auth && header_auth.downcase().start_with?("bearer ")
+          access_token = header_auth.split()[1]
+        end
+        access_token
+      end
+
 
       def authorized?(apikey, env)
         return false if apikey.nil?

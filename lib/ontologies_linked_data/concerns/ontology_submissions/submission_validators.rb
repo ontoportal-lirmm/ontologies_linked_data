@@ -71,6 +71,20 @@ module LinkedData
           enforce_agent_type(persons, 'person', attr)
         end
 
+        def is_person(inst, attr)
+          inst.bring(attr) if inst.bring?(attr)
+          persons = inst.send(attr)
+
+          Array(persons).each do |person|
+            person.bring(:agentType) if person.bring?(:agentType)
+            unless person.agentType&.eql?('person')
+              return  [:persons, "`#{attr}` must contain only agents of type Person"]
+            end
+          end
+
+          []
+        end
+
         def lexvo_language(inst, attr)
           values = Array(attr_value(inst, attr))
 

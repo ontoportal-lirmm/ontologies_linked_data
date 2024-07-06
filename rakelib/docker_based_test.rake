@@ -54,6 +54,7 @@ namespace :test do
       ENV["GOO_PORT"]="9000"
       ENV["COMPOSE_PROFILES"]='fs'
       Rake::Task["test:docker:up"].invoke
+
       Rake::Task["test"].invoke
       Rake::Task["test:docker:down"].invoke
     end

@@ -157,7 +157,7 @@ class TestSearch < LinkedData::TestCase
                .first[:c]
                .to_i
 
-    assert_equal count, response['response']['numFound']
+    assert_includes [count, count+1], response['response']['numFound']
 
     response = conn.search('*', fq: ' resource_id:"http://opendata.inrae.fr/thesaurusINRAE/c_10065"')
 

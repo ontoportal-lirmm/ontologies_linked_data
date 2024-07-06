@@ -19,6 +19,7 @@ gem 'rest-client'
 gem 'rsolr', '~> 1.0'
 gem 'rubyzip', '~> 1.0'
 gem 'thin'
+gem "oauth2", "~> 2.0"
 gem 'request_store'
 gem 'jwt'
 gem 'json-ld', '~> 3.0.2'

@@ -9,7 +9,6 @@ class TestClassPortalLang < LinkedData::TestOntologyCommon
 
   def self.after_suite
     Goo.main_languages = @@old_main_languages
-    RequestStore.store[:requested_lang] = nil
   end
 
   def self.parse
@@ -20,7 +19,7 @@ class TestClassPortalLang < LinkedData::TestOntologyCommon
   end
 
   def test_map_attribute_found
-    cls = parse_and_get_class lang: [:FR]
+    cls = parse_and_get_class lang: ['fr']
     cls.bring :unmapped
     LinkedData::Models::Class.map_attributes(cls)
     assert_equal ['entité matérielle detaillée'], cls.label
@@ -29,7 +28,7 @@ class TestClassPortalLang < LinkedData::TestOntologyCommon
   end
 
   def test_map_attribute_not_found
-    cls = parse_and_get_class lang: [:ES]
+    cls = parse_and_get_class lang: ['es']
     cls.bring :unmapped
     LinkedData::Models::Class.map_attributes(cls)
     assert_empty cls.label
@@ -38,7 +37,7 @@ class TestClassPortalLang < LinkedData::TestOntologyCommon
   end
 
   def test_map_attribute_secondary_lang
-    cls = parse_and_get_class lang: %i[ES FR]
+    cls = parse_and_get_class lang: %w[es fr]
     cls.bring :unmapped
     LinkedData::Models::Class.map_attributes(cls)
     assert_empty cls.label
@@ -55,7 +54,7 @@ class TestClassPortalLang < LinkedData::TestOntologyCommon
   end
 
   def test_label_main_lang_not_found
-    cls = parse_and_get_class lang: [:ES]
+    cls = parse_and_get_class lang: ['es']
 
     assert_empty cls.label
     assert_equal 'skos prefLabel rien', cls.prefLabel
@@ -73,7 +72,7 @@ class TestClassPortalLang < LinkedData::TestOntologyCommon
   end
 
   def test_label_main_lang_en_found
-    cls = parse_and_get_class lang: [:EN]
+    cls = parse_and_get_class lang: ['en']
     assert_equal 'material detailed entity', cls.label.first
     assert_includes ['skos prefLabel en', 'skos prefLabel rien'], cls.prefLabel # TODO fix in Goo to show en in priority
     assert_equal ['entity eng', 'entite rien'].sort, cls.synonym.sort
@@ -83,7 +82,7 @@ class TestClassPortalLang < LinkedData::TestOntologyCommon
   private
 
   def parse_and_get_class(lang:, klass: 'http://lirmm.fr/2015/resource/AGROOE_c_03')
-    portal_lang_set portal_languages: lang
+    lang_set lang
 
     cls = get_class(klass,'AGROOE')
     assert !cls.nil?
@@ -91,10 +90,8 @@ class TestClassPortalLang < LinkedData::TestOntologyCommon
     cls
   end
 
-
-  def portal_lang_set(portal_languages: nil)
-    Goo.main_languages = portal_languages if portal_languages
-    RequestStore.store[:requested_lang] = nil
+  def lang_set(lang)
+    Goo.main_languages = lang
   end
 
 

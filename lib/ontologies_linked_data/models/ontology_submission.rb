@@ -165,6 +165,7 @@ module LinkedData
       # Metrics metadata
       attribute :metrics, type: :metrics
 
+
       # Configuration metadata
 
       # Internal values for parsing - not definitive
@@ -172,6 +173,7 @@ module LinkedData
       attribute :missingImports, type: :list
 
       # Link to ontology
+      attribute :identifierRequests, inverse: {on: :identifier_request, attribute: :submission}
       attribute :ontology, type: :ontology, enforce: [:existence]
 
       def self.agents_attrs
@@ -201,8 +203,8 @@ module LinkedData
 
       # Links
       links_load :submissionId, ontology: [:acronym]
-      link_to LinkedData::Hypermedia::Link.new("metrics", ->(s) { "#{self.ontology_link(s)}/submissions/#{s.submissionId}/metrics" }, self.type_uri)
-      LinkedData::Hypermedia::Link.new("download", ->(s) { "#{self.ontology_link(s)}/submissions/#{s.submissionId}/download" }, self.type_uri)
+      link_to LinkedData::Hypermedia::Link.new("metrics", ->(s) { "#{self.ontology_link(s)}/submissions/#{s.id.split('/').last}/metrics" }, self.type_uri)
+      LinkedData::Hypermedia::Link.new("download", ->(s) { "#{self.ontology_link(s)}/submissions/#{s.id.split('/').last}/download" }, self.type_uri)
 
       # HTTP Cache settings
       cache_timeout 3600
