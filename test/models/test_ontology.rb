@@ -160,6 +160,12 @@ class TestOntology < LinkedData::TestOntologyCommon
     assert_equal "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#AlgorithmPurpose", props[0].id.to_s
     assert_equal "http://www.w3.org/2004/02/skos/core#altLabel", props[1].id.to_s
 
+
+    assert_equal "http://bioontology.org/ontologies/biositemap.owl#biositemap_author", props[2].id.to_s
+    props[2].bring(*[:domain,:range])
+    assert_equal "http://bioontology.org/ontologies/biositemap.owl#Resource_Description", props[2].domain
+    assert_equal "http://www.w3.org/2001/XMLSchema#string", props[2].range
+
     datatype_props = []
     object_props = []
     annotation_props = []
