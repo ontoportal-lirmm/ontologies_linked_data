@@ -163,8 +163,11 @@ class TestOntology < LinkedData::TestOntologyCommon
 
     assert_equal "http://bioontology.org/ontologies/biositemap.owl#biositemap_author", props[2].id.to_s
     props[2].bring(*[:domain,:range])
+    props[2].bring(:unmapped)
+
     assert_equal "http://bioontology.org/ontologies/biositemap.owl#Resource_Description", props[2].domain
     assert_equal "http://www.w3.org/2001/XMLSchema#string", props[2].range
+    refute_empty props[2].properties
 
     datatype_props = []
     object_props = []

@@ -23,6 +23,7 @@ module LinkedData
 
       serialize_default :label, :labelGenerated, :definition, :matchType, :ontologyType, :propertyType, :parents, :children, :hasChildren, :domain, :range # some of these attributes are used in Search (not shown out of context)
       aggregates childrenCount: [:count, :children]
+      serialize_methods :properties
       # this command allows the children to be serialized in the output
       embed :children
 
