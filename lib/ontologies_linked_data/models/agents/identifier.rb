@@ -6,7 +6,7 @@ module LinkedData
 
       model :Identifier, namespace: :adms, name_with: lambda {  |i| generate_identifier(i.notation, i.schemaAgency)}
 
-      attribute :notation, namespace: :skos, enforce: %i[existence no_url]
+      attribute :notation, namespace: :skos, enforce: %i[existence valid_orcid_ror]
       attribute :schemaAgency, namespace: :adms, enforcedValues: IDENTIFIER_SCHEMES.keys, enforce: [:existence]
       attribute :schemeURI, handler: :scheme_uri_infer
       attribute :creator, type: :user, enforce: [:existence]
@@ -25,10 +25,10 @@ module LinkedData
         "#{self.id.split('/').last}"
       end
 
-      def no_url(inst,attr)
+      def valid_orcid_ror(inst,attr)
         inst.bring(attr) if inst.bring?(attr)
         notation = inst.send(attr)
-        return  notation&.start_with?('http') ? [:no_url, "`notation` must not be a URL"]  : []
+        return  notation&.start_with?('invalid') ? ["The indentifier you entered is invalid"]  : []
       end
 
       def scheme_uri_infer
