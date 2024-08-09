@@ -30,6 +30,8 @@
 <rdf:Description rdf:about="http://lirmm.fr/2015/ontology/agroportal_ontology_example.owl">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
 	<rdf:type rdf:resource="http://omv.ontoware.org/2005/05/ontology#Ontology"/>
+
+	<dc:identifier>http://lirmm.fr/ontology/agroportal_ontology_example.owl</dc:identifier>
 	
 	<!-- GENERAL DESCRIPTION -->
 	<omv:name xml:lang="en"> AgroPortal ontology example</omv:name>
