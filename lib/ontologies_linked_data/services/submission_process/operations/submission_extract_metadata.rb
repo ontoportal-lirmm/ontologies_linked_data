@@ -99,11 +99,6 @@ module LinkedData
         end
       end
 
-      # Set some metadata to default values if nothing extracted
-      def set_default_metadata
-
-      end
-
       def empty_value?(value)
         value.nil? || (value.is_a?(Array) && value.empty?) || value.to_s.strip.empty?
       end
@@ -117,13 +112,17 @@ module LinkedData
         old_val = nil
         single_extracted = false
 
+
         if enforce?(attr, :list)
           old_val = value(attr, :list)
-          new_values = old_val.dup
+          old_values = old_val.dup
+          new_values = new_value.values
+          new_values = new_values.map{ |v|  find_or_create_agent(attr, v, logger) }.compact if enforce?(attr, :Agent)
 
-          new_values.push(*new_value.values)
 
-          @submission.send("#{attr}=", new_values.uniq)
+          old_values.push(*new_values)
+
+          @submission.send("#{attr}=", old_values.uniq)
         elsif enforce?(attr, :concatenate)
           # if multiple value for this attribute, then we concatenate it
           # Add the concat at the very end, to easily join the content of the array
@@ -133,12 +132,17 @@ module LinkedData
 
           @submission.send("#{attr}=", (metadata_values + new_values).uniq.join(', '))
         else
-          @submission.send("#{attr}=", new_value.values.first)
+          new_value = new_value.values.first
+
+          new_value = find_or_create_agent(attr, nil, logger) if enforce?(attr, :Agent)
+
+          @submission.send("#{attr}=", new_value)
           single_extracted = true
         end
 
         unless @submission.valid?
           logger.error("Error while extracting metadata for the attribute #{attr}: #{@submission.errors[attr] || @submission.errors}")
+          new_value&.delete if enforce?(attr, :Agent) && new_value.respond_to?(:delete)
           @submission.send("#{attr}=", old_val)
         end
 
@@ -269,6 +273,16 @@ eos
         LinkedData::Models::OntologySubmission.attribute_settings(attr)[:enforce].include?(type)
       end
 
+      def find_or_create_agent(attr, old_val, logger)
+        agent = LinkedData::Models::Agent.where(agentType: 'person', name: old_val).first
+        begin
+          agent ||= LinkedData::Models::Agent.new(name: old_val, agentType: 'person', creator: @submission.ontology.administeredBy.first).save
+        rescue
+          logger.error("Error while extracting metadata for the attribute #{attr}: Can't create Agent #{agent.errors} ")
+          agent = nil
+        end
+        agent
+      end
     end
   end
 end
