@@ -17,6 +17,7 @@ module LinkedData
     class Ontology < LinkedData::Models::Base
       class ParsedSubmissionError < StandardError; end
       class OntologyAnalyticsError < StandardError; end
+      include LinkedData::Concerns::Analytics
 
       ONTOLOGY_ANALYTICS_REDIS_FIELD = "ontology_analytics"
       ONTOLOGY_RANK_REDIS_FIELD = "ontology_rank"
@@ -25,8 +26,8 @@ module LinkedData
 
       model :ontology, :name_with => :acronym
       attribute :acronym, namespace: :omv,
-        enforce: [:unique, :existence, lambda { |inst,attr| validate_acronym(inst,attr) } ]
-      attribute :name, :namespace => :omv, enforce: [:unique, :existence]
+        enforce: [:unique, :existence, lambda { |inst,attr| validate_acronym(inst,attr) } ], fuzzy_search: true
+      attribute :name, :namespace => :omv, enforce: [:unique, :existence], fuzzy_search: true
       attribute :submissions, inverse: { on: :ontology_submission, attribute: :ontology },
                 metadataMappings: ["dct:hasVersion", "pav:hasCurrentVersion", "pav:hasVersion", "prov:generalizationOf", "adms:next"]
       attribute :projects,
@@ -50,7 +51,7 @@ module LinkedData
 
       attribute :acl, enforce: [:list, :user]
 
-      attribute :viewOf, enforce: [:ontology]
+      attribute :viewOf, enforce: [:ontology], onUpdate: :update_submissions_has_part
       attribute :views, :inverse => { on: :ontology, attribute: :viewOf }
       attribute :ontologyType, enforce: [:ontology_type], default: lambda { |record| LinkedData::Models::OntologyType.find("ONTOLOGY").include(:code).first }
 
@@ -76,6 +77,7 @@ module LinkedData
               LinkedData::Hypermedia::Link.new("download", lambda {|s| "ontologies/#{s.acronym}/download"}, self.type_uri),
               LinkedData::Hypermedia::Link.new("views", lambda {|s| "ontologies/#{s.acronym}/views"}, self.type_uri),
               LinkedData::Hypermedia::Link.new("analytics", lambda {|s| "ontologies/#{s.acronym}/analytics"}, "#{Goo.namespaces[:metadata].to_s}Analytics"),
+              LinkedData::Hypermedia::Link.new("agents", lambda {|s| "ontologies/#{s.acronym}/agents"}, LinkedData::Models::Agent.uri_type),
               LinkedData::Hypermedia::Link.new("ui", lambda {|s| "http://#{LinkedData.settings.ui_host}/ontologies/#{s.acronym}"}, self.uri_type)
 
       # Access control
@@ -86,6 +88,10 @@ module LinkedData
 
       # Cache
       cache_timeout 3600
+
+      enable_indexing(:ontology_metadata)
+
+      after_save :index_latest_submission
 
       def self.validate_acronym(inst, attr)
         inst.bring(attr) if inst.bring?(attr)
@@ -112,6 +118,53 @@ module LinkedData
         end
 
         return errors.flatten
+      end
+
+      def update_submissions_has_part(inst, attr)
+        inst.bring :viewOf if inst.bring?(:viewOf)
+
+        target_ontology = inst.viewOf
+
+        if target_ontology.nil?
+          previous_value = inst.previous_values ? inst.previous_values[attr] : nil
+          return if previous_value.nil?
+
+          action = :remove
+          target_ontology = previous_value
+        else
+          action = :append
+        end
+
+        sub = target_ontology.latest_submission || target_ontology.bring(:submissions) && target_ontology.submissions.last
+
+        return if sub.nil?
+
+        sub.bring :hasPart if sub.bring?(:hasPart)
+
+        parts = sub.hasPart.dup || []
+        changed = false
+        if action.eql?(:append)
+          unless parts.include?(self.id)
+            changed = true
+            parts << self.id
+          end
+        elsif action.eql?(:remove)
+          if parts.include?(self.id)
+            changed = true
+            parts.delete(self.id)
+            sub.class.model_settings[:attributes][:hasPart][:enforce].delete(:include_ontology_views) #disable validator
+          end
+        end
+
+        return unless changed
+
+        sub.bring_remaining
+        sub.hasPart = parts
+        sub.save if sub.valid?
+
+        return unless changed && action.eql?(:remove)
+
+        sub.class.model_settings[:attributes][:hasPart][:enforce].append(:include_ontology_views)
       end
 
       def latest_submission(options = {})
@@ -252,7 +305,7 @@ module LinkedData
         LinkedData::Models::OntologyProperty.sort_properties(all_roots)
       end
 
-      def property(prop_id, sub=nil)
+      def property(prop_id, sub=nil, display_all_attributes: false)
         p = nil
         sub ||= latest_submission(status: [:rdf])
         self.bring(:acronym) if self.bring?(:acronym)
@@ -260,9 +313,10 @@ module LinkedData
         prop_classes = [LinkedData::Models::ObjectProperty, LinkedData::Models::DatatypeProperty, LinkedData::Models::AnnotationProperty]
 
         prop_classes.each do |c|
-          p = c.find(prop_id).in(sub).include(:label, :definition, :parents).first
+          p = c.find(prop_id).in(sub).include(:label, :definition, :parents,:domain, :range).first
 
           unless p.nil?
+            p.bring(:unmapped) if display_all_attributes
             p.load_has_children
             parents = p.parents.nil? ? [] : p.parents.dup
             c.in(sub).models(parents).include(:label, :definition).all()
@@ -287,17 +341,8 @@ module LinkedData
 
       # A static method for retrieving Analytics for a combination of ontologies, year, month
       def self.analytics(year=nil, month=nil, acronyms=nil)
-        analytics = self.load_analytics_data
-
-        unless analytics.empty?
-          analytics.delete_if { |acronym, _| !acronyms.include? acronym } unless acronyms.nil?
-          analytics.values.each do |ont_analytics|
-            ont_analytics.delete_if { |key, _| key != year } unless year.nil?
-            ont_analytics.each { |_, val| val.delete_if { |key, __| key != month } } unless month.nil?
-          end
-          # sort results by the highest traffic values
-          analytics = Hash[analytics.sort_by {|_, v| v[year][month]}.reverse] if year && month
-        end
+        analytics = retrieve_analytics(year, month)
+        analytics.delete_if { |acronym, _| !acronyms.include? acronym } unless acronyms.nil?
         analytics
       end
 
@@ -314,20 +359,12 @@ module LinkedData
         ranking
       end
 
-      def self.load_analytics_data
-        self.load_data(ONTOLOGY_ANALYTICS_REDIS_FIELD)
+      def self.analytics_redis_key
+        ONTOLOGY_ANALYTICS_REDIS_FIELD
       end
 
       def self.load_ranking_data
         self.load_data(ONTOLOGY_RANK_REDIS_FIELD)
-      end
-
-      def self.load_data(field_name)
-        @@redis ||= Redis.new(:host => LinkedData.settings.ontology_analytics_redis_host,
-                              :port => LinkedData.settings.ontology_analytics_redis_port,
-                              :timeout => 30)
-        raw_data = @@redis.get(field_name)
-        return raw_data.nil? ? Hash.new : Marshal.load(raw_data)
       end
 
       ##
@@ -389,9 +426,8 @@ module LinkedData
         end
 
         # remove index entries
-        unindex(index_commit)
-        unindex_properties(index_commit)
-
+        unindex_all_data(index_commit)
+       
         # delete all files
         ontology_dir = File.join(LinkedData.settings.repository_folder, self.acronym.to_s)
         FileUtils.rm_rf(ontology_dir)
@@ -412,19 +448,43 @@ module LinkedData
         self
       end
 
-      def unindex(commit=true)
+      def index_latest_submission
+        last_s = latest_submission(status: :any)
+        return if last_s.nil?
+
+        last_s.ontology = self
+        last_s.index_update([:ontology])
+      end
+
+      def unindex_all_data(commit=true)
         unindex_by_acronym(commit)
+        unindex_properties(commit)
+      end
+
+      def embedded_doc
+        self.administeredBy.map{|x| x.bring_remaining}
+        doc = indexable_object
+        doc.delete(:id)
+        doc.delete(:resource_id)
+        doc.delete('ontology_viewOf_resource_model_t')
+        doc['ontology_viewOf_t'] = self.viewOf.id.to_s  unless self.viewOf.nil?
+        doc[:resource_model_t] = doc.delete(:resource_model)
+        doc
       end
 
       def unindex_properties(commit=true)
-        unindex_by_acronym(commit, :property)
-      end
-
-      def unindex_by_acronym(commit=true, connection_name=:main)
         self.bring(:acronym) if self.bring?(:acronym)
         query = "submissionAcronym:#{acronym}"
-        Ontology.unindexByQuery(query, connection_name)
-        Ontology.indexCommit(nil, connection_name) if commit
+        OntologyProperty.unindexByQuery(query)
+        OntologyProperty.indexCommit(nil) if commit
+      end
+
+      def unindex_by_acronym(commit=true)
+        self.bring(:acronym) if self.bring?(:acronym)
+        query = "submissionAcronym:#{acronym}"
+        Class.unindexByQuery(query)
+        Class.indexCommit(nil) if commit
+        #OntologySubmission.clear_indexed_content(acronym)
       end
 
       def restricted?

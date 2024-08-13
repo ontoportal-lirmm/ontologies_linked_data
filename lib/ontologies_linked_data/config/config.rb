@@ -25,8 +25,8 @@ module LinkedData
     @settings.goo_path_query                ||= '/sparql/'
     @settings.goo_path_data                 ||= '/data/'
     @settings.goo_path_update               ||= '/update/'
-    @settings.search_server_url             ||= 'http://localhost:8983/solr/term_search_core1'
-    @settings.property_search_server_url    ||= 'http://localhost:8983/solr/prop_search_core1'
+    @settings.search_server_url             ||= 'http://localhost:8983/solr'
+    @settings.property_search_server_url    ||= 'http://localhost:8983/solr'
     @settings.repository_folder             ||= './test/data/ontology_files/repo'
     @settings.rest_url_prefix                ||= DEFAULT_PREFIX
     @settings.enable_security               ||= false
@@ -88,6 +88,7 @@ module LinkedData
     @settings.admin_emails                  ||= []
 
     @settings.interportal_hash              ||= {}
+    @settings.oauth_providers               ||= {}
 
     # number of times to retry a query when empty records are returned
     @settings.num_retries_4store            ||= 10
@@ -191,7 +192,7 @@ module LinkedData
       conf.add_namespace(:oboInOwl, RDF::Vocabulary.new("http://www.geneontology.org/formats/oboInOwl#"))
       conf.add_namespace(:idot, RDF::Vocabulary.new("http://identifiers.org/idot/"))
       conf.add_namespace(:sd, RDF::Vocabulary.new("http://www.w3.org/ns/sparql-service-description#"))
-
+      conf.add_namespace(:org, RDF::Vocabulary.new("http://www.w3.org/ns/org#"))
       conf.add_namespace(:cclicense, RDF::Vocabulary.new("http://creativecommons.org/licenses/"))
       conf.add_namespace(:nkos, RDF::Vocabulary.new("http://w3id.org/nkos#"))
       conf.add_namespace(:skosxl, RDF::Vocabulary.new("http://www.w3.org/2008/05/skos-xl#"))

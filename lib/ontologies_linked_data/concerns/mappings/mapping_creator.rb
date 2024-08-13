@@ -81,8 +81,8 @@ module LinkedData
           process.relation = relations_array
           process.creator = user
 
-          process.subject_source_id = RDF::URI.new(source_uri || mapping_process_hash[:subject_source_id])
-          process.object_source_id = RDF::URI.new(object_uri || mapping_process_hash[:object_source_id])
+          process.subject_source_id = create_uri(source_uri || mapping_process_hash[:subject_source_id])
+          process.object_source_id = create_uri(object_uri || mapping_process_hash[:object_source_id])
           process.date = mapping_process_hash[:date] ? DateTime.parse(mapping_process_hash[:date]) : DateTime.now
           process_fields = %i[source source_name comment name source_contact_info]
           process_fields.each do |att|
@@ -92,6 +92,9 @@ module LinkedData
         end
 
         private
+        def create_uri(value)
+          RDF::URI.new(value) unless value.nil?
+        end
 
         def save_rest_mapping(classes, process)
           LinkedData::Mappings.create_rest_mapping(classes, process)
@@ -195,7 +198,7 @@ module LinkedData
         def find_submission_by_ontology_id(ontology_id)
           return nil if ontology_id.nil?
 
-          o = LinkedData::Models::Ontology.where(submissions: { URI: ontology_id })
+          o = LinkedData::Models::Ontology.where(submissions: { URI: RDF::URI.new(ontology_id) })
                                           .include(submissions: %i[submissionId submissionStatus URI])
                                           .first
           o.nil? ? nil : o.latest_submission

@@ -7,23 +7,18 @@ class TestMappingBulkLoad < LinkedData::TestOntologyCommon
   ONT_ACR2 = 'MAPPING_TEST2'
 
   def self.before_suite
-    LinkedData::TestCase.backend_4s_delete
-    self.ontologies_parse
-  end
-
-  def self.ontologies_parse
     helper = LinkedData::TestOntologyCommon.new(self)
+    # indexation is needed
     helper.submission_parse(ONT_ACR1,
                             'MappingOntTest1',
                             './test/data/ontology_files/BRO_v3.3.owl', 11,
-                            process_rdf: true, index_search: true,
-                            run_metrics: false, reasoning: true)
+                            process_rdf: true, extract_metadata: false, index_search: true)
     helper.submission_parse(ONT_ACR2,
                             'MappingOntTest2',
                             './test/data/ontology_files/CNO_05.owl', 22,
-                            process_rdf: true, index_search: true,
-                            run_metrics: false, reasoning: true)
+                            process_rdf: true, extract_metadata: false,  index_search: true)
   end
+
 
   def test_mapping_classes_found
     ontology_id = 'http://bioontology.org/ontologies/BiomedicalResources.owl'
@@ -43,7 +38,7 @@ class TestMappingBulkLoad < LinkedData::TestOntologyCommon
       "source_contact_info": 'orcid:1234,orcid:5678',
       "date": '2020-05-30'
     }
-    commun_test(mapping_hash, ontology_id)
+    common_test(mapping_hash, ontology_id)
   end
 
   def test_mapping_classes_not_found
@@ -174,7 +169,7 @@ class TestMappingBulkLoad < LinkedData::TestOntologyCommon
       "source_contact_info": 'orcid:1234,orcid:5678',
       "date": '2020-05-30'
     }
-    commun_test(mapping_hash, ontology_id)
+    common_test(mapping_hash, ontology_id)
   end
 
   private
@@ -185,7 +180,7 @@ class TestMappingBulkLoad < LinkedData::TestOntologyCommon
     end
   end
 
-  def commun_test(mapping_hash, ontology_id)
+  def common_test(mapping_hash, ontology_id)
 
     mappings = mapping_load(mapping_hash, ontology_id)
     selected = mappings.select do |m|
@@ -210,7 +205,7 @@ class TestMappingBulkLoad < LinkedData::TestOntologyCommon
     user_name = 'test_mappings_user'
     user = LinkedData::Models::User.where(username: user_name).include(:username).first
     if user.nil?
-      user = LinkedData::Models::User.new(username: user_name, email: 'some@email.org')
+      user = LinkedData::Models::User.new(username: user_name, email: "some#{rand}@email.org")
       user.passwordHash = 'some random pass hash'
       user.save
     end
@@ -218,10 +213,8 @@ class TestMappingBulkLoad < LinkedData::TestOntologyCommon
 
     raise ArgumentError, errors unless errors.empty?
 
-    LinkedData::Mappings.create_mapping_counts(Logger.new(TestLogFile.new))
-    ct = LinkedData::Models::MappingCount.where.all.length
-    assert ct > 2
-    o = LinkedData::Models::Ontology.where(submissions: { URI: ontology_id })
+    assert create_count_mapping > 2
+    o = LinkedData::Models::Ontology.where(submissions: { URI: RDF::URI.new(ontology_id) })
                                     .include(submissions: %i[submissionId submissionStatus])
                                     .first
     latest_sub = o.nil? ? nil : o.latest_submission

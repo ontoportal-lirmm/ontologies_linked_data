@@ -19,10 +19,14 @@ class TestNotifications < LinkedData::TestCase
     @@ont = LinkedData::SampleData::Ontology.create_ontologies_and_submissions(ont_count: 1, submission_count: 1)[2].first
     @@ont.bring_remaining
     @@user = @@ont.administeredBy.first
-    @@subscription = self.new("before_suite")._subscription(@@ont)
     @@user.bring_remaining
-    @@user.subscription = [@@subscription]
-    @@user.save
+
+    @@subscription = self.new("before_suite")._subscription(@@ont)
+
+    @@user2 = LinkedData::Models::User.new(username: "tim2", email: "tim2@example.org", password: "password").save
+    @@user2.bring_remaining
+    @@user2.subscription = [@@subscription]
+    @@user2.save
   end
 
   def self.after_suite
@@ -58,28 +62,37 @@ class TestNotifications < LinkedData::TestCase
     # Disable override
     LinkedData.settings.email_disable_override = true
     LinkedData::Utils::Notifier.notify({
-                                              recipients: recipients,
-                                              subject: subject,
-                                              body: body
-                                            })
+                                         recipients: recipients,
+                                         subject: subject,
+                                         body: body
+                                       })
     assert_equal recipients, last_email_sent.to
     assert_equal [LinkedData.settings.email_sender], last_email_sent.from
     assert_equal last_email_sent.body.raw_source, body
     assert_equal last_email_sent.subject, subject
   end
 
+  def test_new_user_notification
+    @@user2.save(send_notifications: true)
+
+    assert_equal LinkedData.settings.admin_emails, last_email_sent.to
+    assert last_email_sent.body.raw_source['A new user have been created']
+  end
+
   def test_new_note_notification
     begin
       subject = "Test note subject"
       body = "Test note body"
-      note = LinkedData::Models::Note.new
-      note.creator = @@user
-      note.subject = subject
-      note.body = body
-      note.relatedOntology = [@@ont]
-      note.save
-      assert last_email_sent.subject.include?("[#{@@ui_name} Notes]")
-      assert_equal [@@user.email], last_email_sent.to
+    note = LinkedData::Models::Note.new
+    note.creator = @@user
+    note.subject = subject
+    note.body = body
+    note.relatedOntology = [@@ont]
+    note.save
+    assert last_email_sent.subject.include?("[#{@@ui_name} Notes]")
+    last_emails = all_emails[-2..]
+    assert_equal [@@user.email, LinkedData.settings.admin_emails].flatten.sort, last_emails.last.to.sort
+      assert_equal [@@user2.email].sort, last_emails.first.to.sort
     ensure
       note.delete if note
     end
@@ -91,8 +104,9 @@ class TestNotifications < LinkedData::TestCase
       ont = LinkedData::SampleData::Ontology.create_ontologies_and_submissions(options)[2].first
       subscription = _subscription(ont)
       @@user.subscription = @@user.subscription.dup << subscription
-      @@user.save
-      ont.latest_submission(status: :any).process_submission(Logger.new(TestLogFile.new))
+    @@user.save
+      ont.latest_submission(status: :any).process_submission(Logger.new(TestLogFile.new), process_rdf: true,
+                                                             extract_metadata: false, generate_missing_labels: false)
       subscription.bring :user
       admin_mails =  LinkedData::Utils::Notifier.admin_mails(ont)
       mail_sent_count = subscription.user.size + 1
@@ -127,25 +141,54 @@ class TestNotifications < LinkedData::TestCase
         user.save
         assert user.valid?, user.errors
       end
-      ont.administeredBy = ont_admins
-      ont.save
-      assert ont.valid?, ont.errors
+    ont.administeredBy = ont_admins
+    ont.save
+    assert ont.valid?, ont.errors
 
-      sub = ont.submissions.first
-      sub.bring_remaining
-      assert sub.valid?, sub.errors
-      LinkedData::Utils::Notifications.remote_ontology_pull(sub)
+    sub = ont.submissions.first
+    sub.bring_remaining
+    assert sub.valid?, sub.errors
+    LinkedData::Utils::Notifications.remote_ontology_pull(sub)
 
-      assert last_email_sent.subject.include? "[#{@@ui_name}] Load from URL failure for #{ont.name}"
-      recipients = @@support_mails
-      ont_admins.each do |user|
-        recipients << user.email
-      end
-      assert_equal recipients.sort, last_email_sent.to.sort
+    assert last_email_sent.subject.include? "[#{@@ui_name}] Load from URL failure for #{ont.name}"
+    recipients = @@support_mails
+    ont_admins.each do |user|
+      recipients << user.email
+    end
+    assert_equal recipients.sort, last_email_sent.to.sort
     ensure
       ont_admins.each do |user|
         user.delete if user
       end
     end
+  end
+
+  def test_mail_options
+    current_auth_type = LinkedData.settings.smtp_auth_type
+
+    LinkedData.settings.smtp_auth_type = :none
+    options = LinkedData::Utils::Notifier.mail_options
+    expected_options = {
+      address: LinkedData.settings.smtp_host,
+      port: LinkedData.settings.smtp_port,
+      domain: LinkedData.settings.smtp_domain
+    }
+    assert_equal options, expected_options
+
+    # testing SMTP authentification-based login
+
+    LinkedData.settings.smtp_auth_type = :plain
+    options = LinkedData::Utils::Notifier.mail_options
+    expected_options = {
+      address: LinkedData.settings.smtp_host,
+      port: LinkedData.settings.smtp_port,
+      domain: LinkedData.settings.smtp_domain,
+      user_name: LinkedData.settings.smtp_user,
+      password: LinkedData.settings.smtp_password,
+      authentication: LinkedData.settings.smtp_auth_type
+    }
+    assert_equal options, expected_options
+
+    LinkedData.settings.smtp_auth_type = current_auth_type
   end
 end

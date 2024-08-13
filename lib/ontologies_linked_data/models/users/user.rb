@@ -9,15 +9,21 @@ module LinkedData
     class User < LinkedData::Models::Base
       include BCrypt
       include LinkedData::Models::Users::Authentication
+      include LinkedData::Models::Users::OAuthAuthentication
+      include LinkedData::Concerns::Analytics
+
+      ANALYTICS_REDIS_FIELD = "user_analytics"
+      PAGES_ANALYTICS_REDIS_FIELD = "pages_analytics"
 
       attr_accessor :show_apikey
 
       model :user, name_with: :username
       attribute :username, enforce: [:unique, :existence]
-      attribute :email, enforce: [:existence]
+      attribute :email, enforce: [:unique, :existence]
       attribute :role, enforce: [:role, :list], :default => lambda {|x| [LinkedData::Models::Users::Role.default]}
       attribute :firstName
       attribute :lastName
+      attribute :subscribed, default: false
       attribute :githubId, enforce: [:unique]
       attribute :orcidId, enforce: [:unique]
       attribute :created, enforce: [:date_time], :default => lambda { |record| DateTime.now }
@@ -51,6 +57,10 @@ module LinkedData
         end
       end
 
+      def embedded_doc
+        "#{self.firstName} #{self.lastName} #{self.username}"
+      end
+
       def initialize(attributes = {})
         # Don't allow passwordHash to be set here
         attributes.delete(:passwordHash)
@@ -72,6 +82,15 @@ module LinkedData
           Ontology.cache_collection_invalidate
           OntologySubmission.cache_collection_invalidate
         end
+
+        if args.first&.dig(:send_notifications)
+          begin
+            LinkedData::Utils::Notifications.new_user(self)
+          rescue StandardError => e
+            puts "Error on user creation notification: #{e.message}"
+          end
+        end
+
         super
       end
 
@@ -92,7 +111,18 @@ module LinkedData
       end
 
       def to_s
-        self.username.to_s
+        if bring?(:username)
+          self.id.to_s
+        else
+          self.username.to_s
+        end
+      end
+      def self.analytics_redis_key
+        ANALYTICS_REDIS_FIELD
+      end
+
+      def self.page_visits_analytics
+        load_data(PAGES_ANALYTICS_REDIS_FIELD)
       end
 
       private
