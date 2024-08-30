@@ -95,7 +95,7 @@ begin
 
     config.ui_name                       = 'Bioportal'
     config.title                         = 'NCBO BioPortal'
-    config.description                   = "The world's most comprehensive repository of biomedical ontologies "
+    config.description                   = "The world's most comprehensive repository of biomedical ontologies"
     config.color                         = '#234979'
     config.logo                          = ''
     config.fundedBy                      = [
