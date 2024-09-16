@@ -26,12 +26,15 @@ module LinkedData
       end
 
       class ChangedClass
-        attr_accessor :class_iri, :class_labels, :new_axioms
+        attr_accessor :class_iri, :class_labels, :new_axioms, :new_annotations, :deleted_annotations, :deleted_axioms
 
-        def initialize(class_iri, class_labels, new_axioms)
+        def initialize(class_iri, class_labels, new_axioms, new_annotations, deleted_axioms, deleted_annotations)
           @class_iri = class_iri
           @class_labels = class_labels
           @new_axioms = new_axioms
+          @deleted_axioms = deleted_axioms
+          @new_annotations = new_annotations
+          @deleted_annotations = deleted_annotations
         end
       end
 
@@ -53,30 +56,33 @@ module LinkedData
 
         # Parse changed classes
         changed_classes = doc.find('//changedClasses/changedClass').map do |node|
-          class_iri = node.find_first('classIRI').content.strip
-          class_labels = node.find('classLabel').map(&:content)
-          new_axioms = node.find('newAxiom').map(&:content)
-          ChangedClass.new(class_iri, class_labels, new_axioms)
+          extract_changes_details ChangedClass, node
         end
 
         # Parse new classes
         new_classes = doc.find('//newClasses/newClass').map do |node|
-          class_iri = node.find_first('classIRI').content.strip
-          class_labels = node.find('classLabel').map(&:content)
-          new_axioms = node.find('newAxiom').map(&:content)
-          NewClass.new(class_iri, class_labels, new_axioms)
+          extract_changes_details NewClass, node
         end
 
         # Parse deleted classes
         deleted_classes = doc.find('//deletedClasses/deletedClass').map do |node|
-          class_iri = node.find_first('classIRI').content.strip
-          class_labels = node.find('classLabel').map(&:content)
-          deleted_axioms = node.find('deletedAxiom').map(&:content)
-          DeletedClass.new(class_iri, class_labels, deleted_axioms)
+          extract_changes_details DeletedClass, node
         end
 
         # Create the DiffReport object
         DiffReport.new(diff_summary, changed_classes, new_classes, deleted_classes)
+      end
+
+      def extract_changes_details(klass, node)
+        class_iri = node.find_first('classIRI').content.strip
+        class_labels = node.find('classLabel').map(&:content)
+        new_axioms = node.find('newAxiom').map(&:content)
+        new_annotations = node.find('newAnnotation').map(&:content)
+        deleted_axioms = node.find('deletedAxiom').map(&:content)
+        deleted_annotations = node.find('deletedAnnotation').map(&:content)
+
+
+        klass.new(class_iri, class_labels, new_axioms, new_annotations, deleted_annotations, deleted_axioms)
       end
     end
   end
