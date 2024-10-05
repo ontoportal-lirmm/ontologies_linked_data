@@ -6,7 +6,7 @@ module LinkedData
       attribute :name, enforce: [:existence]
       attribute :description
       attribute :created, enforce: [:date_time], default: lambda { |record| DateTime.now }
-      attribute :parentCategory, enforce: [:category]
+      attribute :parentCategories, enforce: [:category, :list]
       attribute :ontologies, inverse: { on: :ontology, attribute: :hasDomain }
 
       cache_timeout 86400
