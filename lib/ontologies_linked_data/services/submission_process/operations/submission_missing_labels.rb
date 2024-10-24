@@ -10,6 +10,7 @@ module LinkedData
 
       def handle_missing_labels(file_path, logger)
         callbacks = {
+          include_languages: true,
           missing_labels: {
             op_name: 'Missing Labels Generation',
             required: true,
@@ -59,6 +60,11 @@ module LinkedData
         size = 2500
         count_classes = 0
         acr = submission.id.to_s.split("/")[-1]
+
+        # include all languages in attributes of classes if asked for
+        incl_lang = callbacks.delete(:include_languages)
+        RequestStore.store[:requested_lang] = :ALL if incl_lang
+
         operations = callbacks.values.map { |v| v[:op_name] }.join(", ")
 
         time = Benchmark.realtime do
@@ -95,7 +101,7 @@ module LinkedData
             page_len = page_classes.length
 
             # nothing retrieved even though we're expecting more records
-            if total_pages > 0 && page_classes.empty? && (prev_page_len == -1 || prev_page_len == size)
+            if total_pages.positive? && page_classes.empty? && (prev_page_len == -1 || prev_page_len == size)
               j = 0
               num_calls = LinkedData.settings.num_retries_4store
 
@@ -117,7 +123,7 @@ module LinkedData
             end
 
             if page_classes.empty?
-              if total_pages > 0
+              if total_pages.positive?
                 logger.info("The number of pages reported for #{acr} - #{total_pages} is higher than expected #{page - 1}. Completing #{operations}...")
               else
                 logger.info("Ontology #{acr} contains #{total_pages} pages...")
@@ -160,6 +166,7 @@ module LinkedData
             @submission.save
           end
         end
+        RequestStore.store[:requested_lang] = nil if incl_lang
       end
 
       def generate_missing_labels_pre(artifacts = {}, logger, paging)
@@ -181,41 +188,44 @@ module LinkedData
       end
 
       def generate_missing_labels_each(artifacts = {}, logger, paging, page_classes, page, c)
-        prefLabel = nil
+        pref_label = nil
 
         if c.prefLabel.nil?
-          rdfs_labels = c.label
+          lang_rdfs_labels = c.label(include_languages: true)
+          lang_rdfs_labels = { none: [] } if lang_rdfs_labels.empty?
 
-          if rdfs_labels && rdfs_labels.length > 1 && c.synonym.length > 0
-            rdfs_labels = (Set.new(c.label) - Set.new(c.synonym)).to_a.first
+          lang_rdfs_labels.each do |lang, rdfs_labels|
+            # Handle case where rdfs_labels have multiple values and synonyms exist
+            if rdfs_labels && rdfs_labels.length > 1 && !c.synonym.empty?
+              # Remove synonyms from rdfs_labels
+              rdfs_labels = (Set.new(c.label) - Set.new(c.synonym)).to_a.first || c.label
+            end
 
-            rdfs_labels = c.label if rdfs_labels.nil? || rdfs_labels.length == 0
+            rdfs_labels = Array(rdfs_labels) if rdfs_labels && !rdfs_labels.is_a?(Array)
+
+            label = rdfs_labels&.min || LinkedData::Utils::Triples.last_iri_fragment(c.id.to_s)
+
+            lang = nil if lang.eql?(:none)
+            pref_label = label if lang.nil? || lang.eql?(Goo.portal_language)
+            pref_label ||= label
+
+            artifacts[:label_triples] << LinkedData::Utils::Triples.label_for_class_triple(c.id, Goo.vocabulary(:metadata_def)[:prefLabel], label, lang)
           end
-
-          rdfs_labels = [rdfs_labels] if rdfs_labels and not (rdfs_labels.instance_of? Array)
-          label = nil
-
-          if rdfs_labels && rdfs_labels.length > 0
-            label = rdfs_labels[0]
-          else
-            label = LinkedData::Utils::Triples.last_iri_fragment c.id.to_s
-          end
-          artifacts[:label_triples] << LinkedData::Utils::Triples.label_for_class_triple(
-            c.id, Goo.vocabulary(:metadata_def)[:prefLabel], label)
-          prefLabel = label
         else
-          prefLabel = c.prefLabel
+          pref_label = c.prefLabel
         end
 
         if @submission.ontology.viewOf.nil?
-          loomLabel = LinkedData::Models::OntologySubmission.loom_transform_literal(prefLabel.to_s)
+          loomLabel = LinkedData::Models::OntologySubmission.loom_transform_literal(pref_label.to_s)
 
           if loomLabel.length > 2
             artifacts[:mapping_triples] << LinkedData::Utils::Triples.loom_mapping_triple(
-              c.id, Goo.vocabulary(:metadata_def)[:mappingLoom], loomLabel)
+              c.id, Goo.vocabulary(:metadata_def)[:mappingLoom], loomLabel
+            )
           end
           artifacts[:mapping_triples] << LinkedData::Utils::Triples.uri_mapping_triple(
-            c.id, Goo.vocabulary(:metadata_def)[:mappingSameURI], c.id)
+            c.id, Goo.vocabulary(:metadata_def)[:mappingSameURI], c.id
+          )
         end
       end
 
@@ -223,7 +233,7 @@ module LinkedData
         rest_mappings = LinkedData::Mappings.migrate_rest_mappings(@submission.ontology.acronym)
         artifacts[:mapping_triples].concat(rest_mappings)
 
-        if artifacts[:label_triples].length > 0
+        if artifacts[:label_triples].length.positive?
           logger.info("Asserting #{artifacts[:label_triples].length} labels in " +
                         "#{@submission.id.to_ntriples}")
           logger.flush
@@ -239,7 +249,7 @@ module LinkedData
           logger.flush
         end
 
-        if artifacts[:mapping_triples].length > 0
+        if artifacts[:mapping_triples].length.positive?
           logger.info("Asserting #{artifacts[:mapping_triples].length} mappings in " +
                         "#{@submission.id.to_ntriples}")
           logger.flush
@@ -266,4 +276,3 @@ module LinkedData
 
   end
 end
-
