@@ -189,13 +189,15 @@ module LinkedData
         pref_label = nil
         portal_lang = Goo.portal_language
         pref_label_lang = c.prefLabel(include_languages: true)
-        no_default_pref_label = pref_label_lang.nil? || (pref_label_lang.keys & [portal_lang, :none]).empty?
+        no_default_pref_label = pref_label_lang.nil? || (pref_label_lang.keys & [portal_lang, :none, '@none']).empty?
 
         if no_default_pref_label
           lang_rdfs_labels = c.label(include_languages: true)
 
           # Set lang_rdfs_labels to { none: [] } if empty or no match for default label
-          lang_rdfs_labels = { none: [] } if Array(lang_rdfs_labels).empty? || (lang_rdfs_labels.keys & [portal_lang, :none]).empty?
+          if Array(lang_rdfs_labels).empty? || (lang_rdfs_labels.keys & [portal_lang, :none, '@none']).empty?
+            lang_rdfs_labels = { none: [] }
+          end
 
           lang_rdfs_labels.each do |lang, rdfs_labels|
             # Remove synonyms from rdfs_labels if there are multiple labels and synonyms exist
@@ -210,7 +212,7 @@ module LinkedData
             label = rdfs_labels&.min || LinkedData::Utils::Triples.last_iri_fragment(c.id.to_s)
 
             # Set language to nil for :none and assign pref_label
-            lang = nil if lang.eql?(:none)
+            lang = nil if lang.eql?(:none) || lang.to_s.eql?('@none')
             pref_label = label if lang.nil? || lang.eql?(portal_lang)
             pref_label ||= label
 
