@@ -84,9 +84,7 @@ module LinkedData
           # 1. init artifacts hash if not explicitly passed in the callback
           # 2. determine if class-level iteration is required
           callbacks.each { |_, callback| callback[:artifacts] ||= {};
-          if callback[:caller_on_each]
-            iterate_classes = true
-          end }
+          iterate_classes = true if callback[:caller_on_each] }
 
           process_callbacks(logger, callbacks, :caller_on_pre) {
             |callable, callback| callable.call(callback[:artifacts], logger, paging) }
@@ -189,44 +187,58 @@ module LinkedData
 
       def generate_missing_labels_each(artifacts = {}, logger, paging, page_classes, page, c)
         pref_label = nil
+        portal_lang = Goo.portal_language
+        pref_label_lang = c.prefLabel(include_languages: true)
+        no_default_pref_label = pref_label_lang.nil? || (pref_label_lang.keys & [portal_lang, :none]).empty?
 
-        if c.prefLabel.nil?
+        if no_default_pref_label
           lang_rdfs_labels = c.label(include_languages: true)
-          lang_rdfs_labels = { none: [] } if lang_rdfs_labels.empty?
+
+          # Set lang_rdfs_labels to { none: [] } if empty or no match for default label
+          lang_rdfs_labels = { none: [] } if Array(lang_rdfs_labels).empty? || (lang_rdfs_labels.keys & [portal_lang, :none]).empty?
 
           lang_rdfs_labels.each do |lang, rdfs_labels|
-            # Handle case where rdfs_labels have multiple values and synonyms exist
-            if rdfs_labels && rdfs_labels.length > 1 && !c.synonym.empty?
-              # Remove synonyms from rdfs_labels
+            # Remove synonyms from rdfs_labels if there are multiple labels and synonyms exist
+            if rdfs_labels&.length.to_i > 1 && c.synonym.present?
               rdfs_labels = (Set.new(c.label) - Set.new(c.synonym)).to_a.first || c.label
             end
 
+            # Ensure rdfs_labels is an array
             rdfs_labels = Array(rdfs_labels) if rdfs_labels && !rdfs_labels.is_a?(Array)
 
+            # Select the label: either the minimal sorted label or the last fragment of the IRI
             label = rdfs_labels&.min || LinkedData::Utils::Triples.last_iri_fragment(c.id.to_s)
 
+            # Set language to nil for :none and assign pref_label
             lang = nil if lang.eql?(:none)
-            pref_label = label if lang.nil? || lang.eql?(Goo.portal_language)
+            pref_label = label if lang.nil? || lang.eql?(portal_lang)
             pref_label ||= label
 
-            artifacts[:label_triples] << LinkedData::Utils::Triples.label_for_class_triple(c.id, Goo.vocabulary(:metadata_def)[:prefLabel], label, lang)
-          end
-        else
-          pref_label = c.prefLabel
-        end
-
-        if @submission.ontology.viewOf.nil?
-          loomLabel = LinkedData::Models::OntologySubmission.loom_transform_literal(pref_label.to_s)
-
-          if loomLabel.length > 2
-            artifacts[:mapping_triples] << LinkedData::Utils::Triples.loom_mapping_triple(
-              c.id, Goo.vocabulary(:metadata_def)[:mappingLoom], loomLabel
+            artifacts[:label_triples] << LinkedData::Utils::Triples.label_for_class_triple(
+              c.id, Goo.vocabulary(:metadata_def)[:prefLabel], pref_label, lang
             )
           end
+        elsif pref_label_lang
+          pref_label = c.prefLabel
+        else
+          pref_label = LinkedData::Utils::Triples.last_iri_fragment(c.id.to_s)
+        end
+
+        # Handle loom transformation if ontology is not a view
+        unless @submission.ontology.viewOf
+          loom_label = LinkedData::Models::OntologySubmission.loom_transform_literal(pref_label.to_s)
+
+          if loom_label.length > 2
+            artifacts[:mapping_triples] << LinkedData::Utils::Triples.loom_mapping_triple(
+              c.id, Goo.vocabulary(:metadata_def)[:mappingLoom], loom_label
+            )
+          end
+
           artifacts[:mapping_triples] << LinkedData::Utils::Triples.uri_mapping_triple(
             c.id, Goo.vocabulary(:metadata_def)[:mappingSameURI], c.id
           )
         end
+
       end
 
       def generate_missing_labels_post_page(artifacts = {}, logger, paging, page_classes, page)
