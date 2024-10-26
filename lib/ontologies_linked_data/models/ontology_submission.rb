@@ -16,10 +16,9 @@ module LinkedData
       include LinkedData::Concerns::OntologySubmission::Validators
       include LinkedData::Concerns::OntologySubmission::UpdateCallbacks
       extend LinkedData::Concerns::OntologySubmission::DefaultCallbacks
-
+      include LinkedData::Concerns::SubmissionDiffParser
       include SKOS::ConceptSchemes
       include SKOS::RootsFetcher
-
 
       FLAT_ROOTS_LIMIT = 1000
 
@@ -37,7 +36,7 @@ module LinkedData
       attribute :classType, type: :uri
       attribute :hierarchyProperty, type: :uri, default: ->(s) { default_hierarchy_property(s) }
       attribute :obsoleteProperty, type: :uri, default: ->(s) { Goo.vocabulary(:owl)[:deprecated] }
-      attribute :obsoleteParent, type: :uri, default: ->(s) { RDF::URI.new("http://www.geneontology.org/formats/oboInOwl#ObsoleteClass") }
+      attribute :obsoleteParent, type: :uri
       attribute :createdProperty, type: :uri, default: ->(s) { Goo.vocabulary(:dc)[:created] }
       attribute :modifiedProperty, type: :uri, default: ->(s) { Goo.vocabulary(:dc)[:modified] }
 
@@ -81,12 +80,12 @@ module LinkedData
 
       # Person and organizations metadata
       attribute :contact, type: %i[contact list], enforce: [:existence]
-      attribute :hasCreator, namespace: :omv, type: %i[list Agent], enforce: [:is_person]
-      attribute :hasContributor, namespace: :omv, type: %i[list Agent], enforce: [:is_person]
+      attribute :hasCreator, namespace: :omv, type: %i[list Agent]
+      attribute :hasContributor, namespace: :omv, type: %i[list Agent]
       attribute :curatedBy, namespace: :pav, type: %i[list Agent]
       attribute :publisher, namespace: :dct, type: %i[list Agent]
-      attribute :fundedBy, namespace: :foaf, type: %i[list Agent], enforce: [:is_organization]
-      attribute :endorsedBy, namespace: :omv, type: %i[list Agent], enforce: [:is_organization]
+      attribute :fundedBy, namespace: :foaf, type: %i[list Agent]
+      attribute :endorsedBy, namespace: :omv, type: %i[list Agent]
       attribute :translator, namespace: :schema, type: %i[list Agent]
 
       # Community metadata
@@ -125,7 +124,7 @@ module LinkedData
       attribute :openSearchDescription, namespace: :void, type: :uri, default: -> (s) { open_search_default(s) }
       attribute :source, namespace: :dct, type: :list
       attribute :endpoint, namespace: :sd, type: %i[uri list],
-                           default: ->(s) { default_sparql_endpoint(s)}
+                default: ->(s) { default_sparql_endpoint(s) }
       attribute :includedInDataCatalog, namespace: :schema, type: %i[list uri]
 
       # Relations
@@ -282,7 +281,7 @@ module LinkedData
       # Copy file from /tmp/uncompressed-ont-rest-file to /srv/ncbo/repository/MY_ONT/1/
       def self.copy_file_repository(acronym, submissionId, src, filename = nil)
         path_to_repo = File.join([LinkedData.settings.repository_folder, acronym.to_s, submissionId.to_s])
-        name = filename || File.basename(File.new(src).path)
+        name = filename.nil? ? File.basename(File.new(src).path) : File.basename(filename)
         # THIS LOGGER IS JUST FOR DEBUG - remove after NCBO-795 is closed
         logger = Logger.new(Dir.pwd + "/create_permissions.log")
         if not Dir.exist? path_to_repo
@@ -301,7 +300,7 @@ module LinkedData
         begin
           conn.delete_by_query("ontology_t:\"#{ontology}\"")
         rescue StandardError => e
-          #puts e.message
+          # puts e.message
         end
         conn
       end
@@ -311,6 +310,11 @@ module LinkedData
         return false unless valid_result
         sc = self.sanity_check
         return valid_result && sc
+      end
+
+      def remote_pulled?
+        self.bring(:pullLocation) if self.bring?(:pullLocation)
+        self.pullLocation != nil
       end
 
       def sanity_check
@@ -481,9 +485,6 @@ module LinkedData
         zip_dst
       end
 
-
-
-
       def class_count(logger = nil)
         logger ||= LinkedData::Parser.logger || Logger.new($stderr)
         count = -1
@@ -540,7 +541,6 @@ module LinkedData
         end
         metrics
       end
-
 
       def add_submission_status(status)
         valid = status.is_a?(LinkedData::Models::SubmissionStatus)

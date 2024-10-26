@@ -278,7 +278,6 @@ SELECT DISTINCT * WHERE {
   end
 
   def test_submission_parse
-
     # This one has some nasty looking IRIS with slashes in the anchor
     unless ENV["BP_SKIP_HEAVY_TESTS"] == "1"
       submission_parse("MCCLTEST", "MCCLS TEST",
@@ -304,6 +303,26 @@ SELECT DISTINCT * WHERE {
                                                 .first
     assert sub.version["Version 1.1"]
     assert sub.version["Date: 11-2011"]
+  end
+
+  def test_generate_language_preflabels
+    submission_parse("D3OTEST", "DSMZ Digital Diversity Ontology Test",
+                     "./test/data/ontology_files/d3o.owl", 1,
+                     process_rdf: true, index_search: true, extract_metadata: false)
+
+    res = LinkedData::Models::Class.search("prefLabel_en:Anatomic Structure", {:fq => "submissionAcronym:D3OTEST", :start => 0, :rows => 100})
+    refute_equal 0, res["response"]["numFound"]
+    refute_nil res["response"]["docs"].select{|doc| doc["resource_id"].eql?('https://purl.dsmz.de/schema/AnatomicStructure')}.first
+
+    submission_parse("EPOTEST", "Early Pregnancy Ontology Test",
+                     "./test/data/ontology_files/epo.owl", 1,
+                     process_rdf: true, index_search: true, extract_metadata: false)
+    res = LinkedData::Models::Class.search("prefLabel_en:technical element", {:fq => "submissionAcronym:EPOTEST", :start => 0, :rows => 100})
+    refute_equal 0, res["response"]["numFound"]
+    refute_nil res["response"]["docs"].select{|doc| doc["resource_id"].eql?('http://www.semanticweb.org/ontologies/epo.owl#OPPIO_t000000')}.first
+    res = LinkedData::Models::Class.search("prefLabel_fr:éléments techniques", {:fq => "submissionAcronym:EPOTEST", :start => 0, :rows => 100})
+    refute_equal 0, res["response"]["numFound"]
+    refute_nil res["response"]["docs"].select{|doc| doc["resource_id"].eql?('http://www.semanticweb.org/ontologies/epo.owl#OPPIO_t000000')}.first
   end
 
   def test_process_submission_diff
@@ -1108,9 +1127,9 @@ eos
   def test_submission_extract_metadata
     2.times.each do |i|
       submission_parse("AGROOE", "AGROOE Test extract metadata ontology",
-                       "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", i+1,
+                       "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", i + 1,
                        process_rdf: true, extract_metadata: true, generate_missing_labels: false)
-      ont =  LinkedData::Models::Ontology.find("AGROOE").first
+      ont = LinkedData::Models::Ontology.find("AGROOE").first
       sub = ont.latest_submission
       refute_nil sub
 
@@ -1118,16 +1137,23 @@ eos
       assert_equal false, sub.deprecated
       assert_equal '2015-09-28', sub.creationDate.to_date.to_s
       assert_equal '2015-10-01', sub.modificationDate.to_date.to_s
-      assert_equal  "description example,  AGROOE is an ontology used to test the metadata extraction,  AGROOE is an ontology to illustrate how to describe their ontologies", sub.description
-      #assert_equal " LIRMM (default name) ", sub.publisher
+      assert_equal "description example,  AGROOE is an ontology used to test the metadata extraction,  AGROOE is an ontology to illustrate how to describe their ontologies", sub.description
       assert_equal [RDF::URI.new('http://agroportal.lirmm.fr')], sub.identifier
       assert_equal ["http://lexvo.org/id/iso639-3/fra", "http://lexvo.org/id/iso639-3/eng"].sort, sub.naturalLanguage.sort
-      #assert_equal ["Léontine Dessaiterm", "Anne Toulet", "Benjamine Dessay", "Augustine Doap", "Vincent Emonet"].sort, sub.hasContributor.sort
       assert_equal [RDF::URI.new("http://lirmm.fr/2015/ontology/door-relation.owl"), RDF::URI.new("http://lirmm.fr/2015/ontology/dc-relation.owl"),
                     RDF::URI.new("http://lirmm.fr/2015/ontology/dcterms-relation.owl"),
                     RDF::URI.new("http://lirmm.fr/2015/ontology/voaf-relation.owl"),
                     RDF::URI.new("http://lirmm.fr/2015/ontology/void-import.owl")
                    ].sort, sub.ontologyRelatedTo.sort
+
+
+
+
+      assert_equal ["Agence 007", "Éditions \"La Science en Marche\"", " LIRMM (default name) "].sort, sub.publisher.map { |x| x.bring_remaining.name }.sort
+      assert_equal ["Alfred DC", "Clement Jonquet", "Gaston Dcterms", "Huguette Doap", "Mirabelle Prov", "Paul Foaf", "Vincent Emonet"].sort, sub.hasCreator.map { |x| x.bring_remaining.name }.sort
+      assert_equal ["Léontine Dessaiterm", "Anne Toulet", "Benjamine Dessay", "Augustine Doap", "Vincent Emonet"].sort, sub.hasContributor.map { |x| x.bring_remaining.name }.sort
+      assert_equal 1, LinkedData::Models::Agent.where(name: "Vincent Emonet").count
+
       sub.description = "test changed value"
       sub.save
     end

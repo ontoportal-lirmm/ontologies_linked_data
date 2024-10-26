@@ -78,6 +78,8 @@ module LinkedData
               LinkedData::Hypermedia::Link.new("download", lambda {|s| "ontologies/#{s.acronym}/download"}, self.type_uri),
               LinkedData::Hypermedia::Link.new("views", lambda {|s| "ontologies/#{s.acronym}/views"}, self.type_uri),
               LinkedData::Hypermedia::Link.new("analytics", lambda {|s| "ontologies/#{s.acronym}/analytics"}, "#{Goo.namespaces[:metadata].to_s}Analytics"),
+              LinkedData::Hypermedia::Link.new("agents", lambda {|s| "ontologies/#{s.acronym}/agents"}, LinkedData::Models::Agent.uri_type),
+              LinkedData::Hypermedia::Link.new("mappings", lambda {|s| "ontologies/#{s.acronym}/mappings"}, LinkedData::Models::Mapping.type_uri),
               LinkedData::Hypermedia::Link.new("ui", lambda {|s| "http://#{LinkedData.settings.ui_host}/ontologies/#{s.acronym}"}, self.uri_type),
               LinkedData::Hypermedia::Link.new("identifier_requests", lambda {|s| "ontologies/#{s.acronym}/identifier_requests"}, LinkedData::Models::IdentifierRequest.uri_type)
 
@@ -306,7 +308,7 @@ module LinkedData
         LinkedData::Models::OntologyProperty.sort_properties(all_roots)
       end
 
-      def property(prop_id, sub=nil)
+      def property(prop_id, sub=nil, display_all_attributes: false)
         p = nil
         sub ||= latest_submission(status: [:rdf])
         self.bring(:acronym) if self.bring?(:acronym)
@@ -314,9 +316,10 @@ module LinkedData
         prop_classes = [LinkedData::Models::ObjectProperty, LinkedData::Models::DatatypeProperty, LinkedData::Models::AnnotationProperty]
 
         prop_classes.each do |c|
-          p = c.find(prop_id).in(sub).include(:label, :definition, :parents).first
+          p = c.find(prop_id).in(sub).include(:label, :definition, :parents,:domain, :range).first
 
           unless p.nil?
+            p.bring(:unmapped) if display_all_attributes
             p.load_has_children
             parents = p.parents.nil? ? [] : p.parents.dup
             c.in(sub).models(parents).include(:label, :definition).all()
