@@ -35,6 +35,21 @@ class TestMapping < LinkedData::TestOntologyCommon
                      process_rdf: true, extract_metadata: false)
   end
 
+  def test_mapping_count_delete
+    assert create_count_mapping > 2, 'Mapping count should exceed the value of 2'
+    
+    counts = LinkedData::Models::MappingCount.where.include(:ontologies).all.map(&:ontologies)
+
+    assert(counts.any? { |x| x.include?(ONT_ACR4) }, 'Mapping count of ONT_ACR4 should exist')
+
+    LinkedData::Models::Ontology.find(ONT_ACR4).first.delete
+
+    LinkedData::Mappings.create_mapping_counts(Logger.new(TestLogFile.new))
+
+    counts = LinkedData::Models::MappingCount.where.include(:ontologies).all.map(&:ontologies)
+    refute(counts.any? { |x| x.include?(ONT_ACR4) }, 'Mapping count of deleted ontologies should not exist anymore')
+  end
+
   def test_mapping_count_models
     LinkedData::Models::MappingCount.where.all(&:delete)
 
