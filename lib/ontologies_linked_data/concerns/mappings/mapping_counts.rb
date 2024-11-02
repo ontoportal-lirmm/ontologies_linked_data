@@ -93,8 +93,8 @@ module LinkedData
             persistent_counts[m.ontologies.first] = m
           end
 
-          # ontologies = LinkedData::Models::Ontology.where.include(:acronym).all.map(&:acronym)
-          # delete_zombie_mapping_count(persistent_counts.values, ontologies)
+          ontologies = LinkedData::Models::Ontology.where.include(:acronym).all.map(&:acronym)
+          delete_zombie_mapping_count(persistent_counts.values, ontologies)
 
           num_counts = new_counts.keys.length
           ctr = 0
@@ -182,7 +182,7 @@ module LinkedData
               persistent_counts[other] = m
             end
 
-            # delete_zombie_mapping_count(persistent_counts.values, ontologies)
+            delete_zombie_mapping_count(persistent_counts.values, ontologies)
 
             num_counts = new_counts.keys.length
             logger.info("Ontology: #{acr}. #{num_counts} mapping pair counts to record...")
@@ -252,7 +252,23 @@ module LinkedData
           # fsave.close
         end
 
+        private
 
+        def delete_zombie_mapping_count(mappings_count, ontologies)
+          special_mappings = ["http://data.bioontology.org/metadata/ExternalMappings",
+                              "http://data.bioontology.org/metadata/InterportalMappings/agroportal",
+                              "http://data.bioontology.org/metadata/InterportalMappings/ncbo",
+                              "http://data.bioontology.org/metadata/InterportalMappings/sifr"]
+
+          mappings_count.each do |mapping|
+            next mapping if mapping.ontologies.all? { |x| ontologies.include?(x) }
+            next mapping if mapping.ontologies.size == 1 && !(mapping.ontologies & special_mappings).empty?
+
+            next mapping unless mapping.persistent?
+
+            mapping.delete
+          end
+        end
       end
     end
   end
