@@ -16,9 +16,7 @@ module LinkedData
             exter_total += v
           end
           counts[external_uri.to_s] = exter_total
-          if enable_debug
-            logger.info("Time for External Mappings took #{Time.now - t0} sec. records #{exter_total}")
-          end
+          logger.info("Time for External Mappings took #{Time.now - t0} sec. records #{exter_total}") if enable_debug
           LinkedData.settings.interportal_hash ||= {}
           # Counting for Interportal mappings
           LinkedData.settings.interportal_hash.each_key do |acro|
@@ -93,8 +91,8 @@ module LinkedData
             persistent_counts[m.ontologies.first] = m
           end
 
-          ontologies = LinkedData::Models::Ontology.where.include(:acronym).all.map(&:acronym)
-          delete_zombie_mapping_count(persistent_counts.values, ontologies)
+          latest = self.retrieve_latest_submissions(options = { acronyms: arr_acronyms })
+          delete_zombie_mapping_count(persistent_counts.values, latest.values.compact.map { |sub| sub.ontology.acronym })
 
           num_counts = new_counts.keys.length
           ctr = 0
@@ -160,8 +158,6 @@ module LinkedData
           # temp_dir = '/Users/mdorf/Downloads/test/'
           # temp_file_path = File.join(File.dirname(file_path), "test.ttl")
           # fsave = File.open(temp_file_path, "a")
-          ontologies = LinkedData::Models::Ontology.where.include(:acronym).all.map(&:acronym)
-
           latest_submissions.each do |acr, sub|
             self.handle_triple_store_downtime(logger) if Goo.backend_4s?
             new_counts = nil
@@ -175,14 +171,11 @@ module LinkedData
             LinkedData::Models::MappingCount.where(pair_count: true).and(ontologies: acr)
                                             .include(:ontologies, :count).all.each do |m|
               other = m.ontologies.first
-
-              if other == acr
-                other = m.ontologies[1]
-              end
+              other = m.ontologies.last if other == acr
               persistent_counts[other] = m
             end
 
-            delete_zombie_mapping_count(persistent_counts.values, ontologies)
+            delete_zombie_mapping_count(persistent_counts.values, latest_submissions.values.compact.map { |s| s.ontology.acronym })
 
             num_counts = new_counts.keys.length
             logger.info("Ontology: #{acr}. #{num_counts} mapping pair counts to record...")
@@ -198,7 +191,7 @@ module LinkedData
                 if new_count.zero?
                   inst.delete
                 elsif new_count != inst.count
-                  inst.bring_remaining
+                  inst.bring_remaining if inst.persistent?
                   inst.pair_count = true
                   inst.count = new_count
 
@@ -216,13 +209,12 @@ module LinkedData
                   end
                 end
               else
-                next unless ontologies.include?(other)
+                next unless new_counts.key?(other)
 
                 m = LinkedData::Models::MappingCount.new
                 m.count = new_count
                 m.ontologies = [acr, other]
                 m.pair_count = true
-                puts "creating mapping count #{m.ontologies}"
                 begin
                   if m.valid?
                     m.save()
@@ -254,17 +246,16 @@ module LinkedData
 
         private
 
-        def delete_zombie_mapping_count(mappings_count, ontologies)
+        def delete_zombie_mapping_count(existent_counts, submissions_ready)
           special_mappings = ["http://data.bioontology.org/metadata/ExternalMappings",
                               "http://data.bioontology.org/metadata/InterportalMappings/agroportal",
                               "http://data.bioontology.org/metadata/InterportalMappings/ncbo",
                               "http://data.bioontology.org/metadata/InterportalMappings/sifr"]
 
-          mappings_count.each do |mapping|
-            next mapping if mapping.ontologies.all? { |x| ontologies.include?(x) }
-            next mapping if mapping.ontologies.size == 1 && !(mapping.ontologies & special_mappings).empty?
-
-            next mapping unless mapping.persistent?
+          existent_counts.each do |mapping|
+            next if mapping.ontologies.size == 1 && !(mapping.ontologies & special_mappings).empty?
+            next if mapping.ontologies.all? { |x| submissions_ready.include?(x) }
+            next unless mapping.persistent?
 
             mapping.delete
           end
