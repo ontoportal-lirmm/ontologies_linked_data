@@ -650,6 +650,8 @@ module LinkedData
           end
         end
 
+        self.archive(force: true)
+
         # delete the folder and files
         FileUtils.remove_dir(self.data_folder) if Dir.exist?(self.data_folder)
       end
