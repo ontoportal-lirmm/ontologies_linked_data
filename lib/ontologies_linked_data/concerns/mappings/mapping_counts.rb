@@ -2,64 +2,28 @@ module LinkedData
   module Concerns
     module Mappings
       module Count
-        def mapping_counts(enable_debug = false, logger = nil, reload_cache = false, arr_acronyms = [])
+        def mapping_counts(enable_debug, logger, reload_cache = false, arr_acronyms = [])
           logger = nil unless enable_debug
-          t = Time.now
-          latest = retrieve_latest_submissions({ acronyms: arr_acronyms })
+          start_time = Time.now
           counts = {}
-          # Counting for External mappings
-          t0 = Time.now
-          external_uri = LinkedData::Models::ExternalClass.graph_uri
-          exter_counts = mapping_ontologies_count(external_uri, nil, reload_cache = reload_cache)
-          exter_total = 0
-          exter_counts.each do |k, v|
-            exter_total += v
-          end
-          counts[external_uri.to_s] = exter_total
-          logger.info("Time for External Mappings took #{Time.now - t0} sec. records #{exter_total}") if enable_debug
-          LinkedData.settings.interportal_hash ||= {}
-          # Counting for Interportal mappings
-          LinkedData.settings.interportal_hash.each_key do |acro|
-            t0 = Time.now
-            interportal_uri = LinkedData::Models::InterportalClass.graph_uri(acro)
-            inter_counts = mapping_ontologies_count(interportal_uri, nil, reload_cache = reload_cache)
-            inter_total = 0
-            inter_counts.each do |k, v|
-              inter_total += v
-            end
-            counts[interportal_uri.to_s] = inter_total
-            if enable_debug
-              logger.info("Time for #{interportal_uri.to_s} took #{Time.now - t0} sec. records #{inter_total}")
-            end
-          end
-          # Counting for mappings between the ontologies hosted by the BioPortal appliance
-          i = 0
-          Goo.sparql_query_client(:main)
 
-          latest.each do |acro, sub|
-            handle_triple_store_downtime(logger) if Goo.backend_4s?
-            t0 = Time.now
-            s_counts = mapping_ontologies_count(sub, nil, reload_cache = reload_cache)
-            s_total = 0
+          # Process External and Interportal Mappings
+          counts[LinkedData::Models::ExternalClass.graph_uri.to_s] = calculate_and_log_counts(
+            LinkedData::Models::ExternalClass.graph_uri, logger, reload_cache, 'External Mappings', enable_debug
+          )
 
-            s_counts.each do |k, v|
-              s_total += v
-            end
-            counts[acro] = s_total
-            i += 1
-
-            next unless enable_debug
-
-            logger.info("#{i}/#{latest.count} " +
-                          "Retrieved #{s_total} records for #{acro} in #{Time.now - t0} seconds.")
-            logger.flush
+          LinkedData.settings.interportal_hash&.each_key do |acro|
+            uri = LinkedData::Models::InterportalClass.graph_uri(acro)
+            counts[uri.to_s] = calculate_and_log_counts(uri, logger, reload_cache, "Interportal Mappings for #{acro}", enable_debug)
           end
 
-          if enable_debug
-            logger.info("Total time #{Time.now - t} sec.")
-            logger.flush
+          # Process Hosted Ontologies
+          retrieve_latest_submissions(acronyms: arr_acronyms).each_with_index do |(acro, sub), index|
+            counts[acro] = calculate_and_log_counts(sub, logger, reload_cache, "Hosted Ontology #{acro} (#{index + 1})", enable_debug)
           end
-          return counts
+
+          logger&.info("Total time #{Time.now - start_time} sec.") if enable_debug
+          counts
         end
 
         def create_mapping_counts(logger, arr_acronyms = [])
@@ -92,7 +56,6 @@ module LinkedData
 
           latest = retrieve_latest_submissions
           delete_zombie_mapping_count(persistent_counts, latest, new_counts)
-
 
           num_counts = new_counts.keys.length
           ctr = 0
@@ -134,7 +97,6 @@ module LinkedData
 
             delete_zombie_mapping_count(persistent_counts, all_latest_submissions, new_counts)
 
-
             num_counts = new_counts.keys.length
             logger.info("Ontology: #{acr}. #{num_counts} mapping pair counts to record...")
             logger.info('------------------------------------------------')
@@ -161,8 +123,15 @@ module LinkedData
 
         private
 
+        def calculate_and_log_counts(uri, logger, reload_cache, label, enable_debug)
+          start_time = Time.now
+          count = mapping_ontologies_count(uri, nil, reload_cache).values.sum
+          logger&.info("#{label} took #{Time.now - start_time} sec. records #{count}") if enable_debug
+          count
+        end
+
         def update_mapping_count(persistent_counts, new_counts, acr, other, new_count, pair_count)
-          if persistent_counts.include?(other)
+          if persistent_counts.key?(other)
             inst = persistent_counts[other]
             if new_count.zero?
               inst.delete
@@ -182,6 +151,8 @@ module LinkedData
                              [acr]
                            end
             m.pair_count = pair_count
+            return if m.exist?
+
             m.save
           end
         end
