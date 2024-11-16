@@ -14,12 +14,14 @@ module LinkedData
 
           LinkedData.settings.interportal_hash&.each_key do |acro|
             uri = LinkedData::Models::InterportalClass.graph_uri(acro)
-            counts[uri.to_s] = calculate_and_log_counts(uri, logger, reload_cache, "Interportal Mappings for #{acro}", enable_debug)
+            counts[uri.to_s] =
+              calculate_and_log_counts(uri, logger, reload_cache, "Interportal Mappings for #{acro}", enable_debug)
           end
 
           # Process Hosted Ontologies
           retrieve_latest_submissions(acronyms: arr_acronyms).each_with_index do |(acro, sub), index|
-            counts[acro] = calculate_and_log_counts(sub, logger, reload_cache, "Hosted Ontology #{acro} (#{index + 1})", enable_debug)
+            counts[acro] =
+              calculate_and_log_counts(sub, logger, reload_cache, "Hosted Ontology #{acro} (#{index + 1})", enable_debug)
           end
 
           logger&.info("Total time #{Time.now - start_time} sec.") if enable_debug
@@ -44,20 +46,9 @@ module LinkedData
 
         def create_mapping_count_totals_for_ontologies(logger, arr_acronyms)
           new_counts = mapping_counts(true, logger, true, arr_acronyms)
-          persistent_counts = {}
-          f = Goo::Filter.new(:pair_count) == false
-          LinkedData::Models::MappingCount.where.filter(f).include(:ontologies, :count, :pair_count).all
-                                          .each do |m|
-            persistent_counts[m.ontologies.first] = m
-          end
-
+          persistent_counts = all_existent_mapping_counts(pair_count: false)
           latest = retrieve_latest_submissions
-          persistent_counts.each do |k, v|
-            next unless latest.key?(k)
-
-            v.delete
-            persistent_counts.delete(k)
-          end
+          delete_zombie_submission_count(persistent_counts, latest)
 
           num_counts = new_counts.keys.length
           ctr = 0
@@ -74,12 +65,19 @@ module LinkedData
         # This generates pair mapping counts for the given
         # ontologies to ALL other ontologies in the system
         def create_mapping_count_pairs_for_ontologies(logger, arr_acronyms)
-
-          latest_submissions = retrieve_latest_submissions({ acronyms: arr_acronyms })
           all_latest_submissions = retrieve_latest_submissions
+          latest_submissions = if Array(arr_acronyms).empty?
+                                 all_latest_submissions
+                               else
+                                 all_latest_submissions.select { |k, _v| arr_acronyms.include?(k) }
+                               end
+
           ont_total = latest_submissions.length
           logger.info("There is a total of #{ont_total} ontologies to process...")
           ont_ctr = 0
+
+          persistent_counts = all_existent_mapping_counts(pair_count: true)
+          delete_zombie_submission_count(persistent_counts, all_latest_submissions)
 
           latest_submissions.each do |acr, sub|
             new_counts = nil
@@ -89,15 +87,9 @@ module LinkedData
             end
             logger.info("Retrieved new mapping pair counts for #{acr} in #{time} seconds.")
             ont_ctr += 1
-            persistent_counts = {}
-            LinkedData::Models::MappingCount.where(pair_count: true).and(ontologies: acr)
-                                            .include(:ontologies, :count).all.each do |m|
-              other = m.ontologies.first
-              other = m.ontologies.last if other == acr
-              persistent_counts[other] = m
-            end
 
-            delete_zombie_mapping_count(persistent_counts, all_latest_submissions, new_counts)
+            persistent_counts = all_existent_mapping_counts(acr: acr, pair_count: true)
+            delete_zombie_mapping_count(persistent_counts, new_counts)
 
             num_counts = new_counts.keys.length
             logger.info("Ontology: #{acr}. #{num_counts} mapping pair counts to record...")
@@ -135,15 +127,15 @@ module LinkedData
         def update_mapping_count(persistent_counts, new_counts, acr, other, new_count, pair_count)
           if persistent_counts.key?(other)
             inst = persistent_counts[other]
-            if new_count.zero?
+            if new_count.zero? && pair_count
               inst.delete
             elsif new_count != inst.count
-              inst.pair_count = true
+              inst.pair_count = pair_count
               inst.count = new_count
               inst.save
             end
           else
-            return unless new_counts.key?(other)
+            return if !new_counts.key?(other) && pair_count
 
             m = LinkedData::Models::MappingCount.new
             m.count = new_count
@@ -159,14 +151,50 @@ module LinkedData
           end
         end
 
-        def delete_zombie_mapping_count(persistent_counts, all_latest_submissions, new_counts)
-          persistent_counts.each do |k, v|
-            next if all_latest_submissions.key?(k) && new_counts.key?(k)
+        def delete_zombie_mapping_count(persistent_counts, new_counts)
+          persistent_counts.each do |acronym, mapping|
+            next if mapping.ontologies.all? { |x| new_counts.key?(x) }
 
-            v.delete
-            persistent_counts.delete(k)
+            mapping.delete
+            persistent_counts.delete(acronym)
           end
         end
+
+        def delete_zombie_submission_count(persistent_counts, all_latest_submissions)
+          special_mappings = ["http://data.bioontology.org/metadata/ExternalMappings",
+                              "http://data.bioontology.org/metadata/InterportalMappings/agroportal",
+                              "http://data.bioontology.org/metadata/InterportalMappings/ncbo",
+                              "http://data.bioontology.org/metadata/InterportalMappings/sifr"]
+
+          persistent_counts.each do |acronym, mapping|
+            next if mapping.ontologies.size == 1 && !(mapping.ontologies & special_mappings).empty?
+            next if mapping.ontologies.all? { |x| all_latest_submissions.key?(x) }
+
+            mapping.delete
+            persistent_counts.delete(acronym)
+          end
+        end
+
+        def all_existent_mapping_counts(acr: nil, pair_count: true)
+          persistent_counts = {}
+          query = LinkedData::Models::MappingCount
+          query = if acr
+                    query.where(ontologies: acr)
+                  else
+                    query.where
+                  end
+
+          f = Goo::Filter.new(:pair_count) == pair_count
+          query = query.filter(f)
+
+          query.include(:ontologies, :count).all.each do |m|
+            other = m.ontologies.first
+            other = m.ontologies.last if acr && (other == acr)
+            persistent_counts[other] = m
+          end
+          persistent_counts
+        end
+
       end
     end
   end
