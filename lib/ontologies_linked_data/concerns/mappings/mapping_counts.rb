@@ -45,17 +45,19 @@ module LinkedData
         def create_mapping_count_totals_for_ontologies(logger, arr_acronyms)
           new_counts = mapping_counts(true, logger, true, arr_acronyms)
           persistent_counts = {}
-
-          LinkedData::Models::MappingCount.where(pair_count: false)
-                                          .include(:ontologies, :count, :pair_count)
-                                          .include(:all)
-                                          .all
+          f = Goo::Filter.new(:pair_count) == false
+          LinkedData::Models::MappingCount.where.filter(f).include(:ontologies, :count, :pair_count).all
                                           .each do |m|
             persistent_counts[m.ontologies.first] = m
           end
 
           latest = retrieve_latest_submissions
-          delete_zombie_mapping_count(persistent_counts, latest, new_counts)
+          persistent_counts.each do |k, v|
+            next unless latest.key?(k)
+
+            v.delete
+            persistent_counts.delete(k)
+          end
 
           num_counts = new_counts.keys.length
           ctr = 0
