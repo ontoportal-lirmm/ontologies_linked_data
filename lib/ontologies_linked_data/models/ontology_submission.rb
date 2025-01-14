@@ -636,6 +636,7 @@ module LinkedData
         args.each { |e| options.merge!(e) if e.is_a?(Hash) }
         remove_index = options[:remove_index] ? true : false
         index_commit = options[:index_commit] == false ? false : true
+        skip_archive = options.key?(:skip_archiving) && options[:skip_archiving]
 
         super(*args)
         self.ontology.unindex_all_data(index_commit)
@@ -657,7 +658,7 @@ module LinkedData
           end
         end
 
-        self.archive(force: true)
+        self.archive(force: true) unless skip_archive
 
         # delete the folder and files
         FileUtils.remove_dir(self.data_folder) if Dir.exist?(self.data_folder)
