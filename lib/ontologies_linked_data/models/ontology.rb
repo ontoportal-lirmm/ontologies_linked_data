@@ -375,6 +375,7 @@ module LinkedData
         args.each {|e| options.merge!(e) if e.is_a?(Hash)}
         in_update = options[:in_update] || false
         index_commit = options[:index_commit] == false ? false : true
+        skip_archive = options.key?(:skip_archiving) && options[:skip_archiving]
 
         # remove notes
         self.bring(:notes)
@@ -414,7 +415,7 @@ module LinkedData
         self.bring(:acronym) if self.bring?(:acronym)
         unless self.submissions.nil?
           self.submissions.each do |s|
-            s.delete(in_update: in_update, remove_index: false)
+            s.delete(in_update: in_update, remove_index: false, skip_archiving: skip_archive)
           end
         end
 
