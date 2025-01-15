@@ -226,24 +226,36 @@ module LinkedData
     end
 
     def self.migrate_rest_mappings(acronym)
-      mappings = LinkedData::Models::RestBackupMapping
-                   .where.include(:uuid, :class_urns, :process).all
-      if mappings.length == 0
-        return []
-      end
+      page = 1
+      size = 1000
+      total_count = 0
       triples = []
 
-      rest_predicate = mapping_predicates()["REST"][0]
-      mappings.each do |m|
-        m.class_urns.each do |u|
-          u = u.to_s
-          if u.start_with?("urn:#{acronym}")
-            class_id = u.split(":")[2..-1].join(":")
-            triples <<
-              " <#{class_id}> <#{rest_predicate}> <#{m.id}> . "
+      f = Goo::Filter.new(:class_urns).regex("urn:#{acronym}:")
+
+      while total_count != 0 || page == 1
+        mappings = LinkedData::Models::RestBackupMapping
+                     .where.include(:uuid, :class_urns, :process)
+                     .page(page, size).filter(f)
+                     .all
+
+        puts "page #{page} size #{size} count #{mappings.size}"
+        page += 1
+        total_count = mappings.size
+
+        rest_predicate = mapping_predicates()["REST"][0]
+        mappings.each do |m|
+          m.class_urns.each do |u|
+            u = u.to_s
+            if u.start_with?("urn:#{acronym}")
+              class_id = u.split(":")[2..-1].join(":")
+              triples <<
+                " <#{class_id}> <#{rest_predicate}> <#{m.id}> . "
+            end
           end
         end
       end
+
       return triples
     end
 
