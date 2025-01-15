@@ -286,7 +286,7 @@ module LinkedData
         name = filename.nil? ? File.basename(File.new(src).path) : File.basename(filename)
         # THIS LOGGER IS JUST FOR DEBUG - remove after NCBO-795 is closed
         logger = Logger.new(Dir.pwd + "/create_permissions.log")
-        if not Dir.exist? path_to_repo
+        unless Dir.exist? path_to_repo
           FileUtils.mkdir_p path_to_repo
           logger.debug("Dir created #{path_to_repo} | #{"%o" % File.stat(path_to_repo).mode} | umask: #{File.umask}") # NCBO-795
         end
