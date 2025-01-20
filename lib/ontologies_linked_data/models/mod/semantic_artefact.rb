@@ -19,7 +19,7 @@ module LinkedData
                 end
             end
 
-            model :artefact, namespace: :mod, :name_with => :acronym
+            model :SemanticArtefact, namespace: :mod, name_with: ->(s) { artefact_id_generator(s) }
             
             # # SemanticArtefact attrs that map with ontology
             attribute_mapped :acronym, namespace: :mod, mapped_to: { model: :ontology, attribute: :acronym }
@@ -118,10 +118,10 @@ module LinkedData
 
 
             attribute :ontology, type: :ontology
-
+            
             links_load :acronym
-            #LinkedData::Hypermedia::Link.new("distributions", lambda {|s| "artefacts/#{s.acronym}/distributions"}, LinkedData::Models::SemanticArtefactDistribution.uri_type)
-            link_to LinkedData::Hypermedia::Link.new("record", lambda {|s| "artefacts/#{s.acronym}/record"}),
+            link_to LinkedData::Hypermedia::Link.new("distributions", lambda {|s| "artefacts/#{s.acronym}/distributions"}, LinkedData::Models::SemanticArtefactDistribution.type_uri),
+                    LinkedData::Hypermedia::Link.new("record", lambda {|s| "artefacts/#{s.acronym}/record"}),
                     LinkedData::Hypermedia::Link.new("resources", lambda {|s| "artefacts/#{s.acronym}/resources"}),
                     LinkedData::Hypermedia::Link.new("single_resource", lambda {|s| "artefacts/#{s.acronym}/resources/{:resourceID}"}),
                     LinkedData::Hypermedia::Link.new("classes", lambda {|s| "artefacts/#{s.acronym}/classes"}, LinkedData::Models::Class.uri_type),
@@ -135,9 +135,21 @@ module LinkedData
             
             serialize_default :acronym, :title, :accessRights, :creator, :URI, :versionIRI, :description, :language
             serialize_never :ontology
-                    
+
+            def self.artefact_id_generator(ss)
+                ss.ontology.bring(:acronym) if !ss.ontology.loaded_attributes.include?(:acronym)
+                raise ArgumentError, "Acronym is nil to generate id" if ss.ontology.acronym.nil?
+                return RDF::URI.new(
+                  "#{(Goo.id_prefix)}artefacts/#{CGI.escape(ss.ontology.acronym.to_s)}"
+                )
+            end
+
             def initialize
                 super
+            end
+
+            def self.type_uri
+                self.namespace[self.model_name].to_s
             end
 
             def self.find(artefact_id)
@@ -191,11 +203,13 @@ module LinkedData
             end
 
             def latest_distribution(status)
-                SemanticArtefactDistribution.new(@ontology.latest_submission(status))
+                sub = @ontology.latest_submission(status)
+                SemanticArtefactDistribution.new(sub) unless sub.nil?
             end
 
             def distribution(dist_id)
-                SemanticArtefactDistribution.new(@ontology.submission(dist_id))
+                sub = @ontology.submission(dist_id)
+                SemanticArtefactDistribution.new(sub) unless sub.nil?
             end
         
             def all_distributions(options = {})

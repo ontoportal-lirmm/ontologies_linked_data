@@ -13,7 +13,7 @@ module LinkedData
                 end
             end
 
-            model :artefact_distribution, namespace: :mod, name_with: ->(s) { distribution_id_generator(s) }
+            model :SemanticArtefactDistribution, namespace: :mod, name_with: ->(s) { distribution_id_generator(s) }
             
             # SAD attrs that map with submission
             attribute_mapped :distributionId, mapped_to: { model: :ontology_submission, attribute: :submissionId }
@@ -66,16 +66,23 @@ module LinkedData
 
 
             def self.distribution_id_generator(ss)
-                "generated_test_id_#{SecureRandom.uuid}"
-              end
+                ss.submission.ontology.bring(:acronym) if !ss.submission.ontology.loaded_attributes.include?(:acronym)
+                raise ArgumentError, "Acronym is nil to generate id" if ss.submission.ontology.acronym.nil?
+                return RDF::URI.new(
+                  "#{(Goo.id_prefix)}artefacts/#{CGI.escape(ss.submission.ontology.acronym.to_s)}/distributions/#{ss.submission.submissionId.to_s}"
+                )
+            end
 
 
             def initialize(sub)
                 super()
                 @submission = sub
-                @submission.bring(*[:submissionId])
-                @type = "http://www.isibang.ac.in/ns/mod#SemanticartefactDistribution"
+                @submission.bring(*[:submissionId, :ontology=>[:acronym]])
                 @distributionId = sub.submissionId
+            end
+
+            def self.type_uri
+                self.namespace[self.model_name].to_s
             end
 
             # Method to fetch specific attributes and populate the SemanticArtefact instance
