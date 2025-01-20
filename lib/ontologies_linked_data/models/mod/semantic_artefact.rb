@@ -133,7 +133,11 @@ module LinkedData
                     LinkedData::Hypermedia::Link.new("labels", lambda {|s| "artefacts/#{s.acronym}/labels"}, LinkedData::Models::SKOS::Label.uri_type)
 
             
-            serialize_default :acronym, :title, :accessRights, :creator, :URI, :versionIRI, :description, :language
+            serialize_default :acronym, :accessRights, :subject, :URI, :versionIRI, :creator, :identifier, :status, :language, 
+                              :license, :rightsHolder, :description, :landingPage, :keyword, :bibliographicCitation, :contactPoint,
+                              :contributor, :publisher, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, 
+                              :competencyQuestion, :wasGeneratedBy, :hasFormat, :includedInDataCatalog, :semanticArtefactRelation
+
             serialize_never :ontology
 
             def self.artefact_id_generator(ss)

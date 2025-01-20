@@ -15,7 +15,9 @@ class TestArtefactDistribution < LinkedData::TestOntologyCommon
 
     def test_goo_attrs_to_load
         attrs = LinkedData::Models::SemanticArtefactDistribution.goo_attrs_to_load([])
-        assert_equal [:distributionId, :title, :deprecated, :hasRepresentationLanguage, :hasSyntax, :description, :created], attrs
+        assert_equal [:distributionId, :title, :hasRepresentationLanguage, :hasSyntax, :description, :created, :modified, 
+        :conformsToKnowledgeRepresentationParadigm, :usedEngineeringMethodology, :prefLabelProperty, 
+        :synonymProperty, :definitionProperty, :accessURL, :downloadURL], attrs
     end
 
     def test_bring_attrs

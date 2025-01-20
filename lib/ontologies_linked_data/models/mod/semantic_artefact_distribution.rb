@@ -61,7 +61,10 @@ module LinkedData
             # Attr special to SemanticArtefactDistribution
             attribute :submission, type: :ontology_submission
             
-            serialize_default :distributionId, :title, :deprecated, :hasRepresentationLanguage, :hasSyntax, :description, :created
+            serialize_default :distributionId, :title, :hasRepresentationLanguage, :hasSyntax, :description, :created, :modified, 
+                              :conformsToKnowledgeRepresentationParadigm, :usedEngineeringMethodology, :prefLabelProperty, 
+                              :synonymProperty, :definitionProperty, :accessURL, :downloadURL
+
             serialize_never :submission
 
 
