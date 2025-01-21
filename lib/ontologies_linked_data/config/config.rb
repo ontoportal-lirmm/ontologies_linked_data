@@ -150,14 +150,6 @@ module LinkedData
         conf.add_redis_backend(host: @settings.goo_redis_host,
                                port: @settings.goo_redis_port)
         conf.add_query_logger(enabled: @settings.logging, file: @settings.log_file)
-
-        if @settings.enable_monitoring
-          puts "(LD) >> Enable SPARQL monitoring with cube #{@settings.cube_host}:#{@settings.cube_port}"
-          conf.enable_cube do |opts|
-            opts[:host] = @settings.cube_host
-            opts[:port] = @settings.cube_port
-          end
-        end
       end
     rescue StandardError => e
       abort("EXITING: Cannot connect to triplestore and/or search server:\n  #{e}\n#{e.backtrace.join("\n")}")

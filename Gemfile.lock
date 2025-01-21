@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 6594c7dd689d96d4085ea66deffb9528b418b74c
-  branch: feature/add-triple-store-logging
+  revision: b8eb3d0889d00b5aebb3d49deb00dfe398ad166b
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -18,7 +18,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: d1b90df22ce8f9fa1b87d9483f7e833a19eaa86e
+  revision: 4364d34e9e4c411f1dd0ea706bf052465bf0b467
   branch: development
   specs:
     sparql-client (3.2.2)
