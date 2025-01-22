@@ -20,6 +20,9 @@ class TestCollections < LinkedData::TestOntologyCommon
     assert_equal 2, collections.size
     collections_test = test_data
 
+    collections_test.sort_by! { |x| x[:id] }
+    collections.sort_by! { |x| x.id.to_s }
+
     collections.each_with_index do |x, i|
       collection_test = collections_test[i]
       assert_equal collection_test[:id], x.id.to_s
