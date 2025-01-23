@@ -142,7 +142,7 @@ module LinkedData
 
             def self.artefact_id_generator(ss)
                 ss.ontology.bring(:acronym) if !ss.ontology.loaded_attributes.include?(:acronym)
-                raise ArgumentError, "Acronym is nil to generate id" if ss.ontology.acronym.nil?
+                raise ArgumentError, "Acronym is nil for ontology  #{ss.ontology.id} to generate id" if ss.ontology.acronym.nil?
                 return RDF::URI.new(
                   "#{(Goo.id_prefix)}artefacts/#{CGI.escape(ss.ontology.acronym.to_s)}"
                 )
@@ -191,7 +191,7 @@ module LinkedData
             end
 
             def self.all_artefacts(options = {})
-                onts = if options[:allow_views]
+                onts = if options[:also_include_views]
                         Ontology.where.to_a
                     else
                         Ontology.where.filter(Goo::Filter.new(:viewOf).unbound).include(:acronym).to_a

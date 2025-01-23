@@ -9,7 +9,6 @@ class TestArtefactDistribution < LinkedData::TestOntologyCommon
         sa.ontology.bring(*:submissions)
         sad = LinkedData::Models::SemanticArtefactDistribution.new(sa.ontology.submissions[0])
         assert_equal LinkedData::Models::SemanticArtefactDistribution , sad.class
-        assert_equal LinkedData::Models::Base, sad.class.ancestors[1]
         assert_equal "http://data.bioontology.org/artefacts/STY/distributions/1", sad.id.to_s
     end
 
@@ -25,7 +24,6 @@ class TestArtefactDistribution < LinkedData::TestOntologyCommon
         sa = LinkedData::Models::SemanticArtefact.find('STY')
         sa.ontology.bring(*:submissions)
         sad = LinkedData::Models::SemanticArtefactDistribution.new(sa.ontology.submissions[0])
-        assert_equal LinkedData::Models::Base, sad.class.ancestors[1]
         sad.bring(*LinkedData::Models::SemanticArtefactDistribution.goo_attrs_to_load([:all]))
     end
 

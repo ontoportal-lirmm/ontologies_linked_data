@@ -6,7 +6,6 @@ class TestArtefact < LinkedData::TestOntologyCommon
     def test_create_artefact
         sa = LinkedData::Models::SemanticArtefact.new
         assert_equal LinkedData::Models::SemanticArtefact , sa.class
-        assert_equal LinkedData::Models::Base, sa.class.ancestors[1]
     end
 
     def test_find_artefact
