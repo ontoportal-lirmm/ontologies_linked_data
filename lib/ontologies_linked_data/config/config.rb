@@ -28,7 +28,7 @@ module LinkedData
     @settings.search_server_url             ||= 'http://localhost:8983/solr'
     @settings.property_search_server_url    ||= 'http://localhost:8983/solr'
     @settings.repository_folder             ||= './test/data/ontology_files/repo'
-    @settings.rest_url_prefix                ||= DEFAULT_PREFIX
+    @settings.rest_url_prefix               ||= DEFAULT_PREFIX
     @settings.enable_security               ||= false
     @settings.enable_slices                 ||= false
 
@@ -53,9 +53,10 @@ module LinkedData
     @settings.replace_url_prefix            ||= false
     @settings.id_url_prefix                 ||= DEFAULT_PREFIX
     @settings.queries_debug                 ||= false
-    @settings.enable_monitoring             ||= false
-    @settings.cube_host                     ||= 'localhost'
-    @settings.cube_port                     ||= 1180
+
+    # SPARQL logging
+    @settings.logging                       ||= false
+    @settings.log_file                      ||= './sparql.log'
 
     # Caching http
     @settings.enable_http_cache             ||= false
@@ -120,6 +121,7 @@ module LinkedData
     puts "(LD) >> Using property search server at #{@settings.property_search_server_url}"
     puts "(LD) >> Using HTTP Redis instance at #{@settings.http_redis_host}:#{@settings.http_redis_port}"
     puts "(LD) >> Using Goo Redis instance at #{@settings.goo_redis_host}:#{@settings.goo_redis_port}"
+    puts "(LD) >> Logging SPARQL queries to #{@settings.log_file}" if @settings.logging
 
     connect_goo unless overide_connect_goo
   end
@@ -147,14 +149,7 @@ module LinkedData
         conf.add_search_backend(:property, service: @settings.property_search_server_url)
         conf.add_redis_backend(host: @settings.goo_redis_host,
                                port: @settings.goo_redis_port)
-
-        if @settings.enable_monitoring
-          puts "(LD) >> Enable SPARQL monitoring with cube #{@settings.cube_host}:#{@settings.cube_port}"
-          conf.enable_cube do |opts|
-            opts[:host] = @settings.cube_host
-            opts[:port] = @settings.cube_port
-          end
-        end
+        conf.add_query_logger(enabled: @settings.logging, file: @settings.log_file)
       end
     rescue StandardError => e
       abort("EXITING: Cannot connect to triplestore and/or search server:\n  #{e}\n#{e.backtrace.join("\n")}")
