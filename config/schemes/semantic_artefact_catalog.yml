@@ -1,0 +1,54 @@
+###Template
+
+#propname:
+#  display: "general" / 
+#  label: ""
+#  helpText: ""
+#  example: ''
+#  description: [ 
+#    "ACRO: description.",
+#    "ACRO: description." ]
+#  extractedMetadata: true / false
+#  enforcedValues: {
+#    "..",
+#    ".." }
+#  metadataMappings: [ "ns:propname", ".." ]
+
+# AgroPortal properties ordered as MOD file
+
+### General
+
+#Acronym => Ontology object (omv:acronym)
+#Name => Ontology object (omv:name)
+
+
+
+acronym:
+  display: "general" 
+  label: "Acronym"
+  helpText: "The Acronym of the catalog which is described by these metadata."
+  example: 'AgroPortal'
+
+title:
+  display: "general" 
+  label: "Title"
+  helpText: "The Title of the catalog which is described by these metadata."
+  example: 'https://w3id.org/myontology'
+
+color:
+  display: "general"
+  label: "Color"
+  helpText: "The Main color of the catalog which is described by these metadata."
+  example: 'https://w3id.org/myontology'
+
+description:
+  display: "description"
+  label: "Description"
+  helpText: "The description of the catalog which is described by these metadata."
+  example: 'The home of ontologies and semantic artefacts in agri-food and related domains.'
+
+logo:
+  display: "general"
+  label: "Logo"
+  helpText: "The logo of the catalog which is described by these metadata."
+  example: 'https://ontoportal.org/images/logo.png'
