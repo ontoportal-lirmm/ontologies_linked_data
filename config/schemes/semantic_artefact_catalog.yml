@@ -13,42 +13,686 @@
 #    "..",
 #    ".." }
 #  metadataMappings: [ "ns:propname", ".." ]
-
-# AgroPortal properties ordered as MOD file
-
-### General
-
-#Acronym => Ontology object (omv:acronym)
-#Name => Ontology object (omv:name)
-
-
+#  default: ""
 
 acronym:
   display: "general" 
   label: "Acronym"
   helpText: "The Acronym of the catalog which is described by these metadata."
-  example: 'AgroPortal'
+  example: 'agroportal'
+  default: 'ontoportal'
 
 title:
   display: "general" 
   label: "Title"
   helpText: "The Title of the catalog which is described by these metadata."
-  example: 'https://w3id.org/myontology'
+  example: 'Title example'
+  default: 'OntoPortal'
 
 color:
   display: "general"
   label: "Color"
   helpText: "The Main color of the catalog which is described by these metadata."
-  example: 'https://w3id.org/myontology'
+  example: '#234979'
+  default: '#234979'
 
 description:
   display: "description"
   label: "Description"
   helpText: "The description of the catalog which is described by these metadata."
   example: 'The home of ontologies and semantic artefacts in agri-food and related domains.'
+  default: 'The home of ontologies and semantic artefacts in agri-food and related domains.'
 
 logo:
   display: "general"
   label: "Logo"
   helpText: "The logo of the catalog which is described by these metadata."
   example: 'https://ontoportal.org/images/logo.png'
+  default: https://ontoportal.org/images/logo.png
+
+versionInfo:
+  display: "general"
+  label: "Version info"
+  helpText: "Version information."
+  example: '1.0.1'
+  default: '3.0.2'
+
+fundedBy:
+  display: "general"
+  label: "Funded By"
+  helpText: "Founder of the catalog"
+  example: ''
+  default:
+    - img_src: 'https://identity.stanford.edu/wp-content/uploads/sites/3/2020/07/block-s-right.png'
+      url: 'https://www.stanford.edu'
+    - img_src: 'https://ontoportal.org/images/logo.png'
+      url: 'https://ontoportal.org/'
+
+federated_portals:
+  display: "general"
+  label: "Federated Portals"
+  helpText: "The Federated portal"
+  example: ''
+  default: []
+
+homepage:
+  display: "general"
+  label: "Homepage"
+  helpText: "The homepage URL of the catalog."
+  example: "https://example.com"
+  default: null
+
+identifier:
+  display: "general"
+  label: "Identifier"
+  helpText: "The identifier URL of the catalog."
+  example: "https://example.com/id"
+  default: null
+
+status:
+  display: "general"
+  label: "Status"
+  helpText: "The status of the catalog."
+  example: "active"
+  default: null
+
+deprecated:
+  display: "general"
+  label: "Deprecated"
+  helpText: "Whether the catalog is deprecated."
+  example: false
+  default: false
+
+language:
+  display: "general"
+  label: "Language"
+  helpText: "The language of the catalog."
+  example: "en"
+  default: "en"
+
+accessRights:
+  display: "general"
+  label: "Access Rights"
+  helpText: "Access rights of the catalog."
+  example: "private"
+  default: "public"
+
+license:
+  display: "general"
+  label: "License"
+  helpText: "License URL of the catalog."
+  example: "https://example.com/license"
+  default: null
+
+useGuidelines:
+  display: "general"
+  label: "Use Guidelines"
+  helpText: "Guidelines for using the catalog."
+  example: ""
+  default: null
+
+morePermissions:
+  display: "general"
+  label: "More Permissions"
+  helpText: "Additional permissions for the catalog."
+  example: ""
+  default: null
+
+rightsHolder:
+  display: "general"
+  label: "Rights Holder"
+  helpText: "The rights holder of the catalog."
+  example: ""
+  default: null
+
+landingPage:
+  display: "general"
+  label: "Landing Page"
+  helpText: "Landing page URL of the catalog."
+  example: "https://example.com/landing"
+  default: null
+
+comment:
+  display: "general"
+  label: "Comment"
+  helpText: "Comments on the catalog."
+  example: "This is a comment."
+  default: ""
+
+keyword:
+  display: "general"
+  label: "Keyword"
+  helpText: "Keywords associated with the catalog."
+  example: ["keyword1", "keyword2"]
+  default: []
+
+alternative:
+  display: "general"
+  label: "Alternative"
+  helpText: "Alternative titles or names for the catalog."
+  example: ""
+  default: ""
+
+hiddenLabel:
+  display: "general"
+  label: "Hidden Label"
+  helpText: "Labels hidden from users."
+  example: ""
+  default: ""
+
+abstract:
+  display: "general"
+  label: "Abstract"
+  helpText: "Abstract or summary of the catalog."
+  example: "This catalog is about..."
+  default: ""
+
+bibliographicCitation:
+  display: "general"
+  label: "Bibliographic Citation"
+  helpText: "Citation information for the catalog."
+  example: ""
+  default: ""
+
+created:
+  display: "general"
+  label: "Created Date"
+  helpText: "The creation date of the catalog."
+  example: "2025-01-01"
+  default: ""
+
+modified:
+  display: "general"
+  label: "Modified Date"
+  helpText: "The last modification date of the catalog."
+  example: "2025-01-28"
+
+curatedOn:
+  display: "general"
+  label: "Curated On"
+  helpText: "The date the catalog was curated."
+  example: "2025-01-15"
+  default: ""
+
+contactPoint:
+  display: "general"
+  label: "Contact Point"
+  helpText: "Contact information for the catalog."
+  example: ""
+  default: ""
+
+creator:
+  display: "general"
+  label: "Creator"
+  helpText: "The creator of the catalog."
+  example: ""
+  default: ""
+
+contributor:
+  display: "general"
+  label: "Contributor"
+  helpText: "Contributors to the catalog."
+  example: ""
+  default: ""
+
+curatedBy:
+  display: "general"
+  label: "Curated By"
+  helpText: "The person or organization that curated the catalog."
+  example: ""
+  default: ""
+
+translator:
+  display: "general"
+  label: "Translator"
+  helpText: "Translator information for the catalog."
+  example: ""
+  default: ""
+
+publisher:
+  display: "general"
+  label: "Publisher"
+  helpText: "The publisher of the catalog."
+  example: ""
+  default: ""
+
+endorsedBy:
+  display: "general"
+  label: "Endorsed By"
+  helpText: "Entities endorsing the catalog."
+  example: ""
+  default: ""
+
+group:
+  display: "general"
+  label: "Group"
+  helpText: "Groups associated with the catalog."
+  example: ""
+  default: ""
+
+usedInProject:
+  display: "general"
+  label: "Used in Project"
+  helpText: "Projects that use the catalog."
+  example: ""
+  default: ""
+
+audience:
+  display: "general"
+  label: "Audience"
+  helpText: "Target audience for the catalog."
+  example: ""
+  default: ""
+
+analytics:
+  display: "general"
+  label: "Analytics"
+  helpText: "Analytics data related to the catalog."
+  example: ""
+  default: ""
+
+repository:
+  display: "general"
+  label: "Repository"
+  helpText: "Repository information for the catalog."
+  example: ""
+  default: ""
+
+bugDatabase:
+  display: "general"
+  label: "Bug Database"
+  helpText: "Bug database information for the catalog."
+  example: ""
+  default: ""
+
+mailingList:
+  display: "general"
+  label: "Mailing List"
+  helpText: "Mailing list for the catalog."
+  example: ""
+  default: ""
+
+toDoList:
+  display: "general"
+  label: "To-Do List"
+  helpText: "To-Do list for the catalog."
+  example: ""
+  default: ""
+
+award:
+  display: "general"
+  label: "Award"
+  helpText: "Awards related to the catalog."
+  example: ""
+  default: ""
+
+knownUsage:
+  display: "general"
+  label: "Known Usage"
+  helpText: "Known usage of the catalog."
+  example: ""
+  default: ""
+
+subject:
+  display: "general"
+  label: "Subject"
+  helpText: "The subject of the catalog."
+  example: "Science"
+  default: ""
+
+coverage:
+  display: "general"
+  label: "Coverage"
+  helpText: "Coverage details of the catalog."
+  example: "Global"
+  default: ""
+
+example:
+  display: "general"
+  label: "Example"
+  helpText: "Examples related to the catalog."
+  example: "Example usage of the catalog"
+  default: ""
+
+createdWith:
+  display: "general"
+  label: "Created With"
+  helpText: "The tool or method used to create the catalog."
+  example: "Tool Name"
+  default: ""
+
+accrualMethod:
+  display: "general"
+  label: "Accrual Method"
+  helpText: "The accrual method for the catalog."
+  example: "Manual"
+  default: ""
+
+accrualPeriodicity:
+  display: "general"
+  label: "Accrual Periodicity"
+  helpText: "The periodicity of data accrual for the catalog."
+  example: "Monthly"
+  default: ""
+
+accrualPolicy:
+  display: "general"
+  label: "Accrual Policy"
+  helpText: "The accrual policy for the catalog."
+  example: "Policy Description"
+  default: ""
+
+wasGeneratedBy:
+  display: "general"
+  label: "Was Generated By"
+  helpText: "The process or entity that generated the catalog."
+  example: "System Name"
+  default: ""
+
+accessURL:
+  display: "general"
+  label: "Access URL"
+  helpText: "The access URL for the catalog."
+  example: "https://example.com/access"
+  default: ""
+
+uriLookupEndpoint:
+  display: "general"
+  label: "URI Lookup Endpoint"
+  helpText: "The URI lookup endpoint for the catalog."
+  example: "https://example.com/lookup"
+  default: ""
+
+openSearchDescription:
+  display: "general"
+  label: "Open Search Description"
+  helpText: "Description of open search functionality."
+  example: "Search Description"
+  default: ""
+
+source:
+  display: "general"
+  label: "Source"
+  helpText: "The source of the catalog data."
+  example: "Data Source Name"
+  default: ""
+
+endpoint:
+  display: "general"
+  label: "Endpoint"
+  helpText: "API endpoint of the catalog."
+  example: "https://api.example.com"
+  default: ""
+
+isPartOf:
+  display: "general"
+  label: "Is Part Of"
+  helpText: "Indicates if the catalog is part of a larger collection."
+  example: "Parent Catalog Name"
+  default: ""
+
+hasPart:
+  display: "general"
+  label: "Has Part"
+  helpText: "Indicates if the catalog has subparts."
+  example: "Subpart Name"
+  default: ""
+
+relation:
+  display: "general"
+  label: "Relation"
+  helpText: "Related resources or entities to the catalog."
+  example: "Related Catalog"
+  default: ""
+
+uriRegexPattern:
+  display: "general"
+  label: "URI Regex Pattern"
+  helpText: "Regex pattern for URIs in the catalog."
+  example: "^[a-zA-Z0-9]+$"
+  default: ""
+
+preferredNamespaceUri:
+  display: "general"
+  label: "Preferred Namespace URI"
+  helpText: "The preferred namespace URI for the catalog."
+  example: "http://example.com/ns#"
+  default: ""
+
+preferredNamespacePrefix:
+  display: "general"
+  label: "Preferred Namespace Prefix"
+  helpText: "The preferred namespace prefix for the catalog."
+  example: "example"
+  default: ""
+
+metadataVoc:
+  display: "general"
+  label: "Metadata Vocabulary"
+  helpText: "Metadata vocabulary used by the catalog."
+  example: "Dublin Core"
+  default: ""
+
+changes:
+  display: "general"
+  label: "Changes"
+  helpText: "Change history of the catalog."
+  example: "Initial creation, updates..."
+  default: ""
+
+associatedMedia:
+  display: "general"
+  label: "Associated Media"
+  helpText: "Media associated with the catalog."
+  example: "https://example.com/media.jpg"
+  default: ""
+
+depiction:
+  display: "general"
+  label: "Depiction"
+  helpText: "Image or visual depiction of the catalog."
+  example: "https://example.com/image.jpg"
+  default: ""
+
+hasPolicy:
+  display: "general"
+  label: "Has Policy"
+  helpText: "Policies associated with the catalog."
+  example: "Usage Policy"
+  default: ""
+
+isReferencedBy:
+  display: "general"
+  label: "Is Referenced By"
+  helpText: "Entities or resources referencing the catalog."
+  example: "Referenced Resource"
+  default: ""
+
+funding:
+  display: "general"
+  label: "Funding"
+  helpText: "Funding information for the catalog."
+  example: "Funding Source"
+  default: ""
+
+qualifiedAttribution:
+  display: "general"
+  label: "Qualified Attribution"
+  helpText: "Attribution information for the catalog."
+  example: "Attribution Details"
+  default: ""
+
+publishingPrinciples:
+  display: "general"
+  label: "Publishing Principles"
+  helpText: "Publishing principles for the catalog."
+  example: "Principle Description"
+  default: ""
+
+qualifiedRelation:
+  display: "general"
+  label: "Qualified Relation"
+  helpText: "Qualified relationships for the catalog."
+  example: "Relation Details"
+  default: ""
+
+fairScore:
+  display: "general"
+  label: "FAIR Score"
+  helpText: "The FAIR score of the catalog."
+  example: "85%"
+  default: ""
+
+featureList:
+  display: "general"
+  label: "Feature List"
+  helpText: "Features of the catalog."
+  example: ["Feature 1", "Feature 2"]
+  default: []
+
+supportedSchema:
+  display: "general"
+  label: "Supported Schema"
+  helpText: "Supported schemas by the catalog."
+  example: "Schema.org"
+  default: ""
+
+conformsTo:
+  display: "general"
+  label: "Conforms To"
+  helpText: "Standards or specifications the catalog conforms to."
+  example: "ISO 9001"
+  default: ""
+
+catalog:
+  display: "general"
+  label: "Catalog"
+  helpText: "Catalog associated with this entry."
+  example: "Main Catalog"
+  default: ""
+
+dataset:
+  display: "general"
+  label: "Dataset"
+  helpText: "Datasets in the catalog."
+  example: "Dataset Name"
+  default: ""
+
+service:
+  display: "general"
+  label: "Service"
+  helpText: "Services offered by the catalog."
+  example: "Service Name"
+  default: ""
+
+record:
+  display: "general"
+  label: "Record"
+  helpText: "Records maintained in the catalog."
+  example: "Record Details"
+  default: ""
+
+themeTaxonomy:
+  display: "general"
+  label: "Theme Taxonomy"
+  helpText: "Taxonomy themes of the catalog."
+  example: "Theme Name"
+  default: ""
+
+distribution:
+  display: "general"
+  label: "Distribution"
+  helpText: "Distribution information for the catalog."
+  example: "Distribution Details"
+  default: ""
+
+
+numberOfArtefacts:
+  display: "general"
+  label: "Number of Artefacts"
+  helpText: "The total number of artefacts in the catalog."
+  example: 10
+
+metrics:
+  display: "general"
+  label: "Metrics"
+  helpText: "Metrics associated with the catalog."
+  example: "Usage metrics"
+
+numberOfClasses:
+  display: "general"
+  label: "Number of Classes"
+  helpText: "The total number of classes in the catalog."
+  example: 100
+
+numberOfIndividuals:
+  display: "general"
+  label: "Number of Individuals"
+  helpText: "The total number of individuals in the catalog."
+  example: 200
+
+numberOfProperties:
+  display: "general"
+  label: "Number of Properties"
+  helpText: "The total number of properties in the catalog."
+  example: 50
+
+numberOfAxioms:
+  display: "general"
+  label: "Number of Axioms"
+  helpText: "The total number of axioms in the catalog."
+  example: 500
+
+numberOfObjectProperties:
+  display: "general"
+  label: "Number of Object Properties"
+  helpText: "The total number of object properties in the catalog."
+  example: 20
+
+numberOfDataProperties:
+  display: "general"
+  label: "Number of Data Properties"
+  helpText: "The total number of data properties in the catalog."
+  example: 15
+
+numberOfLabels:
+  display: "general"
+  label: "Number of Labels"
+  helpText: "The total number of labels in the catalog."
+  example: 300
+
+numberOfDeprecated:
+  display: "general"
+  label: "Number of Deprecated"
+  helpText: "The total number of deprecated items in the catalog."
+  example: 5
+
+numberOfUsingProjects:
+  display: "general"
+  label: "Number of Using Projects"
+  helpText: "The total number of projects using this catalog."
+  example: 3
+
+numberOfEndorsements:
+  display: "general"
+  label: "Number of Endorsements"
+  helpText: "The total number of endorsements for the catalog."
+  example: 2
+
+numberOfMappings:
+  display: "general"
+  label: "Number of Mappings"
+  helpText: "The total number of mappings in the catalog."
+  example: 50
+
+numberOfUsers:
+  display: "general"
+  label: "Number of Users"
+  helpText: "The total number of users interacting with the catalog."
+  example: 100
+
+numberOfAgents:
+  display: "general"
+  label: "Number of Agents"
+  helpText: "The total number of agents associated with the catalog."
+  example: 10
