@@ -1,98 +1,113 @@
+require 'yaml'
+
 module LinkedData
     module Models
         class SemanticArtefactCatalog < LinkedData::Models::Base
 
-            model :SemanticArtefactCatalog, namespace: :mod, scheme: File.join(__dir__, '../../../../config/schemes/semantic_artefact_catalog.yml'),
-                                                        name_with: ->(s) { RDF::URI.new(LinkedData.settings.id_url_prefix) }
-            
+
+            # Load the scheme file once
+            SCHEME_PATH = File.join(__dir__, '../../../../config/schemes/semantic_artefact_catalog.yml')
+            SCHEME = YAML.load_file(SCHEME_PATH)
+
+            class << self
+                def define_attribute(name, **options)
+                    options[:default] = ->(x) { SCHEME.dig(name.to_s, 'default') }
+                    attribute(name, **options)
+                end
+            end
+
+            model :SemanticArtefactCatalog, namespace: :mod, name_with: ->(s) { RDF::URI.new(LinkedData.settings.id_url_prefix) }
+
+            define_attribute :acronym, namespace: :omv, enforce: [:unique]
+            define_attribute :title, namespace: :dcterms, enforce: [:string]
+            define_attribute :color, enforce: [:valid_hash_code]
+            define_attribute :description, namespace: :dcterms, enforce: [:string]
+            define_attribute :logo, namespace: :foaf, enforce: [:url]
+            define_attribute :versionInfo, namespace: :owl, enforce: [:string]
+            define_attribute :fundedBy, namespace: :foaf, enforce: [:list]
+            define_attribute :federated_portals, enforce: [:list]
+
+
+
             # SAD attrs that map with submission
-            attribute :acronym, namespace: :omv, enforce: [:unique], :default => lambda {|x| LinkedData.settings.ui_name.downcase}
-            attribute :title, namespace: :dcterms, enforce: [:string]
-            attribute :color, enforce: [:valid_hash_code]
-            attribute :description, namespace: :dcterms, enforce: [:string]
-            attribute :logo, namespace: :foaf, enforce: [:url]
-            attribute :federated_portals, enforce: [:list]
-            attribute :fundedBy, namespace: :foaf, enforce: [:list]
-            attribute :versionInfo, namespace: :owl, enforce: [:string]
-            attribute :homepage, namespace: :foaf, enforce: [:url]
-            attribute :identifier, namespace: :dcterms, enforce: [:url]
-            attribute :status, namespace: :mod, enforce: [:string]
-            attribute :deprecated, namespace: :owl, enforce: [:boolean], :default => lambda {|x| false}
-            attribute :language, namespace: :dcterms, enforce: [:string]
-            attribute :accessRights, namespace: :dcterms, enforce: [:string], :default => lambda {|x| "public"}
-            attribute :license, namespace: :dcterms, enforce: [:url]
-            attribute :useGuidelines, namespace: :cc
-            attribute :morePermissions, namespace: :cc
-            attribute :rightsHolder, namespace: :dcterms
-            attribute :landingPage, namespace: :dcat
-            attribute :comment, namespace: :rdfs, enforce: [:string]
-            attribute :keyword, namespace: :dcat, enforce: [:list]
-            attribute :alternative, namespace: :dcterms
-            attribute :hiddenLabel, namespace: :skos
-            attribute :abstract, namespace: :dcterms, enforce: [:string]
-            attribute :bibliographicCitation, namespace: :dcterms
-            attribute :created, namespace: :dcterms, enforce: [:date]
-            attribute :modified, namespace: :dcterms, enforce: [:date]
-            attribute :curatedOn, namespace: :pav, enforce: [:date]
-            attribute :contactPoint, namespace: :dcat
-            attribute :creator, namespace: :dcterms
-            attribute :contributor, namespace: :dcterms
-            attribute :curatedBy, namespace: :pav
-            attribute :translator, namespace: :schema
-            attribute :publisher, namespace: :dcterms
-            attribute :endorsedBy, namespace: :mod
-            attribute :comment, namespace: :schema
-            attribute :group, namespace: :mod
-            attribute :usedInProject, namespace: :mod
-            attribute :audience, namespace: :dcterms
-            attribute :analytics, namespace: :mod
-            attribute :repository, namespace: :doap
-            attribute :bugDatabase, namespace: :doap
-            attribute :mailingList, namespace: :doap
-            attribute :toDoList, namespace: :mod
-            attribute :award, namespace: :schema
-            attribute :knownUsage, namespace: :mod
-            attribute :subject, namespace: :dcterms
-            attribute :coverage, namespace: :dcterms
-            attribute :example, namespace: :vann
-            attribute :createdWith, namespace: :pav
-            attribute :accrualMethod, namespace: :dcterms
-            attribute :accrualPeriodicity, namespace: :dcterms
-            attribute :accrualPolicy, namespace: :dcterms
-            attribute :wasGeneratedBy, namespace: :prov
-            attribute :accessURL, namespace: :dcat
-            attribute :uriLookupEndpoint, namespace: :void
-            attribute :openSearchDescription, namespace: :void
-            attribute :source, namespace: :dcterms
-            attribute :endpoint, namespace: :sd
-            attribute :isPartOf, namespace: :dcterms
-            attribute :hasPart, namespace: :dcterms
-            attribute :relation, namespace: :dcterms
-            attribute :uriRegexPattern, namtitleespace: :void
-            attribute :preferredNamespaceUri, namespace: :vann
-            attribute :preferredNamespacePrefix, namespace: :vann
-            attribute :metadataVoc, namespace: :mod
-            attribute :changes, namespace: :vann
-            attribute :associatedMedia, namespace: :schema
-            attribute :depiction, namespace: :foaf
-            attribute :hasPolicy, namespace: :mod
-            attribute :isReferencedBy, namespace: :mod
-            attribute :funding, namespace: :mod
-            attribute :qualifiedAttribution, namespace: :mod
-            attribute :publishingPrinciples, namespace: :mod
-            attribute :qualifiedRelation, namespace: :mod
-            attribute :fairScore, namespace: :mod
-            attribute :featureList, namespace: :mod
-            attribute :supportedSchema, namespace: :mod
-            attribute :conformsTo, namespace: :mod
-            attribute :catalog, namespace: :mod
-            attribute :dataset, namespace: :mod
-            attribute :service, namespace: :mod
-            attribute :record, namespace: :mod
-            attribute :themeTaxonomy, namespace: :mod
-            attribute :distribution, namespace: :mod
+            define_attribute :homepage, namespace: :foaf, enforce: [:url]
+            define_attribute :identifier, namespace: :dcterms, enforce: [:url]
+            define_attribute :status, namespace: :mod, enforce: [:string]
+            define_attribute :deprecated, namespace: :owl, enforce: [:boolean]
+            define_attribute :language, namespace: :dcterms, enforce: [:string]
+            define_attribute :accessRights, namespace: :dcterms, enforce: [:string]
+            define_attribute :license, namespace: :dcterms, enforce: [:url]
+            define_attribute :useGuidelines, namespace: :cc
+            define_attribute :morePermissions, namespace: :cc
+            define_attribute :rightsHolder, namespace: :dcterms
+            define_attribute :landingPage, namespace: :dcat
+            define_attribute :comment, namespace: :rdfs, enforce: [:string]
+            define_attribute :keyword, namespace: :dcat, enforce: [:list]
+            define_attribute :alternative, namespace: :dcterms
+            define_attribute :hiddenLabel, namespace: :skos
+            define_attribute :abstract, namespace: :dcterms, enforce: [:string]
+            define_attribute :bibliographicCitation, namespace: :dcterms
+            define_attribute :created, namespace: :dcterms, enforce: [:date]
+            define_attribute :curatedOn, namespace: :pav, enforce: [:date]
+            define_attribute :contactPoint, namespace: :dcat, enforce: [:date]
+            define_attribute :creator, namespace: :dcterms, enforce: [:date]
+            define_attribute :contributor, namespace: :dcterms, enforce: [:string]
+            define_attribute :curatedBy, namespace: :pav
+            define_attribute :translator, namespace: :schema
+            define_attribute :publisher, namespace: :dcterms
+            define_attribute :endorsedBy, namespace: :mod
+            define_attribute :comment, namespace: :schema
+            define_attribute :group, namespace: :mod
+            define_attribute :usedInProject, namespace: :mod
+            define_attribute :audience, namespace: :dcterms
+            define_attribute :analytics, namespace: :mod
+            define_attribute :repository, namespace: :doap
+            define_attribute :bugDatabase, namespace: :doap
+            define_attribute :mailingList, namespace: :doap
+            define_attribute :toDoList, namespace: :mod
+            define_attribute :award, namespace: :schema
+            define_attribute :knownUsage, namespace: :mod
+            define_attribute :subject, namespace: :dcterms
+            define_attribute :coverage, namespace: :dcterms
+            define_attribute :example, namespace: :vann
+            define_attribute :createdWith, namespace: :pav
+            define_attribute :accrualMethod, namespace: :dcterms
+            define_attribute :accrualPeriodicity, namespace: :dcterms
+            define_attribute :accrualPolicy, namespace: :dcterms
+            define_attribute :wasGeneratedBy, namespace: :prov
+            define_attribute :accessURL, namespace: :dcat
+            define_attribute :uriLookupEndpoint, namespace: :void
+            define_attribute :openSearchDescription, namespace: :void
+            define_attribute :source, namespace: :dcterms
+            define_attribute :endpoint, namespace: :sd
+            define_attribute :isPartOf, namespace: :dcterms
+            define_attribute :hasPart, namespace: :dcterms
+            define_attribute :relation, namespace: :dcterms
+            define_attribute :uriRegexPattern, namtitleespace: :void
+            define_attribute :preferredNamespaceUri, namespace: :vann
+            define_attribute :preferredNamespacePrefix, namespace: :vann
+            define_attribute :metadataVoc, namespace: :mod
+            define_attribute :changes, namespace: :vann
+            define_attribute :associatedMedia, namespace: :schema
+            define_attribute :depiction, namespace: :foaf
+            define_attribute :hasPolicy, namespace: :mod
+            define_attribute :isReferencedBy, namespace: :mod
+            define_attribute :funding, namespace: :mod
+            define_attribute :qualifiedAttribution, namespace: :mod
+            define_attribute :publishingPrinciples, namespace: :mod
+            define_attribute :qualifiedRelation, namespace: :mod
+            define_attribute :fairScore, namespace: :mod
+            define_attribute :featureList, namespace: :mod, enforce: [:list]
+            define_attribute :supportedSchema, namespace: :mod
+            define_attribute :conformsTo, namespace: :mod
+            define_attribute :catalog, namespace: :mod
+            define_attribute :dataset, namespace: :mod
+            define_attribute :service, namespace: :mod
+            define_attribute :record, namespace: :mod
+            define_attribute :themeTaxonomy, namespace: :mod
+            define_attribute :distribution, namespace: :mod
 
-
+            attribute :modified, namespace: :dcterms, enforce: [:date], handler: :modification_date
             attribute :numberOfArtefacts, namespace: :mod, enforce: [:integer], handler: :ontologies_count
             attribute :metrics, namespace: :mod, enforce: [:list], handler: :generate_metrics
             attribute :numberOfClasses, namespace: :mod, enforce: [:integer], handler: :class_count
@@ -109,8 +124,10 @@ module LinkedData
             attribute :numberOfUsers, namespace: :mod, enforce: [:integer], handler: :users_counts
             attribute :numberOfAgents, namespace: :mod, enforce: [:integer], handler: :agents_counts
             
+            attribute :test_attr_to_persist
+            serialize_never :test_attr_to_persist
 
-            serialize_default :acronym, :title, :description, :logo, :fundedBy, :versionInfo, :homepage, :numberOfArtefacts, :federated_portals
+            serialize_default :acronym, :title, :color, :description, :logo, :fundedBy, :versionInfo, :homepage, :numberOfArtefacts, :federated_portals
 
             def bring(*attributes)
                 attributes = [attributes] unless attributes.is_a?(Array)
@@ -135,6 +152,10 @@ module LinkedData
 
             def ontologies_count
                 LinkedData::Models::Ontology.where(viewingRestriction: 'public').count
+            end
+
+            def modification_date
+                Date.new(2025, 1, 1)
             end
 
             def generate_metrics
