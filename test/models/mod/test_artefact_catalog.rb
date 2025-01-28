@@ -11,7 +11,7 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
 
   def test_goo_attrs_to_load
       attrs = LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([])
-      assert_equal [:acronym, :title, :description, :logo, :fundedBy, :versionInfo, :homepage, :numberOfArtefacts, :federated_portals], attrs
+      assert_equal [:acronym, :title, :color, :description, :logo, :fundedBy, :versionInfo, :homepage, :numberOfArtefacts, :federated_portals], attrs
   end
   
 end
