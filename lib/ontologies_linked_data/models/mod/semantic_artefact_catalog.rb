@@ -144,7 +144,7 @@ module LinkedData
 
             def computed_attrs
                 [
-                    :numberOfArtefacts, :metrics, :numberOfClasses, :numberOfIndividuals, :numberOfProperties,
+                    :modified, :numberOfArtefacts, :metrics, :numberOfClasses, :numberOfIndividuals, :numberOfProperties,
                     :numberOfAxioms, :numberOfObjectProperties, :numberOfDataProperties, :numberOfLabels, :numberOfDeprecated,
                     :numberOfUsingProjects, :numberOfEndorsements, :numberOfMappings, :numberOfUsers,:numberOfAgents
                 ]
@@ -163,19 +163,19 @@ module LinkedData
             end
             
             def class_count
-                0
+                calculate_attr_from_metrics(:classes)
             end
             
             def individuals_count
-                0
+                calculate_attr_from_metrics(:individuals)
             end
             
             def propoerties_count
-                0
+                calculate_attr_from_metrics(:properties)
             end
             
             def axioms_counts
-                0
+                calculate_attr_from_metrics(:numberOfAxioms)
             end
             
             def object_properties_counts
@@ -195,7 +195,7 @@ module LinkedData
             end
             
             def using_projects_counts
-                0
+                LinkedData::Models::Project.all.count
             end
             
             def endorsements_counts
@@ -207,11 +207,11 @@ module LinkedData
             end
             
             def users_counts
-                0
+                LinkedData::Models::User.all.count
             end
             
             def agents_counts
-                0
+                LinkedData::Models::Agent.all.count
             end
 
             def self.valid_hash_code(inst, attr)
@@ -221,6 +221,28 @@ module LinkedData
                 return if (/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/ === str)
                 [:valid_hash_code,
                  "Invalid hex color code: '#{str}'. Please provide a valid hex code in the format '#FFF' or '#FFFFFF'."]
+            end
+
+            private
+
+            def calculate_attr_from_metrics(attr)
+                attr_to_get = attr.to_sym
+                submissions_query = LinkedData::Models::OntologySubmission
+                submissions_query = submissions_query.where
+                submissions = submissions_query.include(OntologySubmission.goo_attrs_to_load([attr_to_get]))
+                metrics_include = LinkedData::Models::Metric.goo_attrs_to_load([attr_to_get])
+                LinkedData::Models::OntologySubmission.where.models(submissions).include(metrics: metrics_include).all
+                somme = 0
+                submissions.each do |x|
+                    if x.metrics
+                      begin
+                        somme += x.metrics.send(attr_to_get)
+                      rescue
+                        next
+                      end
+                    end
+                end
+                somme
             end
 
         end
