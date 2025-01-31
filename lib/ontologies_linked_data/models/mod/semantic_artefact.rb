@@ -192,9 +192,9 @@ module LinkedData
 
             def self.all_artefacts(options = {})
                 onts = if options[:also_include_views]
-                        Ontology.where.to_a
+                        Ontology.where(viewingRestriction: 'public').to_a
                     else
-                        Ontology.where.filter(Goo::Filter.new(:viewOf).unbound).include(:acronym).to_a
+                        Ontology.where(viewingRestriction: 'public').filter(Goo::Filter.new(:viewOf).unbound).include(:acronym).to_a
                     end
         
                 onts.map do |o|
