@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 27300f28ca6c656c7e78af65013d88b792a6312f
+  revision: 8c6ee5a66be58f378d517fa5d86f1af209bbf0f4
   branch: development
   specs:
     goo (0.0.2)
@@ -18,7 +18,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: 4364d34e9e4c411f1dd0ea706bf052465bf0b467
+  revision: d4a226e75eb4aeaaf42720eac4f23f55380a0bd3
   branch: development
   specs:
     sparql-client (3.2.2)
@@ -98,10 +98,11 @@ GEM
       rdf (>= 2.2.8, < 4.0)
     jwt (2.10.1)
       base64
-    language_server-protocol (3.17.0.3)
-    launchy (3.0.1)
+    language_server-protocol (3.17.0.4)
+    launchy (3.1.0)
       addressable (~> 2.8)
       childprocess (~> 5.0)
+      logger (~> 1.6)
     libxml-ruby (5.0.3)
     link_header (0.0.8)
     logger (1.6.5)
@@ -128,7 +129,7 @@ GEM
     multipart-post (2.4.1)
     net-http-persistent (4.0.5)
       connection_pool (~> 2.2)
-    net-imap (0.4.18)
+    net-imap (0.5.5)
       date
       net-protocol
     net-pop (0.1.2)
@@ -155,7 +156,7 @@ GEM
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (5.1.1)
+    public_suffix (6.0.1)
     racc (1.8.1)
     rack (1.6.13)
     rack-test (0.8.3)
@@ -192,17 +193,17 @@ GEM
     rexml (3.4.0)
     rsolr (1.1.2)
       builder (>= 2.1.2)
-    rubocop (1.70.0)
+    rubocop (1.71.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.36.2, < 2.0)
+      rubocop-ast (>= 1.38.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.37.0)
+    rubocop-ast (1.38.0)
       parser (>= 3.3.1.0)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
