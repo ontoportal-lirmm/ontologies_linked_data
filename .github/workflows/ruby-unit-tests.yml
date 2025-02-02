@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         goo-slice: [ '20', '100', '500' ]
-        ruby-version: [ '3.2.0', '2.7.8']
+        ruby-version: [ '3.1.0', '2.7.8']
         triplestore: [ 'fs', 'ag', 'vo', 'gb' ]
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +34,7 @@ jobs:
         # http://docs.codecov.io/docs/testing-with-docker
         run: |
           ci_env=`bash <(curl -s https://codecov.io/env)`
-          GOO_SLICES=${{ matrix.goo-slice }} bundle exec rake test:docker:${{ matrix.triplestore }} TESTOPTS="-v"
+          GOO_SLICES=${{ matrix.goo-slice }} RUBYOPT="-W0" bundle exec rake test:docker:${{ matrix.triplestore }} TESTOPTS="-v"
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:

@@ -7,20 +7,21 @@ module LinkedData
       LinkedData::Mappings.create_mapping_counts(Logger.new(TestLogFile.new))
       LinkedData::Models::MappingCount.where.all.length
     end
+
     def submission_dependent_objects(format, acronym, user_name, name_ont)
-      #ontology format
+      # ontology format
       owl = LinkedData::Models::OntologyFormat.where(:acronym => format).first
       assert_instance_of LinkedData::Models::OntologyFormat, owl
 
-      #user test_linked_models
+      # user test_linked_models
       user = LinkedData::Models::User.where(:username => user_name).first
       if user.nil?
-        user = LinkedData::Models::User.new(:username => user_name, :email => "some@email.org" )
+        user = LinkedData::Models::User.new(:username => user_name, :email => "some@email.org")
         user.passwordHash = "some random pass hash"
         user.save
       end
       #
-      #ontology
+      # ontology
       ont = LinkedData::Models::Ontology.where(:acronym => acronym).first
       if ont.nil?
 
@@ -35,7 +36,7 @@ module LinkedData
       contact = LinkedData::Models::Contact.where(name: contact_name, email: contact_email).first
       contact = LinkedData::Models::Contact.new(name: contact_name, email: contact_email).save if contact.nil?
 
-      #Submission Status
+      # Submission Status
       return owl, ont, user, contact
     end
 
@@ -47,7 +48,7 @@ module LinkedData
     #   diff              = false
     #   delete            = true  # delete any existing submissions
     ##############################################
-    def submission_parse(acronym, name, ontologyFile, id, parse_options={})
+    def submission_parse(acronym, name, ontologyFile, id, parse_options = {})
       if Goo.backend_vo?
         old_slices = Goo.slice_loading_size
         Goo.slice_loading_size = 20
@@ -67,7 +68,7 @@ module LinkedData
           end
         end
       end
-      ont_submission =  LinkedData::Models::OntologySubmission.new({ :submissionId => id})
+      ont_submission = LinkedData::Models::OntologySubmission.new({ :submissionId => id })
       ont_submission.uri = RDF::URI.new('https://test.com')
       ont_submission.description = 'description example'
       ont_submission.status = 'beta'
@@ -105,7 +106,7 @@ module LinkedData
 
       ont_submission.save
 
-      assert_equal true, ont_submission.exist?(reload=true)
+      assert_equal true, ont_submission.exist?(reload = true)
       begin
         tmp_log = Logger.new(TestLogFile.new)
         t = Benchmark.measure do
@@ -124,12 +125,12 @@ module LinkedData
 
     def init_test_ontology_msotest(acr)
       ont = LinkedData::Models::Ontology.find(acr)
-                .include(submissions: [:submissionStatus]).first
+                                        .include(submissions: [:submissionStatus]).first
       if not ont.nil?
         return
         LinkedData::TestCase.backend_4s_delete
       end
-      ont_submission =  LinkedData::Models::OntologySubmission.new({ :submissionId => 1 })
+      ont_submission = LinkedData::Models::OntologySubmission.new({ :submissionId => 1 })
       ont_submission.uri = RDF::URI.new('https://test.com')
       ont_submission.description = 'description example'
       ont_submission.status = 'beta'
@@ -145,7 +146,7 @@ module LinkedData
       uploadFilePath = LinkedData::Models::OntologySubmission.copy_file_repository(acr, 1, file_path)
       ont_submission.uploadFilePath = uploadFilePath
       owl, ont, user, contact = submission_dependent_objects("OWL", acr, "test_linked_models",
-                                                             "%s ont created by mso for testing"%acr)
+                                                             "%s ont created by mso for testing" % acr)
       ont.administeredBy = [user]
       ont_submission.contact = [contact]
       ont_submission.released = DateTime.now - 4
@@ -166,8 +167,8 @@ module LinkedData
       ont_submission.authorProperty = RDF::URI.new("http://bioportal.bioontology.org/ontologies/msotes#myAuthor")
       assert (ont_submission.valid?)
       ont_submission.save
-      assert_equal true, ont_submission.exist?(reload=true)
-      parse_options = {process_rdf: true, extract_metadata: false}
+      assert_equal true, ont_submission.exist?(reload = true)
+      parse_options = { process_rdf: true, extract_metadata: false }
       begin
         tmp_log = Logger.new(TestLogFile.new)
         ont_submission.process_submission(tmp_log, parse_options)
@@ -177,8 +178,8 @@ module LinkedData
       end
 
       roots = ont_submission.roots
-      #class99 is equivalent to intersection of ...
-      #it shouldnt be at the root
+      # class99 is equivalent to intersection of ...
+      # it shouldnt be at the root
       if acr["OBSPROPSDISC"]
         assert roots.length == 5
       elsif acr["OBSPROPS"]
@@ -189,13 +190,13 @@ module LinkedData
         assert roots.length == 6
       end
       assert !roots.map { |x| x.id.to_s }
-              .include?("http://bioportal.bioontology.org/ontologies/msotes#class99")
+                   .include?("http://bioportal.bioontology.org/ontologies/msotes#class99")
 
-      #test to see if custom properties were saved in the graph
-      custom_props = [ "http://bioportal.bioontology.org/ontologies/msotes#myPrefLabel",
-        "http://bioportal.bioontology.org/ontologies/msotes#myDefinition",
-        "http://bioportal.bioontology.org/ontologies/msotes#mySynonymLabel",
-        "http://bioportal.bioontology.org/ontologies/msotes#myAuthor"]
+      # test to see if custom properties were saved in the graph
+      custom_props = ["http://bioportal.bioontology.org/ontologies/msotes#myPrefLabel",
+                      "http://bioportal.bioontology.org/ontologies/msotes#myDefinition",
+                      "http://bioportal.bioontology.org/ontologies/msotes#mySynonymLabel",
+                      "http://bioportal.bioontology.org/ontologies/msotes#myAuthor"]
       custom_props.each do |p|
         query = <<eos
 SELECT * WHERE {
@@ -205,7 +206,7 @@ SELECT * WHERE {
 eos
         count = 0
         Goo.sparql_query_client.query(query).each_solution do |sol|
-          if (sol[:super].to_s.include? "skos") || (sol[:super].to_s.include? "elements") ||  (sol[:super].to_s.include? "metadata")
+          if (sol[:super].to_s.include? "skos") || (sol[:super].to_s.include? "elements") || (sol[:super].to_s.include? "metadata")
             count += 1
           end
         end
@@ -230,7 +231,7 @@ eos
       server_thread = Thread.new do
         Rack::Server.start(
           app: lambda do |e|
-            [200, {'Content-Type' => 'text/plain'}, ['test file']]
+            [200, { 'Content-Type' => 'text/plain' }, ['test file']]
           end,
           Port: server_port
         )
@@ -241,6 +242,7 @@ eos
     end
 
     private
+
     def port_in_use?(port)
       begin
         server = TCPServer.new(port)
