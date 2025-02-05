@@ -20,7 +20,7 @@ acronym:
   label: "Acronym"
   helpText: "The Acronym of the catalog which is described by these metadata."
   example: 'agroportal'
-  default: 'ontoportal'
+  default: 'OntoPortal'
 
 title:
   display: "general" 
@@ -33,15 +33,15 @@ color:
   display: "general"
   label: "Color"
   helpText: "The Main color of the catalog which is described by these metadata."
-  example: '#234979'
-  default: '#234979'
+  example: '#5499A3'
+  default: '#5499A3'
 
 description:
   display: "description"
   label: "Description"
   helpText: "The description of the catalog which is described by these metadata."
-  example: 'The home of ontologies and semantic artefacts in agri-food and related domains.'
-  default: 'The home of ontologies and semantic artefacts in agri-food and related domains.'
+  example: 'Welcome to OntoPortal Appliance, your ontology repository for your ontologies'
+  default: 'Welcome to OntoPortal Appliance, your ontology repository for your ontologies'
 
 logo:
   display: "general"
@@ -54,8 +54,8 @@ versionInfo:
   display: "general"
   label: "Version info"
   helpText: "Version information."
-  example: '1.0.1'
-  default: '3.0.2'
+  example: 'v1.0.1'
+  default: 'v3.0.2'
 
 fundedBy:
   display: "general"
@@ -73,7 +73,17 @@ federated_portals:
   label: "Federated Portals"
   helpText: "The Federated portal"
   example: ''
-  default: []
+  default:
+    - name: agroportal
+      api: "http://data.agroportal.lirmm.fr"
+      ui: "http://agroportal.lirmm.fr"
+      apikey: "1cfae05f-9e67-486f-820b-b393dec5764b"
+      color: "#1e2251"
+    - name: bioportal
+      api: "http://data.bioontology.org"
+      ui: "http://bioportal.bioontology.org"
+      apikey: "4a5011ea-75fa-4be6-8e89-f45c8c84844e"
+      color: "#234979"
 
 homepage:
   display: "general"
@@ -94,7 +104,7 @@ status:
   label: "Status"
   helpText: "The status of the catalog."
   example: "active"
-  default: null
+  default: alpha
 
 deprecated:
   display: "general"
@@ -108,7 +118,8 @@ language:
   label: "Language"
   helpText: "The language of the catalog."
   example: "en"
-  default: "en"
+  default:
+    - English
 
 accessRights:
   display: "general"
@@ -122,7 +133,7 @@ license:
   label: "License"
   helpText: "License URL of the catalog."
   example: "https://example.com/license"
-  default: null
+  default: "https://opensource.org/licenses/BSD-2-Clause"
 
 useGuidelines:
   display: "general"
@@ -590,21 +601,21 @@ record:
   label: "Record"
   helpText: "Records maintained in the catalog."
   example: "Record Details"
-  default: ""
+  default: null
 
 themeTaxonomy:
   display: "general"
   label: "Theme Taxonomy"
   helpText: "Taxonomy themes of the catalog."
-  example: "Theme Name"
-  default: ""
+  example: "UNESCO Thesaurus"
+  default: "UNESCO Thesaurus"
 
 distribution:
   display: "general"
   label: "Distribution"
   helpText: "Distribution information for the catalog."
   example: "Distribution Details"
-  default: ""
+  default: null
 
 
 numberOfArtefacts:

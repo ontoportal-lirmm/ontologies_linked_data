@@ -20,6 +20,20 @@ module LinkedData
       attribute :numberOfAxioms, namespace: :omv, type: :integer
       attribute :entities, namespace: :void, type: :integer
 
+      attribute :numberOfNotes, namespace: :mod, type: :integer
+      attribute :numberOfUsingProjects, namespace: :mod, type: :integer
+      attribute :numberOfEnsorments, namespace: :mod, type: :integer
+      attribute :numberOfEvaluations, namespace: :mod, type: :integer
+      attribute :numberOfAgents, namespace: :mod, type: :integer
+      attribute :numberOfObjectProperties, namespace: :mod, type: :integer
+      attribute :numberOfDataProperties, namespace: :mod, type: :integer
+      attribute :numberOfLabels, namespace: :mod, type: :integer
+      attribute :numberOfDeprecated, namespace: :mod, type: :integer
+      attribute :classesWithNoLabel, namespace: :mod, type: :integer
+      attribute :classesWithNoAuthorMetadata, namespace: :mod, type: :integer
+      attribute :classesWithNoDateMetadata, namespace: :mod, type: :integer
+      attribute :numberOfMappings, namespace: :mod, type: :integer
+
       cache_timeout 14400 # 4 hours
 
       # Hypermedia links
