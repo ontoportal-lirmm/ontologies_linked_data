@@ -80,7 +80,7 @@ module LinkedData
 
       def transform_to_prefixes(ns_count, prefixes, uris)
         uris.each do |uri|
-          namespace, id = namespace_predicate(uri)
+          namespace, _ = namespace_predicate(uri)
           next if namespace.nil? || prefixes.value?(namespace)
 
           prefix, prefix_namespace = Goo.namespaces.select { |_k, v| v.to_s.eql?(namespace) }.first

@@ -86,7 +86,7 @@ module LinkedData
         ontology_type = "UMLS"
       end
 
-      ont_format, ont, user, contact = submission_dependent_objects(ontology_type, acronym, "test_linked_models", name)
+      ont_format, ont, _, contact = submission_dependent_objects(ontology_type, acronym, "test_linked_models", name)
       ont_submission.contact = [contact]
       ont_submission.released = DateTime.now - 4
       ont_submission.hasOntologyLanguage = ont_format
@@ -127,7 +127,6 @@ module LinkedData
       ont = LinkedData::Models::Ontology.find(acr)
                                         .include(submissions: [:submissionStatus]).first
       if not ont.nil?
-        return
         LinkedData::TestCase.backend_4s_delete
       end
       ont_submission = LinkedData::Models::OntologySubmission.new({ :submissionId => 1 })

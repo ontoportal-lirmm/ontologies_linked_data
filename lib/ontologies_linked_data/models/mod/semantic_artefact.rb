@@ -217,7 +217,6 @@ module LinkedData
             end
         
             def all_distributions(options = {})
-                status = options[:status]
                 to_bring = options[:includes]
                 @ontology.bring(:submissions)
         
@@ -235,4 +234,3 @@ module LinkedData
         end
     end
 end
-  

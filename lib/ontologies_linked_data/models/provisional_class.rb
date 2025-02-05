@@ -33,7 +33,7 @@ module LinkedData
                   else
                     ""
                   end
-                rescue Exception => e
+                rescue Exception
                   ""
                 end
               }, Goo.vocabulary["Ontology"])
