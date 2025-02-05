@@ -177,8 +177,9 @@ module LinkedData
       end
 
       def namespace_predicate(property_url)
-        return nil if property_url.is_a?(RDF::Literal) || !URI.regexp.match?(property_url)
-        regex = /^(?<namespace>.*[\/#])(?<id>[^\/#]+)$/
+        return nil if property_url.is_a?(RDF::Literal) || !URI::DEFAULT_PARSER.make_regexp.match?(property_url)
+
+        regex = %r{^(?<namespace>.*[/#])(?<id>[^/#]+)$}
         match = regex.match(property_url.to_s)
         [match[:namespace], match[:id]] if match
       end
