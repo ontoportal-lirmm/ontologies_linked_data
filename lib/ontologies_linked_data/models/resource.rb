@@ -80,7 +80,7 @@ module LinkedData
 
       def transform_to_prefixes(ns_count, prefixes, uris)
         uris.each do |uri|
-          namespace, id = namespace_predicate(uri)
+          namespace, _ = namespace_predicate(uri)
           next if namespace.nil? || prefixes.value?(namespace)
 
           prefix, prefix_namespace = Goo.namespaces.select { |_k, v| v.to_s.eql?(namespace) }.first
@@ -177,8 +177,9 @@ module LinkedData
       end
 
       def namespace_predicate(property_url)
-        return nil if property_url.is_a?(RDF::Literal) || !URI.regexp.match?(property_url)
-        regex = /^(?<namespace>.*[\/#])(?<id>[^\/#]+)$/
+        return nil if property_url.is_a?(RDF::Literal) || !URI::DEFAULT_PARSER.make_regexp.match?(property_url)
+
+        regex = %r{^(?<namespace>.*[/#])(?<id>[^/#]+)$}
         match = regex.match(property_url.to_s)
         [match[:namespace], match[:id]] if match
       end

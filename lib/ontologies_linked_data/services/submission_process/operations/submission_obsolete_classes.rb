@@ -70,7 +70,7 @@ eos
             fsave.write(LinkedData::Utils::Triples.obselete_class_triple(class_id) + "\n")
           end
           fsave.close()
-          result = Goo.sparql_data_client.append_triples_from_file(
+          Goo.sparql_data_client.append_triples_from_file(
             @submission.id,
             save_in_file,
             mime_type = "application/x-turtle")
@@ -79,4 +79,3 @@ eos
     end
   end
 end
-

@@ -6,7 +6,7 @@ module LinkedData
       def process(logger, options = nil)
         status = LinkedData::Models::SubmissionStatus.find('INDEXED_ALL_DATA').first
         begin
-          index_all_data(logger, options)
+          index_all_data(logger, **options)
           @submission.add_submission_status(status)
         rescue StandardError => e
           logger.error("Error indexing all data for submission: #{e.message} : #{e.backtrace.join("\n")}")

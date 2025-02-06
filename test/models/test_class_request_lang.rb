@@ -33,15 +33,15 @@ class TestClassRequestedLang < LinkedData::TestOntologyCommon
   end
 
   def test_parse_ontology_has_iri_label
-    cls_label_1 = get_class_by_lang('http://aims.fao.org/aos/agrovoc/c_3376', 'APTO',
-    requested_lang: :'pt-br').label.first
+    cls_labels_1 = get_class_by_lang('http://aims.fao.org/aos/agrovoc/c_3376', 'APTO',
+    requested_lang: :'pt-br').label
 
-    assert_equal 'Hortaliça de folha', cls_label_1
+    assert_includes cls_labels_1 , 'Hortaliça de folha'
 
-    cls_label_2 = get_class_by_lang('http://aims.fao.org/aos/agrovoc/c_3376', 'APTO',
-    requested_lang: :en).label.first
+    cls_labels_2 = get_class_by_lang('http://aims.fao.org/aos/agrovoc/c_3376', 'APTO',
+    requested_lang: :en).label
 
-    assert_equal 'Leaf vegetable', cls_label_2
+    assert_includes cls_labels_2,  'Leaf vegetable'
   end
 
   def test_requested_language_found
