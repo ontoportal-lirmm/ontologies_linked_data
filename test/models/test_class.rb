@@ -42,9 +42,8 @@ class TestClassModel < LinkedData::TestOntologyCommon
     assert_equal(cls.parents[0].submission, os)
 
     # transitive
-    assert_raises ArgumentError do
-      cls.bring(:ancestors)
-    end
+    cls.bring(:ancestors)
+    assert_includes cls.loaded_attributes.to_a, :ancestors
     ancestors = cls.ancestors.dup
     ancestors.each do |a|
       assert !a.submission.nil?
@@ -83,16 +82,14 @@ class TestClassModel < LinkedData::TestOntologyCommon
     assert_equal(cls.children[0].submission, os)
 
     # transitive
-    assert_raises ArgumentError do
-      cls.bring(:descendants)
-    end
+    cls.bring(:descendants)
+    assert_includes cls.loaded_attributes.to_a, :descendants
     descendants = cls.descendants.dup
     descendants.map! { |a| a.id.to_s }
     data_descendants = ["http://bioportal.bioontology.org/ontologies/msotes#class_5",
                         "http://bioportal.bioontology.org/ontologies/msotes#class2",
                         "http://bioportal.bioontology.org/ontologies/msotes#class_7"]
     assert descendants.sort == data_descendants.sort
-
     page = cls.retrieve_descendants(page = 2, size = 2)
     assert page.total_pages == 2
     assert page.prev_page == 1
