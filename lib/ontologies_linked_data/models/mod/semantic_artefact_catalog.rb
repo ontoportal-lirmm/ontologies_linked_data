@@ -13,39 +13,40 @@ module LinkedData
             attribute :title, namespace: :dcterms, enforce: [:string]
             attribute :color, enforce: [:string, :valid_hash_code]
             attribute :description, namespace: :dcterms, enforce: [:string]
-            attribute :logo, namespace: :foaf, enforce: [:uri]
-            attribute :fundedBy, namespace: :foaf, enforce: [:list]
-            attribute :federated_portals, enforce: [:list]
             attribute :versionInfo, namespace: :owl, enforce: [:string]
             attribute :identifier, namespace: :dcterms, enforce: [:string]
             attribute :status, namespace: :mod, enforce: [:string]
-            attribute :deprecated, namespace: :owl, enforce: [:boolean]
-            attribute :language, namespace: :dcterms, enforce: [:list]
             attribute :accessRights, namespace: :dcterms, enforce: [:string]
-            attribute :license, namespace: :dcterms, enforce: [:uri]
             attribute :useGuidelines, namespace: :cc, enforce: [:string]
             attribute :morePermissions, namespace: :cc, enforce: [:string]
-            attribute :rightsHolder, namespace: :dcterms, type: %i[Agent]
-            attribute :comment, namespace: :rdfs, enforce: [:list]
-            attribute :keyword, namespace: :dcat, enforce: [:list]
-            attribute :alternative, namespace: :dcterms, enforce: [:list]
-            attribute :hiddenLabel, namespace: :skos, enforce: [:list]
             attribute :abstract, namespace: :dcterms, enforce: [:string]
-            attribute :bibliographicCitation, namespace: :dcterms, enforce: [:list]
-            attribute :created, namespace: :dcterms, enforce: [:date_time]
-            attribute :curatedOn, namespace: :pav, enforce: [:date_time]
-            attribute :contactPoint, namespace: :dcat, type: %i[list Agent]
-            attribute :creator, namespace: :dcterms, type: %i[list Agent]
-            attribute :contributor, namespace: :dcterms, type: %i[list Agent]
-            attribute :curatedBy, namespace: :pav, type: %i[list Agent]
-            attribute :translator, namespace: :schema, type: %i[list Agent]
-            attribute :publisher, namespace: :dcterms, type: %i[list Agent]
-            attribute :endorsedBy, namespace: :mod, type: %i[list Agent]
             attribute :group, namespace: :mod, enforce: [:string]
             attribute :audience, namespace: :dcterms, enforce: [:string]
             attribute :repository, namespace: :doap, enforce: [:string]
             attribute :bugDatabase, namespace: :doap, enforce: [:string]
-            attribute :mailingList, namespace: :doap, enforce: [:uri]
+            attribute :relation, namespace: :dcterms, enforce: [:string]
+            attribute :hasPolicy, namespace: :mod, enforce: [:string]
+            attribute :themeTaxonomy, namespace: :mod, enforce: [:string]
+            
+            attribute :created, namespace: :dcterms, enforce: [:date]
+            attribute :curatedOn, namespace: :pav, enforce: [:date]
+            
+            attribute :deprecated, namespace: :owl, enforce: [:boolean]
+            
+            attribute :homepage, namespace: :foaf, enforce: [:url], default: ->(s) { RDF::URI(LinkedData.settings.ui_host) }
+            attribute :logo, namespace: :foaf, enforce: [:url]
+            attribute :license, namespace: :dcterms, enforce: [:url]
+            attribute :mailingList, namespace: :mod, enforce: [:url]
+            attribute :fairScore, namespace: :mod, enforce: [:url]
+            
+            attribute :federated_portals, enforce: [:list]
+            attribute :fundedBy, namespace: :foaf, enforce: [:list]
+            attribute :language, namespace: :dcterms, enforce: [:list]
+            attribute :comment, namespace: :rdfs, enforce: [:list]
+            attribute :keyword, namespace: :dcat, enforce: [:list]
+            attribute :alternative, namespace: :dcterms, enforce: [:list]
+            attribute :hiddenLabel, namespace: :skos, enforce: [:list]
+            attribute :bibliographicCitation, namespace: :dcterms, enforce: [:list]
             attribute :toDoList, namespace: :mod, enforce: [:list]
             attribute :award, namespace: :schema, enforce: [:list]
             attribute :knownUsage, namespace: :mod, enforce: [:list]
@@ -60,39 +61,48 @@ module LinkedData
             attribute :source, namespace: :dcterms, enforce: [:list]
             attribute :isPartOf, namespace: :dcterms, enforce: [:list]
             attribute :hasPart, namespace: :dcterms, enforce: [:list]
-            attribute :relation, namespace: :dcterms, enforce: [:string]
             attribute :changes, namespace: :vann, enforce: [:list]
             attribute :associatedMedia, namespace: :schema, enforce: [:list]
             attribute :depiction, namespace: :foaf, enforce: [:list]
-            attribute :hasPolicy, namespace: :mod, enforce: [:string]
             attribute :isReferencedBy, namespace: :mod, enforce: [:list]
             attribute :funding, namespace: :mod, enforce: [:list]
             attribute :qualifiedAttribution, namespace: :mod, enforce: [:list]
             attribute :publishingPrinciples, namespace: :mod, enforce: [:list]
             attribute :qualifiedRelation, namespace: :mod, enforce: [:list]
-            attribute :fairScore, namespace: :mod, enforce: [:uri]
             attribute :catalog, namespace: :mod, enforce: [:list]
-            attribute :record, namespace: :mod, enforce: [:uri]
-            attribute :themeTaxonomy, namespace: :mod, enforce: [:string]
-            attribute :distribution, namespace: :mod, enforce: [:uri]
-            attribute :landingPage, namespace: :dcat, enforce: [:uri]
-            attribute :usedInProject, namespace: :mod, type: %i[list Project]
-            attribute :analytics, namespace: :mod, enforce: [:uri]
-            attribute :accessURL, namespace: :dcat, enforce: [:uri]
-            attribute :uriLookupEndpoint, namespace: :void, enforce: [:uri]
-            attribute :openSearchDescription, namespace: :void, enforce: [:string]
-            attribute :endpoint, namespace: :sd, enforce: [:uri]
-            attribute :uriRegexPattern, namtitleespace: :void, enforce: [:string]
-            attribute :preferredNamespaceUri, namespace: :vann, enforce: [:string]
-            attribute :preferredNamespacePrefix, namespace: :vann, enforce: [:string]
-            attribute :metadataVoc, namespace: :mod, enforce: [:string]
-            attribute :dataset, namespace: :mod, enforce: [:uri]
-            attribute :service, namespace: :mod, enforce: [:list]
             
-            attribute :homepage, namespace: :foaf, enforce: [:uri], handler: :set_home_page
+            attribute :rightsHolder, namespace: :dcterms, type: %i[Agent]
+            attribute :contactPoint, namespace: :dcat, type: %i[list Agent]
+            attribute :creator, namespace: :dcterms, type: %i[list Agent]
+            attribute :contributor, namespace: :dcterms, type: %i[list Agent]
+            attribute :curatedBy, namespace: :pav, type: %i[list Agent]
+            attribute :translator, namespace: :schema, type: %i[list Agent]
+            attribute :publisher, namespace: :dcterms, type: %i[list Agent]
+            attribute :endorsedBy, namespace: :mod, type: %i[list Agent]
+
+            # Computed Values
+            attribute :landingPage, namespace: :dcat, enforce: [:url], handler: :ui_url
             attribute :modified, namespace: :dcterms, enforce: [:date_time], handler: :modification_date
+            attribute :usedInProject, namespace: :mod, enforce: [:url], handler: :projects_url
+            attribute :analytics, namespace: :mod, enforce: [:url], handler: :analytics_url
+            attribute :accessURL, namespace: :dcat, enforce: [:url], handler: :api_url
+            attribute :uriLookupEndpoint, namespace: :void, enforce: [:url], handler: :search_url
+            attribute :openSearchDescription, namespace: :void, enforce: [:url], handler: :search_url
+            attribute :endpoint, namespace: :sd, enforce: [:url], handler: :sparql_url
+            attribute :uriRegexPattern, namespace: :void, enforce: [:url], handler: :set_uri_regex_pattern
+            attribute :preferredNamespaceUri, namespace: :vann, enforce: [:url], handler: :set_preferred_namespace_uri
+            attribute :preferredNamespacePrefix, namespace: :vann, enforce: [:url], handler: :set_preferred_namespace_prefix
+            attribute :metadataVoc, namespace: :mod, enforce: [:url], handler: :set_metadata_voc
+            attribute :featureList, namespace: :schema, enforce: [:url], handler: :set_feature_list
+            attribute :supportedSchema, namespace: :adms, enforce: [:url], handler: :set_supported_schema
+            attribute :conformsTo, namespace: :dcterms, enforce: [:url], handler: :mod_uri
+            
+            attribute :dataset, namespace: :dcat, enforce: [:url], handler: :artefacts_url
+            attribute :service, namespace: :dcat, enforce: [:url], handler: :get_services
+            attribute :record, namespace: :dcat, enforce: [:url], handler: :records_url
+            attribute :distribution, namespace: :dcat, enforce: [:url], handler: :distributions_url
             attribute :numberOfArtefacts, namespace: :mod, enforce: [:integer], handler: :ontologies_count
-            attribute :metrics, namespace: :mod, enforce: [:uri], handler: :generate_metrics
+            attribute :metrics, namespace: :mod, enforce: [:url], handler: :metrics_url
             attribute :numberOfClasses, namespace: :mod, enforce: [:integer], handler: :class_count
             attribute :numberOfIndividuals, namespace: :mod, enforce: [:integer], handler: :individuals_count
             attribute :numberOfProperties, namespace: :mod, enforce: [:integer], handler: :propoerties_count
@@ -114,16 +124,80 @@ module LinkedData
             end
 
             def modification_date
-                Date.new(2025, 1, 1)
+                nil
             end
 
-            def set_home_page
+            def ui_url
                 RDF::URI(LinkedData.settings.ui_host)
             end
 
-            def generate_metrics
+            def api_url
+                RDF::URI(LinkedData.settings.ui_host)
+            end
+
+            def projects_url
+                RDF::URI(LinkedData.settings.id_url_prefix).join('projects')
+            end
+
+            def analytics_url
+                RDF::URI(LinkedData.settings.id_url_prefix).join('analytics')
+            end
+
+            def search_url
+                RDF::URI(LinkedData.settings.id_url_prefix).join('search')
+            end
+
+            def sparql_url
+                RDF::URI(LinkedData.settings.id_url_prefix).join('sparql')
+            end
+
+            def set_uri_regex_pattern
+                ""
+            end
+
+            def set_preferred_namespace_uri
+                ""
+            end
+            
+            def set_preferred_namespace_prefix
+                ""
+            end
+            
+            def set_metadata_voc
+                ""
+            end
+
+            def mod_uri
+                 RDF::URI("https://w3id.org/mod")
+            end
+            
+            def set_feature_list
+                []
+            end
+            
+            def set_supported_schema
+                []
+            end
+            
+            def metrics_url
                 RDF::URI(LinkedData.settings.id_url_prefix).join('metrics')
-            end  
+            end
+
+            def artefacts_url
+                RDF::URI(LinkedData.settings.id_url_prefix).join('artefacts')
+            end
+
+            def get_services
+                []
+            end
+
+            def records_url
+                RDF::URI(LinkedData.settings.id_url_prefix).join('records')
+            end
+
+            def distributions_url
+                RDF::URI(LinkedData.settings.id_url_prefix).join('distributions')
+            end
             
             def class_count
                 calculate_attr_from_metrics(:classes)
@@ -190,11 +264,9 @@ module LinkedData
 
             def calculate_attr_from_metrics(attr)
                 attr_to_get = attr.to_sym
-                submissions_query = LinkedData::Models::OntologySubmission
-                submissions_query = submissions_query.where
-                submissions = submissions_query.include(OntologySubmission.goo_attrs_to_load([attr_to_get]))
-                metrics_include = LinkedData::Models::Metric.goo_attrs_to_load([attr_to_get])
-                LinkedData::Models::OntologySubmission.where.models(submissions).include(metrics: metrics_include).all
+                submissions = LinkedData::Models::OntologySubmission.where.include(OntologySubmission.goo_attrs_to_load([attr_to_get]))
+                metrics_to_include = LinkedData::Models::Metric.goo_attrs_to_load([attr_to_get])
+                LinkedData::Models::OntologySubmission.where.models(submissions).include(metrics: metrics_to_include).all
                 somme = 0
                 submissions.each do |x|
                     if x.metrics

@@ -29,7 +29,6 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
   def test_bring_attrs
     sac = LinkedData::Models::SemanticArtefactCatalog.new
     assert_equal true, sac.valid?
-    sac.send("acronym=", "ontoportal")
     sac.save
     all_attrs_to_bring = LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([:all])
     sac.bring(*all_attrs_to_bring)
