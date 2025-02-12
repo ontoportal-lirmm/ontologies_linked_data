@@ -63,11 +63,7 @@ fundedBy:
   helpText: "Founder of the catalog"
   example: ''
   enforcedValues: [img_src: "", url: "" ]
-  default:
-    - img_src: 'https://identity.stanford.edu/wp-content/uploads/sites/3/2020/07/block-s-right.png'
-      url: 'https://www.stanford.edu'
-    - img_src: 'https://ontoportal.org/images/logo.png'
-      url: 'https://ontoportal.org/'
+  default: []
 
 federated_portals:
   display: "general"
@@ -75,17 +71,7 @@ federated_portals:
   helpText: "The Federated portal"
   example: ''
   enforcedValues: [name: "", api: "", ui: "", apikey: "", color: "" ]
-  default:
-    - name: agroportal
-      api: "http://data.agroportal.lirmm.fr"
-      ui: "http://agroportal.lirmm.fr"
-      apikey: "1cfae05f-9e67-486f-820b-b393dec5764b"
-      color: "#1e2251"
-    - name: bioportal
-      api: "http://data.bioontology.org"
-      ui: "http://bioportal.bioontology.org"
-      apikey: "4a5011ea-75fa-4be6-8e89-f45c8c84844e"
-      color: "#234979"
+  default: []
 
 homepage:
   display: "general"
