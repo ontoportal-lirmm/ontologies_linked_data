@@ -19,6 +19,8 @@ module LinkedData
       embed :identifiers, :affiliations
       embed_values affiliations: LinkedData::Models::Agent.goo_attrs_to_load + [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load]
       serialize_methods :usages
+      
+      serialize_default :name, :agentType, :acronym, :email, :homepage, :identifiers
 
       write_access :creator
       access_control_load :creator

@@ -66,7 +66,6 @@ module LinkedData
       eos
       group_count = sub2.nil? ? {} : nil
       count = 0
-      latest_sub_ids = self.retrieve_latest_submission_ids
       epr = Goo.sparql_query_client(:main)
 
       mapping_predicates().each do |_source, mapping_predicate|
@@ -226,24 +225,36 @@ module LinkedData
     end
 
     def self.migrate_rest_mappings(acronym)
-      mappings = LinkedData::Models::RestBackupMapping
-                   .where.include(:uuid, :class_urns, :process).all
-      if mappings.length == 0
-        return []
-      end
+      page = 1
+      size = 1000
+      total_count = 0
       triples = []
 
-      rest_predicate = mapping_predicates()["REST"][0]
-      mappings.each do |m|
-        m.class_urns.each do |u|
-          u = u.to_s
-          if u.start_with?("urn:#{acronym}")
-            class_id = u.split(":")[2..-1].join(":")
-            triples <<
-              " <#{class_id}> <#{rest_predicate}> <#{m.id}> . "
+      f = Goo::Filter.new(:class_urns).regex("urn:#{acronym}:")
+
+      while total_count != 0 || page == 1
+        mappings = LinkedData::Models::RestBackupMapping
+                     .where.include(:uuid, :class_urns, :process)
+                     .page(page, size).filter(f)
+                     .all
+
+        puts "page #{page} size #{size} count #{mappings.size}"
+        page += 1
+        total_count = mappings.size
+
+        rest_predicate = mapping_predicates()["REST"][0]
+        mappings.each do |m|
+          m.class_urns.each do |u|
+            u = u.to_s
+            if u.start_with?("urn:#{acronym}")
+              class_id = u.split(":")[2..-1].join(":")
+              triples <<
+                " <#{class_id}> <#{rest_predicate}> <#{m.id}> . "
+            end
           end
         end
       end
+
       return triples
     end
 
@@ -686,7 +697,7 @@ WHERE {
     def self.mappings_union_template(class_id, sub1, sub2, predicate, bind)
       class_id_subject = class_id.nil? ? '?s1' :  "<#{class_id.to_s}>"
       target_graph = sub2.nil? ? '?g' :  "<#{sub2.to_s}>"
-      union_template = <<-eos
+      return  <<-eos
 {
   GRAPH <#{sub1.to_s}> {
       #{class_id_subject} <#{predicate}> ?o .

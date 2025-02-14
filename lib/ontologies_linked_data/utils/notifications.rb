@@ -81,7 +81,6 @@ module LinkedData
                                .gsub('%email%', user.email.to_s)
                                .gsub('%site_url%', LinkedData.settings.ui_host)
                                .gsub('%ui_name%', LinkedData.settings.ui_name)
-        recipients = LinkedData.settings.admin_emails
 
         Notifier.notify_support_grouped subject, body
       end
@@ -96,7 +95,6 @@ module LinkedData
                                    .gsub('%site_url%', LinkedData.settings.ui_host)
                                    .gsub('%ont_url%', LinkedData::Hypermedia.generate_links(ont)['ui'])
                                    .gsub('%ui_name%', LinkedData.settings.ui_name)
-        recipients = LinkedData.settings.admin_emails
 
         Notifier.notify_support_grouped subject, body
       end

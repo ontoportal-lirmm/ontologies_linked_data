@@ -77,7 +77,7 @@ module LinkedData
         if (not Dir.exist?(@output_repo))
           begin
             FileUtils.mkdir_p(@output_repo)
-          rescue SystemCallError => e
+          rescue SystemCallError
             raise MkdirException, "Output folder #{@output_repo} folder cannot be created."
           end
         end
@@ -116,8 +116,7 @@ module LinkedData
           Diff.logger.info(stdout)
         end
         if not File.exist?(@file_diff_path)
-          raise Diff::BubastisDiffException, "Bubastis diff command exited with status=#{status.exitstatus}. " +\
-          "Output file #{@file_diff_path} cannot be found."
+          raise Diff::BubastisDiffException, "Bubastis diff command exited with status=#{status.exitstatus}. " + "Output file #{@file_diff_path} cannot be found."
         else
           Diff.logger.info("Output size #{File.stat(@file_diff_path).size} in `#{@file_diff_path}`")
         end
