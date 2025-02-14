@@ -46,9 +46,9 @@ module LinkedData
             attribute_mapped :obsoleteParent, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :obsoleteParent }
             attribute_mapped :metadataVoc, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :metadataVoc }
             attribute_mapped :metrics, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :metrics }
-            attribute_mapped :numberOfClasses, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :class_count }
 
             # SAD attrs that map with metrics
+            attribute_mapped :numberOfClasses, namespace: :mod, mapped_to: { model: :metric, attribute: :classes }
             attribute_mapped :numberOfAxioms, namespace: :mod, mapped_to: { model: :metric, attribute: :numberOfAxioms }
             attribute_mapped :maxDepth, namespace: :mod, mapped_to: { model: :metric, attribute: :maxDepth }
             attribute_mapped :maxChildCount, namespace: :mod, mapped_to: { model: :metric, attribute: :maxChildCount }
@@ -56,8 +56,18 @@ module LinkedData
             attribute_mapped :classesWithOneChild, namespace: :mod, mapped_to: { model: :metric, attribute: :classesWithOneChild }
             attribute_mapped :classesWithMoreThan25Children, namespace: :mod, mapped_to: { model: :metric, attribute: :classesWithMoreThan25Children }
             attribute_mapped :classesWithNoDefinition, namespace: :mod, mapped_to: { model: :metric, attribute: :classesWithNoDefinition }
-
-
+            attribute_mapped :numberOfIndividuals, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :individuals}
+            attribute_mapped :numberOfProperties, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :properties}
+            attribute_mapped :numberOfObjectProperties, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfObjectProperties}
+            attribute_mapped :numberOfDataProperties, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfDataProperties}
+            attribute_mapped :numberOfLabels, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfLabels}
+            attribute_mapped :numberOfDeprecated, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfDeprecated}
+            attribute_mapped :classesWithNoFormalDefinition, namespace: :mod, mapped_to: { model: :metric, attribute: :classesWithNoFormalDefinition }
+            attribute_mapped :classesWithNoLabel, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :classesWithNoLabel}
+            attribute_mapped :classesWithNoAuthorMetadata, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :classesWithNoAuthorMetadata}
+            attribute_mapped :classesWithNoDateMetadata, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :classesWithNoDateMetadata}
+            attribute_mapped :numberOfMappings, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfMappings}
+            
             # Attr special to SemanticArtefactDistribution
             attribute :submission, type: :ontology_submission
             
@@ -102,9 +112,11 @@ module LinkedData
                     when :ontology_submission
                         @submission.bring(*mapped_attr)
                         self.send("#{attr}=", @submission.send(mapped_attr)) if @submission.respond_to?(mapped_attr)
-                    when :metrics
-                        next
-                        # TO-DO
+                    when :metric
+                        @submission.bring(*[:metrics => [mapped_attr]])
+                        if @submission.metrics
+                            self.send("#{attr}=", @submission.metrics.send(mapped_attr)) if @submission.metrics.respond_to?(mapped_attr)                          
+                        end
                     end
                 end
             end

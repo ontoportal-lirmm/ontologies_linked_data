@@ -116,6 +116,12 @@ module LinkedData
             attribute_mapped :logo, namespace: :foaf, mapped_to: {model: :ontology_submission, attribute: :logo}
             attribute_mapped :metrics, namespace: :mod, mapped_to: {model: :ontology_submission, attribute: :metrics}
 
+            attribute_mapped :numberOfNotes, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfNotes}
+            attribute_mapped :numberOfUsingProjects, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfUsingProjects}
+            attribute_mapped :numberOfEndorsements, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfEndorsements}
+            attribute_mapped :numberOfEvaluations, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfEvaluations}
+            attribute_mapped :numberOfUsers, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfUsers}
+            attribute_mapped :numberOfAgents, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfAgents}
 
             attribute :ontology, type: :ontology
             
@@ -171,20 +177,29 @@ module LinkedData
                 attributes = [attributes] unless attributes.is_a?(Array)
                 latest = @ontology.latest_submission(status: :ready)
                 attributes.each do |attr|
-                    mapping = self.class.attribute_mappings[attr]
-                    next if mapping.nil?
-
-                    model = mapping[:model]
-                    mapped_attr = mapping[:attribute]
-                    
-                    case model
-                    when :ontology
-                        @ontology.bring(*mapped_attr)
-                        self.send("#{attr}=", @ontology.send(mapped_attr)) if @ontology.respond_to?(mapped_attr)
-                    when :ontology_submission
-                        if latest
-                            latest.bring(*mapped_attr)
-                            self.send("#{attr}=", latest.send(mapped_attr))
+                    if self.class.handler?(attr)
+                        self.send(attr)
+                    else
+                        mapping = self.class.attribute_mappings[attr]
+                        next if mapping.nil?
+    
+                        model = mapping[:model]
+                        mapped_attr = mapping[:attribute]
+                        
+                        case model
+                        when :ontology
+                            @ontology.bring(*mapped_attr)
+                            self.send("#{attr}=", @ontology.send(mapped_attr)) if @ontology.respond_to?(mapped_attr)
+                        when :ontology_submission
+                            if latest
+                                latest.bring(*mapped_attr)
+                                self.send("#{attr}=", latest.send(mapped_attr))
+                            end
+                        when :metric
+                            latest.bring(*[:metrics => [mapped_attr]])
+                            if latest.metrics
+                                self.send("#{attr}=", latest.metrics.send(mapped_attr)) if latest.metrics.respond_to?(mapped_attr)
+                            end
                         end
                     end
                 end
