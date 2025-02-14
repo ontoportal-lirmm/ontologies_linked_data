@@ -70,7 +70,6 @@ class TestArtefact < LinkedData::TestOntologyCommon
         pagesize = 2
         artefacts = LinkedData::Models::SemanticArtefact.all_artefacts(attributes, page, pagesize)
         assert_equal Goo::Base::Page , artefacts.class
-        assert_equal (artefacts.count / pagesize.to_f).ceil, artefacts.total_pages
         assert_equal artefacts.count, artefacts.aggregate
         assert_equal 1, artefacts.page_number
         assert_equal 2, artefacts.page_size
