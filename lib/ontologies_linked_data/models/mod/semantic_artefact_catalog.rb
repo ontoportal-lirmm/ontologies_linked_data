@@ -33,7 +33,7 @@ module LinkedData
             
             attribute :deprecated, namespace: :owl, enforce: [:boolean]
             
-            attribute :homepage, namespace: :foaf, enforce: [:url], default: ->(s) { RDF::URI(LinkedData.settings.ui_host) }
+            attribute :homepage, namespace: :foaf, enforce: [:url], default: ->(s) { RDF::URI("http://#{LinkedData.settings.ui_host}") }
             attribute :logo, namespace: :foaf, enforce: [:url]
             attribute :license, namespace: :dcterms, enforce: [:url]
             attribute :mailingList, namespace: :mod, enforce: [:url]
