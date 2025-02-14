@@ -9,6 +9,7 @@ module LinkedData
                   mapped_to = options.delete(:mapped_to)
                   attribute(name, **options)
                   @attribute_mappings ||= {}
+                  mapped_to[:attribute] = name if mapped_to[:attribute].nil?
                   @attribute_mappings[name] = mapped_to if mapped_to
                 end
             end
@@ -18,55 +19,55 @@ module LinkedData
             # SAD attrs that map with submission
             attribute_mapped :distributionId, mapped_to: { model: :ontology_submission, attribute: :submissionId }
             attribute_mapped :title, namespace: :dcterms, mapped_to: { model: :ontology_submission, attribute: :URI }
-            attribute_mapped :deprecated, namespace: :owl, mapped_to: { model: :ontology_submission, attribute: :deprecated }
+            attribute_mapped :deprecated, namespace: :owl, mapped_to: { model: :ontology_submission }
             attribute_mapped :hasRepresentationLanguage, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :hasOntologyLanguage }
-            attribute_mapped :hasFormalityLevel, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :hasFormalityLevel }
+            attribute_mapped :hasFormalityLevel, namespace: :mod, mapped_to: { model: :ontology_submission }
             attribute_mapped :hasSyntax, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :hasOntologySyntax }
-            attribute_mapped :useGuidelines, namespace: :cc, mapped_to: { model: :ontology_submission, attribute: :useGuidelines }
-            attribute_mapped :description, namespace: :dcterms, mapped_to: { model: :ontology_submission, attribute: :description }
+            attribute_mapped :useGuidelines, namespace: :cc, mapped_to: { model: :ontology_submission }
+            attribute_mapped :description, namespace: :dcterms, mapped_to: { model: :ontology_submission }
             attribute_mapped :created, namespace: :dcterms, mapped_to: { model: :ontology_submission, attribute: :released }
             attribute_mapped :modified, namespace: :dcterms, mapped_to: { model: :ontology_submission, attribute: :modificationDate }
-            attribute_mapped :valid, namespace: :dcterms, mapped_to: { model: :ontology_submission, attribute: :valid }
-            attribute_mapped :curatedOn, namespace: :pav, mapped_to: { model: :ontology_submission, attribute: :curatedOn }
+            attribute_mapped :valid, namespace: :dcterms, mapped_to: { model: :ontology_submission }
+            attribute_mapped :curatedOn, namespace: :pav, mapped_to: { model: :ontology_submission }
             attribute_mapped :dateSubmitted, namespace: :dcterms, mapped_to: { model: :ontology_submission, attribute: :creationDate }
-            attribute_mapped :conformsToKnowledgeRepresentationParadigm, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :conformsToKnowledgeRepresentationParadigm }
+            attribute_mapped :conformsToKnowledgeRepresentationParadigm, namespace: :mod, mapped_to: { model: :ontology_submission }
             attribute_mapped :usedEngineeringMethodology, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :usedOntologyEngineeringMethodology }
-            attribute_mapped :prefLabelProperty, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :prefLabelProperty }
-            attribute_mapped :synonymProperty, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :synonymProperty }
-            attribute_mapped :definitionProperty, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :definitionProperty }
-            attribute_mapped :authorProperty, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :authorProperty }
-            attribute_mapped :obsoleteProperty, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :obsoleteProperty }
-            attribute_mapped :createdProperty, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :createdProperty }
-            attribute_mapped :modifiedProperty, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :modifiedProperty }
-            attribute_mapped :hierarchyProperty, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :hierarchyProperty }
+            attribute_mapped :prefLabelProperty, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :synonymProperty, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :definitionProperty, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :authorProperty, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :obsoleteProperty, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :createdProperty, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :modifiedProperty, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :hierarchyProperty, namespace: :mod, mapped_to: { model: :ontology_submission }
             attribute_mapped :accessURL, namespace: :dcat, mapped_to: { model: :ontology_submission, attribute: :pullLocation }
             attribute_mapped :downloadURL, namespace: :dcat, mapped_to: { model: :ontology_submission, attribute: :dataDump }
-            attribute_mapped :endpoint, namespace: :sd, mapped_to: { model: :ontology_submission, attribute: :endpoint }
+            attribute_mapped :endpoint, namespace: :sd, mapped_to: { model: :ontology_submission }
             attribute_mapped :imports, namespace: :owl, mapped_to: { model: :ontology_submission, attribute: :useImports }
-            attribute_mapped :obsoleteParent, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :obsoleteParent }
-            attribute_mapped :metadataVoc, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :metadataVoc }
-            attribute_mapped :metrics, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :metrics }
+            attribute_mapped :obsoleteParent, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :metadataVoc, namespace: :mod, mapped_to: { model: :ontology_submission }
+            attribute_mapped :metrics, namespace: :mod, mapped_to: { model: :ontology_submission }
 
             # SAD attrs that map with metrics
             attribute_mapped :numberOfClasses, namespace: :mod, mapped_to: { model: :metric, attribute: :classes }
-            attribute_mapped :numberOfAxioms, namespace: :mod, mapped_to: { model: :metric, attribute: :numberOfAxioms }
-            attribute_mapped :maxDepth, namespace: :mod, mapped_to: { model: :metric, attribute: :maxDepth }
-            attribute_mapped :maxChildCount, namespace: :mod, mapped_to: { model: :metric, attribute: :maxChildCount }
-            attribute_mapped :averageChildCount, namespace: :mod, mapped_to: { model: :metric, attribute: :averageChildCount }
-            attribute_mapped :classesWithOneChild, namespace: :mod, mapped_to: { model: :metric, attribute: :classesWithOneChild }
-            attribute_mapped :classesWithMoreThan25Children, namespace: :mod, mapped_to: { model: :metric, attribute: :classesWithMoreThan25Children }
-            attribute_mapped :classesWithNoDefinition, namespace: :mod, mapped_to: { model: :metric, attribute: :classesWithNoDefinition }
-            attribute_mapped :numberOfIndividuals, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :individuals}
-            attribute_mapped :numberOfProperties, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :properties}
-            attribute_mapped :numberOfObjectProperties, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfObjectProperties}
-            attribute_mapped :numberOfDataProperties, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfDataProperties}
-            attribute_mapped :numberOfLabels, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfLabels}
-            attribute_mapped :numberOfDeprecated, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfDeprecated}
-            attribute_mapped :classesWithNoFormalDefinition, namespace: :mod, mapped_to: { model: :metric, attribute: :classesWithNoFormalDefinition }
-            attribute_mapped :classesWithNoLabel, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :classesWithNoLabel}
-            attribute_mapped :classesWithNoAuthorMetadata, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :classesWithNoAuthorMetadata}
-            attribute_mapped :classesWithNoDateMetadata, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :classesWithNoDateMetadata}
-            attribute_mapped :numberOfMappings, namespace: :mod, enforce: [:integer],  mapped_to: {model: :metric, attribute: :numberOfMappings}
+            attribute_mapped :numberOfAxioms, namespace: :mod, mapped_to: { model: :metric }
+            attribute_mapped :maxDepth, namespace: :mod, mapped_to: { model: :metric }
+            attribute_mapped :maxChildCount, namespace: :mod, mapped_to: { model: :metric }
+            attribute_mapped :averageChildCount, namespace: :mod, mapped_to: { model: :metric }
+            attribute_mapped :classesWithOneChild, namespace: :mod, mapped_to: { model: :metric }
+            attribute_mapped :classesWithMoreThan25Children, namespace: :mod, mapped_to: { model: :metric }
+            attribute_mapped :classesWithNoDefinition, namespace: :mod, mapped_to: { model: :metric }
+            attribute_mapped :numberOfIndividuals, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric, attribute: :individuals}
+            attribute_mapped :numberOfProperties, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric, attribute: :properties}
+            attribute_mapped :numberOfObjectProperties, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric}
+            attribute_mapped :numberOfDataProperties, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric}
+            attribute_mapped :numberOfLabels, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
+            attribute_mapped :numberOfDeprecated, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
+            attribute_mapped :classesWithNoFormalDefinition, namespace: :mod, mapped_to: { model: :metric }
+            attribute_mapped :classesWithNoLabel, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
+            attribute_mapped :classesWithNoAuthorMetadata, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
+            attribute_mapped :classesWithNoDateMetadata, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
+            attribute_mapped :numberOfMappings, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
             
             # Attr special to SemanticArtefactDistribution
             attribute :submission, type: :ontology_submission
@@ -114,9 +115,13 @@ module LinkedData
                         self.send("#{attr}=", @submission.send(mapped_attr)) if @submission.respond_to?(mapped_attr)
                     when :metric
                         @submission.bring(*[:metrics => [mapped_attr]])
-                        if @submission.metrics
-                            self.send("#{attr}=", @submission.metrics.send(mapped_attr)) if @submission.metrics.respond_to?(mapped_attr)                          
-                        end
+                        metrics = @submission.metrics
+                        metric_value = if metrics && metrics.respond_to?(mapped_attr)
+                                            metrics.send(mapped_attr) || 0
+                                        else
+                                            0
+                                        end
+                        self.send("#{attr}=", metric_value)
                     end
                 end
             end
