@@ -41,7 +41,7 @@ group :development do
   gem 'rubocop', require: false
 end
 # NCBO gems (can be from a local dev path or from rubygems/git)
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'feature/migrate-ruby-3.2'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
 
 gem 'net-ftp'

@@ -117,7 +117,7 @@ module LinkedData
             attribute_mapped :metrics, namespace: :mod, mapped_to: {model: :ontology_submission, attribute: :metrics}
 
 
-            attribute :ontology, type: :ontology
+            attribute :ontology, type: :ontology, enforce: [:existence]
             
             links_load :acronym
             link_to LinkedData::Hypermedia::Link.new("distributions", lambda {|s| "artefacts/#{s.acronym}/distributions"}, LinkedData::Models::SemanticArtefactDistribution.type_uri),
@@ -132,7 +132,9 @@ module LinkedData
                     LinkedData::Hypermedia::Link.new("collection", lambda {|s| "artefacts/#{s.acronym}/collections"}, LinkedData::Models::SKOS::Collection.uri_type),
                     LinkedData::Hypermedia::Link.new("labels", lambda {|s| "artefacts/#{s.acronym}/labels"}, LinkedData::Models::SKOS::Label.uri_type)
 
-            
+            # Access control
+            read_restriction_based_on ->(artefct) { artefct.ontology }
+
             serialize_default :acronym, :accessRights, :subject, :URI, :versionIRI, :creator, :identifier, :status, :language, 
                               :license, :rightsHolder, :description, :landingPage, :keyword, :bibliographicCitation, :contactPoint,
                               :contributor, :publisher, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, 
@@ -157,7 +159,7 @@ module LinkedData
             end
 
             def self.find(artefact_id)
-                ont = Ontology.find(artefact_id).include(:acronym).first
+                ont = Ontology.find(artefact_id).include(:acronym, :viewingRestriction, :administeredBy, :acl).first
                 return nil unless ont
 
                 new.tap do |sa|
@@ -192,7 +194,7 @@ module LinkedData
 
             def self.all_artefacts(attributes, page, pagesize)
                 all_count = Ontology.where.count
-                onts = Ontology.where.include(:acronym).page(page, pagesize).page_count_set(all_count).all
+                onts = Ontology.where.include(:acronym, :viewingRestriction, :administeredBy, :acl).page(page, pagesize).page_count_set(all_count).all
                 all_artefacts = onts.map do |o|
                     new.tap do |sa|
                         sa.ontology = o
