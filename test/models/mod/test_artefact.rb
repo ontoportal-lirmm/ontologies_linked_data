@@ -16,7 +16,6 @@ class TestArtefact < LinkedData::TestOntologyCommon
         assert_equal "STY", sa.ontology.acronym
     end
 
-
     def test_goo_attrs_to_load
         attrs = LinkedData::Models::SemanticArtefact.goo_attrs_to_load([])
         assert_equal [:acronym, :accessRights, :subject, :URI, :versionIRI, :creator, :identifier, :status, :language, 
@@ -42,10 +41,15 @@ class TestArtefact < LinkedData::TestOntologyCommon
                 value_ontology_attr = ont.send(mapped_attr)
                 if value_ontology_attr.is_a?(Array)
                     value_artefact_attr.each_with_index do |v, i|
-                        assert_equal v.id, value_ontology_attr[i].id
+                        expected_value = value_ontology_attr[i]
+                        if expected_value.respond_to?(:id) && v.respond_to?(:id)
+                            assert_equal expected_value.id, v.id
+                        else
+                            assert_equal expected_value, v
+                        end
                     end
                 else
-                    assert_equal value_artefact_attr, value_ontology_attr
+                    assert_equal value_ontology_attr, value_artefact_attr 
                 end
             when :ontology_submission
                 value_submission_attr = latest_sub.send(mapped_attr)
@@ -57,6 +61,14 @@ class TestArtefact < LinkedData::TestOntologyCommon
                 else
                     assert_equal value_artefact_attr, value_submission_attr
                 end
+            when :metric
+                metrics_obj = latest_sub.metrics
+                value_submission_metric_attr = if metrics_obj && metrics_obj.respond_to?(mapped_attr)
+                                                    metrics_obj.send(mapped_attr) || 0
+                                                else
+                                                    0
+                                                end
+                assert_equal value_artefact_attr, value_submission_metric_attr
             end
         end
 
