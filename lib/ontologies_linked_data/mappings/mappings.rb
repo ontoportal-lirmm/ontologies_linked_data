@@ -66,7 +66,6 @@ module LinkedData
       eos
       group_count = sub2.nil? ? {} : nil
       count = 0
-      latest_sub_ids = self.retrieve_latest_submission_ids
       epr = Goo.sparql_query_client(:main)
 
       mapping_predicates().each do |_source, mapping_predicate|
@@ -698,7 +697,7 @@ WHERE {
     def self.mappings_union_template(class_id, sub1, sub2, predicate, bind)
       class_id_subject = class_id.nil? ? '?s1' :  "<#{class_id.to_s}>"
       target_graph = sub2.nil? ? '?g' :  "<#{sub2.to_s}>"
-      union_template = <<-eos
+      return  <<-eos
 {
   GRAPH <#{sub1.to_s}> {
       #{class_id_subject} <#{predicate}> ?o .

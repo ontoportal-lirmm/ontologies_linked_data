@@ -40,7 +40,7 @@ module LinkedData
             ont.bring(:acronym) if ont.bring?(:acronym)
             acronym_link = "ontologies/#{ont.acronym}"
             submission_link = "/submissions/#{m.submission.first.submissionId}"
-          rescue Exception => e
+          rescue Exception
             acronym_link = ""
             submission_link = ""
           end

@@ -179,7 +179,7 @@ module LinkedData
       end
 
       # Hypermedia settings
-      embed *%i[contact ontology metrics] + agents_attrs
+      embed *(%i[contact ontology metrics] + agents_attrs)
 
       def self.embed_values_hash
         out = {
@@ -237,7 +237,7 @@ module LinkedData
           begin
             m.ontology.bring(:acronym) if m.ontology.bring?(:acronym)
             ontology_link = "ontologies/#{m.ontology.acronym}"
-          rescue Exception => e
+          rescue Exception
             ontology_link = ""
           end
         end
@@ -301,7 +301,7 @@ module LinkedData
         conn = Goo.init_search_connection(:ontology_data)
         begin
           conn.delete_by_query("ontology_t:\"#{ontology}\"")
-        rescue StandardError => e
+        rescue StandardError
           # puts e.message
         end
         conn
@@ -340,7 +340,7 @@ module LinkedData
 
         begin
           sum_only = self.ontology.summaryOnly
-        rescue Exception => e
+        rescue Exception
           i = 0
           num_calls = LinkedData.settings.num_retries_4store
           sum_only = nil
@@ -354,7 +354,7 @@ module LinkedData
               self.ontology.bring(:summaryOnly)
               sum_only = self.ontology.summaryOnly
               puts "Success getting summaryOnly for #{self.id.to_s} after retrying #{i} times..."
-            rescue Exception => e1
+            rescue Exception
               sum_only = nil
 
               raise $!, "#{$!} after retrying #{i} times...", $!.backtrace if i == num_calls
@@ -540,7 +540,7 @@ module LinkedData
 
         begin
           metrics = CSV.read(m_path)
-        rescue Exception => e
+        rescue Exception
           logger.error("Unable to find metrics file: #{m_path}")
           logger.flush
         end
@@ -852,7 +852,7 @@ module LinkedData
         parsable = true
         begin
           owlapi.parse
-        rescue StandardError => e
+        rescue StandardError
           parsable = false
         end
         parsable
@@ -892,7 +892,7 @@ module LinkedData
         ftp.login
         begin
           file_exists = ftp.size(uri.path) > 0
-        rescue Exception => e
+        rescue Exception
           # Check using another method
           path = uri.path.split("/")
           filename = path.pop

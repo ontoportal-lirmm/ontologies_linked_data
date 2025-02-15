@@ -192,20 +192,17 @@ module LinkedData
                 end
             end
 
-            def self.all_artefacts(options = {})
-                onts = if options[:also_include_views]
-                        Ontology.where().include(:acronym, :viewingRestriction, :administeredBy, :acl).to_a
-                    else
-                        Ontology.where().filter(Goo::Filter.new(:viewOf).unbound).include(:acronym, :viewingRestriction, :administeredBy, :acl).to_a
-                    end
-        
-                onts.map do |o|
+            def self.all_artefacts(attributes, page, pagesize)
+                all_count = Ontology.where.count
+                onts = Ontology.where.include(:acronym, :viewingRestriction, :administeredBy, :acl).page(page, pagesize).page_count_set(all_count).all
+                all_artefacts = onts.map do |o|
                     new.tap do |sa|
                         sa.ontology = o
                         sa.acronym = o.acronym
-                        sa.bring(*options[:includes]) if options[:includes]
+                        sa.bring(*attributes) if attributes
                     end
                 end
+                Goo::Base::Page.new(page, pagesize, all_count, all_artefacts)
             end
 
             def latest_distribution(status)
@@ -219,7 +216,6 @@ module LinkedData
             end
         
             def all_distributions(options = {})
-                status = options[:status]
                 to_bring = options[:includes]
                 @ontology.bring(:submissions)
         
@@ -237,4 +233,3 @@ module LinkedData
         end
     end
 end
-  
