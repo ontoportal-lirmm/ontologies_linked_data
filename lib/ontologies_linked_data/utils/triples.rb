@@ -79,7 +79,7 @@ module LinkedData
           params[:datatype] = RDF.langString
           params[:language] = lang.to_sym
         end
-        triple(class_id, property, RDF::Literal.new(label, params))
+        triple(class_id, property, RDF::Literal.new(label, **params))
       end
 
       def self.generated_label(class_id, existing_label)

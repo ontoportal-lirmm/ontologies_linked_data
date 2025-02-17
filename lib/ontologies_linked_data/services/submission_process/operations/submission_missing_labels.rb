@@ -194,6 +194,8 @@ module LinkedData
         if no_default_pref_label
           lang_rdfs_labels = c.label(include_languages: true)
 
+          lang_rdfs_labels = {none: lang_rdfs_labels} if lang_rdfs_labels.is_a?(Array) && !lang_rdfs_labels.blank?
+          
           # Set lang_rdfs_labels to { none: [] } if empty or no match for default label
           if Array(lang_rdfs_labels).empty? || (lang_rdfs_labels.keys & [portal_lang, :none, '@none']).empty?
             lang_rdfs_labels = { none: [] }

@@ -25,6 +25,15 @@ GIT
       net-http-persistent (~> 4.0, >= 4.0.2)
       rdf (~> 3.2, >= 3.2.11)
 
+GIT
+  remote: https://github.com/ruby-rdf/rdf-raptor.git
+  revision: 6392ceabf71c3233b0f7f0172f662bd4a22cd534
+  ref: 6392ceabf71c3233b0f7f0172f662bd4a22cd534
+  specs:
+    rdf-raptor (3.3.0)
+      ffi (~> 1.15)
+      rdf (~> 3.3)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -39,6 +48,7 @@ GEM
     ansi (1.5.0)
     ast (2.4.2)
     base64 (0.2.0)
+    bcp47_spec (0.2.1)
     bcrypt (3.1.20)
     bigdecimal (3.1.9)
     builder (3.3.0)
@@ -83,7 +93,7 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    ffi (1.16.3)
+    ffi (1.17.1)
     hashdiff (1.1.2)
     hashie (5.0.0)
     htmlentities (4.3.4)
@@ -93,9 +103,14 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     json (2.10.1)
-    json-ld (3.0.2)
-      multi_json (~> 1.12)
-      rdf (>= 2.2.8, < 4.0)
+    json-canonicalization (0.4.0)
+    json-ld (3.2.5)
+      htmlentities (~> 4.3)
+      json-canonicalization (~> 0.3, >= 0.3.2)
+      link_header (~> 0.0, >= 0.0.8)
+      multi_json (~> 1.15)
+      rack (>= 2.2, < 4)
+      rdf (~> 3.2, >= 3.2.10)
     jwt (2.10.1)
       base64
     language_server-protocol (3.17.0.4)
@@ -105,7 +120,8 @@ GEM
       logger (~> 1.6)
     libxml-ruby (5.0.3)
     link_header (0.0.8)
-    logger (1.6.5)
+    lint_roller (1.1.0)
+    logger (1.6.6)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
     mail (2.8.1)
@@ -127,6 +143,9 @@ GEM
       powerbar
     multi_json (1.15.0)
     multipart-post (2.4.1)
+    net-ftp (0.3.8)
+      net-protocol
+      time
     net-http-persistent (4.0.5)
       connection_pool (~> 2.2)
     net-imap (0.4.19)
@@ -158,25 +177,24 @@ GEM
       method_source (~> 1.0)
     public_suffix (5.1.1)
     racc (1.8.1)
-    rack (1.6.13)
-    rack-test (0.8.3)
-      rack (>= 1.0, < 3)
+    rack (2.2.11)
+    rack-test (2.2.0)
+      rack (>= 1.3)
     rainbow (3.1.1)
-    rake (10.5.0)
-    rdf (3.2.12)
+    rake (13.2.1)
+    rdf (3.3.2)
+      bcp47_spec (~> 0.2)
+      bigdecimal (~> 3.1, >= 3.1.5)
       link_header (~> 0.0, >= 0.0.8)
-    rdf-raptor (3.2.0)
-      ffi (~> 1.15)
-      rdf (~> 3.2)
-    rdf-rdfxml (3.2.2)
-      builder (~> 3.2)
+    rdf-rdfxml (3.3.0)
+      builder (~> 3.2, >= 3.2.4)
       htmlentities (~> 4.3)
-      rdf (~> 3.2)
-      rdf-xsd (~> 3.2)
-    rdf-vocab (3.2.7)
-      rdf (~> 3.2, >= 3.2.4)
-    rdf-xsd (3.2.1)
-      rdf (~> 3.2)
+      rdf (~> 3.3)
+      rdf-xsd (~> 3.3)
+    rdf-vocab (3.3.2)
+      rdf (~> 3.3)
+    rdf-xsd (3.3.0)
+      rdf (~> 3.3)
       rexml (~> 3.2)
     redis (5.3.0)
       redis-client (>= 0.22.0)
@@ -193,9 +211,10 @@ GEM
     rexml (3.4.0)
     rsolr (1.1.2)
       builder (>= 2.1.2)
-    rubocop (1.71.2)
+    rubocop (1.72.1)
       json (~> 2.3)
-      language_server-protocol (>= 3.17.0)
+      language_server-protocol (~> 3.17.0.2)
+      lint_roller (~> 1.1.0)
       parallel (~> 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
@@ -225,6 +244,8 @@ GEM
       eventmachine (~> 1.0, >= 1.0.4)
       rack (>= 1, < 3)
     thread_safe (0.3.6)
+    time (0.4.1)
+      date
     timeout (0.4.3)
     tzinfo (0.3.62)
     unicode-display_width (3.1.4)
@@ -247,22 +268,26 @@ DEPENDENCIES
   cube-ruby
   email_spec
   faraday (~> 1.9)
-  ffi (~> 1.16.3)
+  ffi
   goo!
-  json-ld (~> 3.0.2)
+  json-ld (~> 3.2.0)
   jwt
   libxml-ruby
   minitest
   minitest-reporters (>= 0.5.0)
   multi_json (~> 1.0)
+  net-ftp
+  net-imap (~> 0.4.18)
   oj
   omni_logger
   parallel (~> 1.24)
   pony
   pry
-  rack (~> 1.0)
-  rack-test (~> 0.6)
-  rake (~> 10.0)
+  public_suffix (~> 5.1.1)
+  rack
+  rack-test
+  rake
+  rdf-raptor!
   request_store
   rest-client
   rsolr (~> 1.0)
@@ -276,4 +301,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.1.4
+   2.6.3
