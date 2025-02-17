@@ -71,6 +71,9 @@ module LinkedData
             
             # Attr special to SemanticArtefactDistribution
             attribute :submission, type: :ontology_submission
+
+            # Access control
+            read_restriction_based_on ->(artefct_distribution) { artefct_distribution.submission.ontology }
             
             serialize_default :distributionId, :title, :hasRepresentationLanguage, :hasSyntax, :description, :created, :modified, 
                               :conformsToKnowledgeRepresentationParadigm, :usedEngineeringMethodology, :prefLabelProperty, 
@@ -91,7 +94,7 @@ module LinkedData
             def initialize(sub)
                 super()
                 @submission = sub
-                @submission.bring(*[:submissionId, :ontology=>[:acronym]])
+                @submission.bring(*[:submissionId, :ontology=>[:acronym, :administeredBy, :acl, :viewingRestriction]])
                 @distributionId = sub.submissionId
             end
 

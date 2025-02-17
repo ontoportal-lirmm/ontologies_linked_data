@@ -75,6 +75,7 @@ class TestArtefact < LinkedData::TestOntologyCommon
         assert_equal r.analytics, ont.analytics
     end
 
+
     def test_latest_distribution
         create_test_ontology
         sa = LinkedData::Models::SemanticArtefact.find('STY')
