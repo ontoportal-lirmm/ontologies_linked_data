@@ -2,17 +2,8 @@ module LinkedData
     module Models
 
         class SemanticArtefactDistribution < LinkedData::Models::Base
-            
-            class << self
-                attr_accessor :attribute_mappings
-                def attribute_mapped(name, **options)
-                  mapped_to = options.delete(:mapped_to)
-                  attribute(name, **options)
-                  @attribute_mappings ||= {}
-                  mapped_to[:attribute] = name if mapped_to[:attribute].nil?
-                  @attribute_mappings[name] = mapped_to if mapped_to
-                end
-            end
+            include LinkedData::Concerns::AttributeMapping
+            include LinkedData::Concerns::AttributeFetcher
 
             model :SemanticArtefactDistribution, namespace: :mod, name_with: ->(s) { distribution_id_generator(s) }
             
@@ -98,36 +89,6 @@ module LinkedData
                 @distributionId = sub.submissionId
             end
 
-            def self.type_uri
-                self.namespace[self.model_name].to_s
-            end
-
-            # Method to fetch specific attributes and populate the SemanticArtefact instance
-            def bring(*attributes)
-                attributes = [attributes] unless attributes.is_a?(Array)
-                attributes.each do |attr|
-                    mapping = self.class.attribute_mappings[attr]
-                    next if mapping.nil?
-
-                    model = mapping[:model]
-                    mapped_attr = mapping[:attribute]
-                    
-                    case model
-                    when :ontology_submission
-                        @submission.bring(*mapped_attr)
-                        self.send("#{attr}=", @submission.send(mapped_attr)) if @submission.respond_to?(mapped_attr)
-                    when :metric
-                        @submission.bring(*[:metrics => [mapped_attr]])
-                        metrics = @submission.metrics
-                        metric_value = if metrics && metrics.respond_to?(mapped_attr)
-                                            metrics.send(mapped_attr) || 0
-                                        else
-                                            0
-                                        end
-                        self.send("#{attr}=", metric_value)
-                    end
-                end
-            end
 
         end
 

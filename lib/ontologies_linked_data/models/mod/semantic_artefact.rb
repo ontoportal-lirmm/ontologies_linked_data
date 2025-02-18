@@ -8,17 +8,8 @@ module LinkedData
     module Models
 
         class SemanticArtefact < LinkedData::Models::Base
-
-            class << self
-                attr_accessor :attribute_mappings
-                def attribute_mapped(name, **options)
-                  mapped_to = options.delete(:mapped_to)
-                  attribute(name, **options)
-                  @attribute_mappings ||= {}
-                  mapped_to[:attribute] = name if mapped_to[:attribute].nil?
-                  @attribute_mappings[name] = mapped_to if mapped_to
-                end
-            end
+            include LinkedData::Concerns::AttributeMapping
+            include LinkedData::Concerns::AttributeFetcher
 
             model :SemanticArtefact, namespace: :mod, name_with: ->(s) { artefact_id_generator(s) }
             
@@ -157,14 +148,6 @@ module LinkedData
                 )
             end
 
-            def initialize
-                super
-            end
-
-            def self.type_uri
-                self.namespace[self.model_name].to_s
-            end
-
             def self.find(artefact_id)
                 ont = Ontology.find(artefact_id).include(:acronym, :viewingRestriction, :administeredBy, :acl).first
                 return nil unless ont
@@ -172,40 +155,6 @@ module LinkedData
                 new.tap do |sa|
                     sa.ontology = ont
                     sa.acronym = ont.acronym
-                end
-            end
-
-            # Method to fetch specific attributes and populate the SemanticArtefact instance
-            def bring(*attributes)
-                attributes = [attributes] unless attributes.is_a?(Array)
-                latest = @ontology.latest_submission(status: :ready)
-                attributes.each do |attr|
-                    mapping = self.class.attribute_mappings[attr]
-                    next if mapping.nil?
-    
-                    model = mapping[:model]
-                    mapped_attr = mapping[:attribute]
-                    
-                    case model
-                    when :ontology
-                        @ontology.bring(*mapped_attr)
-                        self.send("#{attr}=", @ontology.send(mapped_attr)) if @ontology.respond_to?(mapped_attr)
-                    when :ontology_submission
-                        if latest
-                            latest.bring(*mapped_attr)
-                            self.send("#{attr}=", latest.send(mapped_attr)) if latest.respond_to?(mapped_attr)
-                        end
-                    when :metric
-                        latest.bring(*[:metrics => [mapped_attr]])
-                        metrics = latest.metrics
-
-                        metric_value = if metrics && metrics.respond_to?(mapped_attr)
-                                            metrics.send(mapped_attr) || 0
-                                        else
-                                            0
-                                        end
-                        self.send("#{attr}=", metric_value)
-                    end
                 end
             end
 
