@@ -8,8 +8,8 @@ module LinkedData
     module Models
 
         class SemanticArtefact < LinkedData::Models::Base
-            include LinkedData::Concerns::AttributeMapping
-            include LinkedData::Concerns::AttributeFetcher
+            include LinkedData::Concerns::SemanticArtefact::AttributeMapping
+            include LinkedData::Concerns::SemanticArtefact::AttributeFetcher
 
             model :SemanticArtefact, namespace: :mod, name_with: ->(s) { artefact_id_generator(s) }
             

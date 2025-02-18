@@ -2,8 +2,8 @@ module LinkedData
     module Models
 
         class SemanticArtefactDistribution < LinkedData::Models::Base
-            include LinkedData::Concerns::AttributeMapping
-            include LinkedData::Concerns::AttributeFetcher
+            include LinkedData::Concerns::SemanticArtefact::AttributeMapping
+            include LinkedData::Concerns::SemanticArtefact::AttributeFetcher
 
             model :SemanticArtefactDistribution, namespace: :mod, name_with: ->(s) { distribution_id_generator(s) }
             
