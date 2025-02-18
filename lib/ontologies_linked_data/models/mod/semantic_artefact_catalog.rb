@@ -263,21 +263,9 @@ module LinkedData
             private
 
             def calculate_attr_from_metrics(attr)
-                attr_to_get = attr.to_sym
-                submissions = LinkedData::Models::OntologySubmission.where.include(OntologySubmission.goo_attrs_to_load([attr_to_get]))
-                metrics_to_include = LinkedData::Models::Metric.goo_attrs_to_load([attr_to_get])
-                LinkedData::Models::OntologySubmission.where.models(submissions).include(metrics: metrics_to_include).all
-                somme = 0
-                submissions.each do |x|
-                    if x.metrics
-                      begin
-                        somme += x.metrics.send(attr_to_get)
-                      rescue
-                        next
-                      end
-                    end
+                LinkedData::Models::Metric.where.include(attr).all.sum do |metric|
+                    metric.loaded_attributes.include?(attr) ? metric.send(attr).to_i : 0
                 end
-                somme
             end
 
         end
