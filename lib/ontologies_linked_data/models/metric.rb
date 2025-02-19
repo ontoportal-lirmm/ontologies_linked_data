@@ -22,7 +22,7 @@ module LinkedData
 
       attribute :numberOfNotes, namespace: :mod, type: :integer
       attribute :numberOfUsingProjects, namespace: :mod, type: :integer
-      attribute :numberOfEnsorments, namespace: :mod, type: :integer
+      attribute :numberOfEndorsements, namespace: :mod, type: :integer
       attribute :numberOfEvaluations, namespace: :mod, type: :integer
       attribute :numberOfAgents, namespace: :mod, type: :integer
       attribute :numberOfObjectProperties, namespace: :mod, type: :integer

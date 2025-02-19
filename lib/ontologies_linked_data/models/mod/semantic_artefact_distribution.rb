@@ -50,6 +50,7 @@ module LinkedData
             attribute_mapped :classesWithNoDefinition, namespace: :mod, mapped_to: { model: :metric }
             attribute_mapped :numberOfIndividuals, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric, attribute: :individuals}
             attribute_mapped :numberOfProperties, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric, attribute: :properties}
+            attribute_mapped :numberOfAgents, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
             attribute_mapped :numberOfObjectProperties, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric}
             attribute_mapped :numberOfDataProperties, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric}
             attribute_mapped :numberOfLabels, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
