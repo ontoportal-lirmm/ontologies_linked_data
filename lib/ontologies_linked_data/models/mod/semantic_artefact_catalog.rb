@@ -198,9 +198,12 @@ module LinkedData
             private
 
             def calculate_attr_from_metrics(attr)
-                @submissions ||= LinkedData::Models::Ontology.where.all.map(&:latest_submission)
-                LinkedData::Models::OntologySubmission.where.models(@submissions).include(metrics: attr).all.sum do |sub|
-                    sub.metrics.loaded_attributes.include?(attr) ? sub.metrics.send(attr).to_i : 0
+                latest_metrics = LinkedData::Models::Metric.where.include(attr).all
+                    .group_by { |x| x.id.split('/')[-4] }
+                    .transform_values { |metrics| metrics.max_by { |x| x.id.split('/')[-2].to_i } }
+
+                latest_metrics.values.sum do |metric|
+                    metric.loaded_attributes.include?(attr) ? metric.send(attr).to_i : 0
                 end
             end
 
