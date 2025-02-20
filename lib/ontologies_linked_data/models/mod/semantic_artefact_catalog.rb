@@ -198,11 +198,11 @@ module LinkedData
             private
 
             def calculate_attr_from_metrics(attr)
-                latest_metrics = LinkedData::Models::Metric.where.include(attr).all
+                @latest_metrics ||= LinkedData::Models::Metric.where.include(LinkedData::Models::Metric.goo_attrs_to_load([:all])).all
                     .group_by { |x| x.id.split('/')[-4] }
                     .transform_values { |metrics| metrics.max_by { |x| x.id.split('/')[-2].to_i } }
 
-                latest_metrics.values.sum do |metric|
+                @latest_metrics.values.sum do |metric|
                     metric.loaded_attributes.include?(attr) ? metric.send(attr).to_i : 0
                 end
             end
