@@ -70,7 +70,7 @@ module LinkedData
           end
 
           def user_by_email(email)
-            LinkedData::Models::User.where(email: email).first
+            LinkedData::Models::User.where(email: email).first unless email.nil?
           end
 
           def user_from_orcid_data(user_data)
