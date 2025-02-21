@@ -22,7 +22,7 @@ module LinkedData
 
       attribute :numberOfNotes, namespace: :mod, type: :integer
       attribute :numberOfUsingProjects, namespace: :mod, type: :integer
-      attribute :numberOfEnsorments, namespace: :mod, type: :integer
+      attribute :numberOfEndorsements, namespace: :mod, type: :integer
       attribute :numberOfEvaluations, namespace: :mod, type: :integer
       attribute :numberOfAgents, namespace: :mod, type: :integer
       attribute :numberOfObjectProperties, namespace: :mod, type: :integer
@@ -30,9 +30,11 @@ module LinkedData
       attribute :numberOfLabels, namespace: :mod, type: :integer
       attribute :numberOfDeprecated, namespace: :mod, type: :integer
       attribute :classesWithNoLabel, namespace: :mod, type: :integer
+      attribute :classesWithNoFormalDefinition, namespace: :mod, type: :integer      
       attribute :classesWithNoAuthorMetadata, namespace: :mod, type: :integer
       attribute :classesWithNoDateMetadata, namespace: :mod, type: :integer
       attribute :numberOfMappings, namespace: :mod, type: :integer
+      attribute :numberOfUsers, namespace: :mod, type: :integer
 
       cache_timeout 14400 # 4 hours
 
