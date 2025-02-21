@@ -126,7 +126,7 @@ module LinkedData
                 define_method(handler) { calculate_attr_from_metrics(mapped_to) }
             end
               
-            serialize_default :acronym, :title, :color, :description, :logo, :fundedBy, :versionInfo, :homepage, :numberOfArtefacts, :federated_portals
+            serialize_default :acronym, :title, :color, :description, :logo, :fundedBy, :versionInfo, :homepage, :federated_portals
 
             def ontologies_count
                 LinkedData::Models::Ontology.where(viewingRestriction: 'public').count
@@ -184,6 +184,10 @@ module LinkedData
                 define_method("#{name}_url") do
                     RDF::URI(LinkedData.settings.id_url_prefix).join(name)
                 end
+            end
+
+            def self.load_computed_attributes
+                LinkedData::Models::SemanticArtefactCatalog.attributes(:handler)
             end
 
             def self.valid_hash_code(inst, attr)
