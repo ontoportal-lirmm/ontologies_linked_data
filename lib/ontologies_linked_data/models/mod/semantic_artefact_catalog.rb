@@ -96,31 +96,44 @@ module LinkedData
             attribute :featureList, namespace: :schema, enforce: [:url], handler: :set_feature_list
             attribute :supportedSchema, namespace: :adms, enforce: [:url], handler: :set_supported_schema
             attribute :conformsTo, namespace: :dcterms, enforce: [:url], handler: :mod_uri
-            
             attribute :dataset, namespace: :dcat, enforce: [:url], handler: :artefacts_url
             attribute :service, namespace: :dcat, enforce: [:url], handler: :get_services
             attribute :record, namespace: :dcat, enforce: [:url], handler: :records_url
             attribute :distribution, namespace: :dcat, enforce: [:url], handler: :distributions_url
             attribute :numberOfArtefacts, namespace: :mod, enforce: [:integer], handler: :ontologies_count
             attribute :metrics, namespace: :mod, enforce: [:url], handler: :metrics_url
-            attribute :numberOfClasses, namespace: :mod, enforce: [:integer], handler: :class_count
-            attribute :numberOfIndividuals, namespace: :mod, enforce: [:integer], handler: :individuals_count
-            attribute :numberOfProperties, namespace: :mod, enforce: [:integer], handler: :propoerties_count
-            attribute :numberOfAxioms, namespace: :mod, enforce: [:integer], handler: :axioms_counts
-            attribute :numberOfObjectProperties, namespace: :mod, enforce: [:integer], handler: :object_properties_counts
-            attribute :numberOfDataProperties, namespace: :mod, enforce: [:integer], handler: :data_properties_counts
-            attribute :numberOfLabels, namespace: :mod, enforce: [:integer], handler: :labels_counts
-            attribute :numberOfDeprecated, namespace: :mod, enforce: [:integer], handler: :deprecated_counts
-            attribute :numberOfUsingProjects, namespace: :mod, enforce: [:integer], handler: :using_projects_counts
-            attribute :numberOfEndorsements, namespace: :mod, enforce: [:integer], handler: :endorsements_counts
-            attribute :numberOfMappings, namespace: :mod, enforce: [:integer], handler: :mappings_counts
             attribute :numberOfUsers, namespace: :mod, enforce: [:integer], handler: :users_counts
-            attribute :numberOfAgents, namespace: :mod, enforce: [:integer], handler: :agents_counts
 
+            METRICS_ATTRIBUTES = {
+                numberOfClasses: { mapped_to: :classes, handler: :class_count },
+                numberOfIndividuals: { mapped_to: :individuals, handler: :individuals_count },
+                numberOfProperties: { mapped_to: :properties, handler: :properties_count },
+                numberOfAxioms: :axioms_counts,
+                numberOfObjectProperties: :object_properties_counts,
+                numberOfDataProperties: :data_properties_counts,
+                numberOfLabels: :labels_counts,
+                numberOfDeprecated: :deprecated_counts,
+                numberOfUsingProjects: :using_projects_counts,
+                numberOfEndorsements: :endorsements_counts,
+                numberOfMappings: :mappings_counts,
+                numberOfAgents: :agents_counts
+            }
+              
+            METRICS_ATTRIBUTES.each do |attr_name, config|
+                handler = config.is_a?(Hash) ? config[:handler] : config
+                mapped_to = config.is_a?(Hash) ? config[:mapped_to] : attr_name
+                attribute attr_name, namespace: :mod, enforce: [:integer], handler: handler
+                define_method(handler) { calculate_attr_from_metrics(mapped_to) }
+            end
+              
             serialize_default :acronym, :title, :color, :description, :logo, :fundedBy, :versionInfo, :homepage, :numberOfArtefacts, :federated_portals
 
             def ontologies_count
                 LinkedData::Models::Ontology.where(viewingRestriction: 'public').count
+            end
+
+            def users_counts
+                LinkedData::Models::User.all.count
             end
 
             def modification_date
@@ -128,27 +141,11 @@ module LinkedData
             end
 
             def ui_url
-                RDF::URI(LinkedData.settings.ui_host)
+                RDF::URI("http://#{LinkedData.settings.ui_host}")
             end
 
             def api_url
-                RDF::URI(LinkedData.settings.ui_host)
-            end
-
-            def projects_url
-                RDF::URI(LinkedData.settings.id_url_prefix).join('projects')
-            end
-
-            def analytics_url
-                RDF::URI(LinkedData.settings.id_url_prefix).join('analytics')
-            end
-
-            def search_url
-                RDF::URI(LinkedData.settings.id_url_prefix).join('search')
-            end
-
-            def sparql_url
-                RDF::URI(LinkedData.settings.id_url_prefix).join('sparql')
+                RDF::URI(LinkedData.settings.id_url_prefix)
             end
 
             def set_uri_regex_pattern
@@ -178,77 +175,15 @@ module LinkedData
             def set_supported_schema
                 []
             end
-            
-            def metrics_url
-                RDF::URI(LinkedData.settings.id_url_prefix).join('metrics')
-            end
-
-            def artefacts_url
-                RDF::URI(LinkedData.settings.id_url_prefix).join('artefacts')
-            end
 
             def get_services
                 []
             end
 
-            def records_url
-                RDF::URI(LinkedData.settings.id_url_prefix).join('records')
-            end
-
-            def distributions_url
-                RDF::URI(LinkedData.settings.id_url_prefix).join('distributions')
-            end
-            
-            def class_count
-                calculate_attr_from_metrics(:classes)
-            end
-            
-            def individuals_count
-                calculate_attr_from_metrics(:individuals)
-            end
-            
-            def propoerties_count
-                calculate_attr_from_metrics(:properties)
-            end
-            
-            def axioms_counts
-                calculate_attr_from_metrics(:numberOfAxioms)
-            end
-            
-            def object_properties_counts
-                calculate_attr_from_metrics(:numberOfObjectProperties)
-            end
-            
-            def data_properties_counts
-                calculate_attr_from_metrics(:numberOfDataProperties)
-            end
-            
-            def labels_counts
-                calculate_attr_from_metrics(:numberOfLabels)
-            end
-            
-            def deprecated_counts
-                calculate_attr_from_metrics(:numberOfDeprecated)
-            end
-            
-            def using_projects_counts
-                calculate_attr_from_metrics(:numberOfUsingProjects)
-            end
-            
-            def endorsements_counts
-                calculate_attr_from_metrics(:numberOfEnsorments)
-            end
-            
-            def mappings_counts
-                calculate_attr_from_metrics(:numberOfMappings)
-            end
-            
-            def users_counts
-                LinkedData::Models::User.all.count
-            end
-            
-            def agents_counts
-                LinkedData::Models::Agent.all.count
+            %w[projects analytics search sparql metrics artefacts records distributions].each do |name|
+                define_method("#{name}_url") do
+                    RDF::URI(LinkedData.settings.id_url_prefix).join(name)
+                end
             end
 
             def self.valid_hash_code(inst, attr)
@@ -263,7 +198,11 @@ module LinkedData
             private
 
             def calculate_attr_from_metrics(attr)
-                LinkedData::Models::Metric.where.include(attr).all.sum do |metric|
+                @latest_metrics ||= LinkedData::Models::Metric.where.include(LinkedData::Models::Metric.goo_attrs_to_load([:all])).all
+                    .group_by { |x| x.id.split('/')[-4] }
+                    .transform_values { |metrics| metrics.max_by { |x| x.id.split('/')[-2].to_i } }
+
+                @latest_metrics.values.sum do |metric|
                     metric.loaded_attributes.include?(attr) ? metric.send(attr).to_i : 0
                 end
             end
