@@ -186,10 +186,6 @@ module LinkedData
                 end
             end
 
-            def self.load_computed_attributes
-                LinkedData::Models::SemanticArtefactCatalog.attributes(:handler)
-            end
-
             def self.valid_hash_code(inst, attr)
                 inst.bring(attr) if inst.bring?(attr)
                 str = inst.send(attr)
