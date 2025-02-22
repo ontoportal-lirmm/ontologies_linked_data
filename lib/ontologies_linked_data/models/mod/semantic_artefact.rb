@@ -133,7 +133,7 @@ module LinkedData
             # Access control
             read_restriction_based_on ->(artefct) { artefct.ontology }
 
-            serialize_default :acronym, :accessRights, :subject, :URI, :versionIRI, :creator, :identifier, :status, :language, 
+            serialize_default :acronym, :title, :accessRights, :subject, :URI, :versionIRI, :creator, :identifier, :status, :language, 
                               :license, :rightsHolder, :description, :landingPage, :keyword, :bibliographicCitation, :contactPoint,
                               :contributor, :publisher, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, 
                               :competencyQuestion, :wasGeneratedBy, :hasFormat, :includedInDataCatalog, :semanticArtefactRelation

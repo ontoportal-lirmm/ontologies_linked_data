@@ -126,7 +126,9 @@ module LinkedData
                 define_method(handler) { calculate_attr_from_metrics(mapped_to) }
             end
               
-            serialize_default :acronym, :title, :color, :description, :logo, :fundedBy, :versionInfo, :homepage, :federated_portals
+            serialize_default :acronym, :title, :identifier, :status, :language, :type, :accessRights, :license, :rightsHolder, :description,
+                              :landingPage, :keyword, :bibliographicCitation, :created, :modified , :contactPoint, :creator, :contributor, 
+                              :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL
 
             def ontologies_count
                 LinkedData::Models::Ontology.where(viewingRestriction: 'public').count
