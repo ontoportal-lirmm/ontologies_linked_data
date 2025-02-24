@@ -44,7 +44,7 @@ module LinkedData
         # Get attributes, either provided, all, or default
         default_attrs = if !attributes.empty?
                           if attributes.first == :all
-                            (self.attributes(:all) + hypermedia_settings[:serialize_default]).uniq
+                            (self.attributes + hypermedia_settings[:serialize_default]).uniq
                           else
                             attributes - hypermedia_settings[:serialize_never]
                           end
