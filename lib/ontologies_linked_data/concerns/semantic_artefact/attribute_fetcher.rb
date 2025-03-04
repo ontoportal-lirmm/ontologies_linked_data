@@ -10,7 +10,7 @@ module LinkedData
                         next unless mapping
                         model = mapping[:model]
                         mapped_attr = mapping[:attribute]
-                        hash[model][mapped_attr] = attr
+                        hash[model][attr] = mapped_attr
                     end
 
                     fetch_from_ontology(grouped_attributes[:ontology]) if grouped_attributes[:ontology].any?
@@ -22,8 +22,8 @@ module LinkedData
             
                 def fetch_from_ontology(attributes)
                     return if attributes.empty?
-                    @ontology.bring(*attributes.keys)
-                    attributes.each do |mapped_attr, attr|
+                    @ontology.bring(*attributes.values)
+                    attributes.each do |attr, mapped_attr|
                         self.send("#{attr}=", @ontology.send(mapped_attr)) if @ontology.respond_to?(mapped_attr)
                     end
                 end
@@ -32,8 +32,8 @@ module LinkedData
                     return if attributes.empty?
                     @latest ||= defined?(@ontology) ? @ontology.latest_submission(status: :ready) : @submission
                     return unless @latest
-                    @latest.bring(*attributes.keys)
-                    attributes.each do |mapped_attr, attr|
+                    @latest.bring(*attributes.values)
+                    attributes.each do |attr, mapped_attr|
                         self.send("#{attr}=", @latest.send(mapped_attr)) if @latest.respond_to?(mapped_attr)
                     end
                 end
@@ -42,8 +42,8 @@ module LinkedData
                     return if attributes.empty?
                     @latest ||= defined?(@ontology) ? @ontology.latest_submission(status: :ready) : @submission
                     return unless @latest
-                    @latest.bring(metrics: [attributes.keys])
-                    attributes.each do |mapped_attr, attr|
+                    @latest.bring(metrics: [attributes.values])
+                    attributes.each do |attr, mapped_attr|
                         metric_value = @latest.metrics&.respond_to?(mapped_attr) ? @latest.metrics.send(mapped_attr) || 0 : 0
                         self.send("#{attr}=", metric_value)
                     end
