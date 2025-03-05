@@ -160,11 +160,10 @@ module LinkedData
 
             def self.all_artefacts(attributes, page, pagesize)
                 all_count = Ontology.where.count
-                onts = Ontology.where.include(:acronym, :viewingRestriction, :administeredBy, :acl).page(page, pagesize).page_count_set(all_count).all
+                onts = Ontology.where.include(:viewingRestriction, :administeredBy, :acl).page(page, pagesize).page_count_set(all_count).all
                 all_artefacts = onts.map do |o|
                     new.tap do |sa|
                         sa.ontology = o
-                        sa.acronym = o.acronym
                         sa.bring(*attributes) if attributes
                     end
                 end
