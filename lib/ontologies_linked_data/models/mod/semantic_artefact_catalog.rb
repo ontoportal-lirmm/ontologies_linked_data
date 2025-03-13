@@ -130,6 +130,10 @@ module LinkedData
                               :landingPage, :keyword, :bibliographicCitation, :created, :modified , :contactPoint, :creator, :contributor, 
                               :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL
 
+            def self.type_uri
+                namespace[model_name].to_s
+            end
+            
             def ontologies_count
                 LinkedData::Models::Ontology.where(viewingRestriction: 'public').count
             end
