@@ -1,4 +1,18 @@
 require 'yaml'
+require 'ontologies_linked_data/models/ontology'
+require 'ontologies_linked_data/models/project'
+require 'ontologies_linked_data/models/notes/note'
+require 'ontologies_linked_data/models/users/user'
+require 'ontologies_linked_data/models/agents/agent'
+require 'ontologies_linked_data/models/group'
+require 'ontologies_linked_data/models/slice'
+require 'ontologies_linked_data/models/mappings/mapping'
+require 'ontologies_linked_data/models/project'
+require 'ontologies_linked_data/models/category'
+require 'ontologies_linked_data/models/provisional_class'
+require 'ontologies_linked_data/models/provisional_relation'
+require 'ontologies_linked_data/models/metric'
+require 'ontologies_linked_data/models/review'
 
 module LinkedData
     module Models
@@ -125,6 +139,34 @@ module LinkedData
                 attribute attr_name, namespace: :mod, enforce: [:integer], handler: handler
                 define_method(handler) { calculate_attr_from_metrics(mapped_to) }
             end
+
+            link_to LinkedData::Hypermedia::Link.new("doc/legacy-api", lambda {|s| "documentation"}, nil),
+                    LinkedData::Hypermedia::Link.new("doc/mod-api", lambda {|s| "doc/api"}, nil),
+                    LinkedData::Hypermedia::Link.new("ontologies", lambda {|s| "ontologies"},  LinkedData::Models::Ontology.type_uri),
+                    LinkedData::Hypermedia::Link.new("ontologies_full", lambda {|s| "ontologies_full"}, LinkedData::Models::Ontology.type_uri),
+                    LinkedData::Hypermedia::Link.new("ontology_metadata", lambda {|s| "ontology_metadata"}, nil),
+                    LinkedData::Hypermedia::Link.new("submissions", lambda {|s| "submissions"}, LinkedData::Models::OntologySubmission.type_uri),
+                    LinkedData::Hypermedia::Link.new("submission_metadata", lambda {|s| "submission_metadata"}, nil),
+                    LinkedData::Hypermedia::Link.new("artefacts", lambda {|s| "artefacts"}, LinkedData::Models::SemanticArtefact.type_uri),
+                    LinkedData::Hypermedia::Link.new("records", lambda {|s| "records"}, nil),
+                    LinkedData::Hypermedia::Link.new("users", lambda {|s| "users"}, LinkedData::Models::User.type_uri),
+                    LinkedData::Hypermedia::Link.new("agents", lambda {|s| "agents"}, LinkedData::Models::Agent.type_uri),
+                    LinkedData::Hypermedia::Link.new("groups", lambda {|s| "groups"}, LinkedData::Models::Group.type_uri),
+                    LinkedData::Hypermedia::Link.new("slices", lambda {|s| "slices"}, LinkedData::Models::Slice.type_uri),
+                    LinkedData::Hypermedia::Link.new("mappings", lambda {|s| "mappings"}, LinkedData::Models::Mapping.type_uri.to_s),
+                    LinkedData::Hypermedia::Link.new("projects", lambda {|s| "projects"}, LinkedData::Models::Project.type_uri),
+                    LinkedData::Hypermedia::Link.new("categories", lambda {|s| "categories"}, LinkedData::Models::Category.type_uri),
+                    LinkedData::Hypermedia::Link.new("provisional_classes", lambda {|s| "provisional_classes"}, LinkedData::Models::ProvisionalClass.type_uri),
+                    LinkedData::Hypermedia::Link.new("provisional_relations", lambda {|s| "provisional_relations"}, LinkedData::Models::ProvisionalRelation.type_uri),
+                    LinkedData::Hypermedia::Link.new("metrics", lambda {|s| "metrics"}, LinkedData::Models::Metric.type_uri),
+                    LinkedData::Hypermedia::Link.new("analytics", lambda {|s| "analytics"}, nil),
+                    LinkedData::Hypermedia::Link.new("search", lambda {|s| "search"}, nil),
+                    LinkedData::Hypermedia::Link.new("property_search", lambda {|s| "property_search"}, nil),
+                    LinkedData::Hypermedia::Link.new("recommender", lambda {|s| "recommender"}, nil),
+                    LinkedData::Hypermedia::Link.new("annotator", lambda {|s| "annotator"}, nil),
+                    LinkedData::Hypermedia::Link.new("notes", lambda {|s| "notes"}, LinkedData::Models::Note.type_uri),
+                    LinkedData::Hypermedia::Link.new("replies", lambda {|s| "replies"}, LinkedData::Models::Notes::Reply.type_uri),
+                    LinkedData::Hypermedia::Link.new("reviews", lambda {|s| "reviews"}, LinkedData::Models::Review.type_uri)
               
             serialize_default :acronym, :title, :identifier, :status, :language, :type, :accessRights, :license, :rightsHolder, :description,
                               :landingPage, :keyword, :bibliographicCitation, :created, :modified , :contactPoint, :creator, :contributor, 

@@ -3,6 +3,7 @@ require 'securerandom'
 require 'ontologies_linked_data/models/users/authentication'
 require 'ontologies_linked_data/models/users/role'
 require 'ontologies_linked_data/models/users/subscription'
+require 'ontologies_linked_data/models/users/oauth_authentication'
 
 module LinkedData
   module Models
