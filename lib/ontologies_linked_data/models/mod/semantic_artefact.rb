@@ -1,4 +1,5 @@
 require 'ontologies_linked_data/models/mod/semantic_artefact_distribution'
+require 'ontologies_linked_data/models/mod/semantic_artefact_catalog_record'
 require 'ontologies_linked_data/models/skos/scheme'
 require 'ontologies_linked_data/models/skos/collection'
 require 'ontologies_linked_data/models/skos/skosxl'
@@ -119,7 +120,7 @@ module LinkedData
             
             links_load :acronym
             link_to LinkedData::Hypermedia::Link.new("distributions", lambda {|s| "artefacts/#{s.acronym}/distributions"}, LinkedData::Models::SemanticArtefactDistribution.type_uri),
-                    LinkedData::Hypermedia::Link.new("record", lambda {|s| "artefacts/#{s.acronym}/record"}),
+                    LinkedData::Hypermedia::Link.new("record", lambda {|s| "artefacts/#{s.acronym}/record"}, LinkedData::Models::SemanticArtefactCatalogRecord.type_uri),
                     LinkedData::Hypermedia::Link.new("resources", lambda {|s| "artefacts/#{s.acronym}/resources"}),
                     LinkedData::Hypermedia::Link.new("single_resource", lambda {|s| "artefacts/#{s.acronym}/resources/{:resourceID}"}),
                     LinkedData::Hypermedia::Link.new("classes", lambda {|s| "artefacts/#{s.acronym}/classes"}, LinkedData::Models::Class.uri_type),
