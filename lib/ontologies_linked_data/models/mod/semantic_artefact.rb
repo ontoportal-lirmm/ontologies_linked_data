@@ -167,7 +167,7 @@ module LinkedData
                         sa.bring(*attributes) if attributes
                     end
                 end
-                Goo::Base::Page.new(page, pagesize, all_count, all_artefacts)
+                LinkedData::Models::HydraPage.new(page, pagesize, all_count, all_artefacts)
             end
 
             def latest_distribution(status)

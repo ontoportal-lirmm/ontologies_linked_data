@@ -190,6 +190,8 @@ class Object
         new_hash[key] = value.to_flex_hash(options, &block)
       end
       return new_hash
+    elsif kind_of?(LinkedData::Models::HydraPage)
+      return self.convert_hydra_page(options, &block)
     elsif kind_of?(Goo::Base::Page)
       return convert_goo_page(options, &block)
     end
