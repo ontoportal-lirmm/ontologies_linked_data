@@ -18,7 +18,7 @@ module LinkedData
       attribute :creator, type: :user, enforce: [:existence]
       embed :identifiers, :affiliations
       embed_values affiliations: LinkedData::Models::Agent.goo_attrs_to_load + [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load]
-      serialize_methods :usages
+      serialize_methods :usages, :keywords
 
       write_access :creator
       access_control_load :creator
@@ -55,6 +55,21 @@ module LinkedData
       def usages(force_update: false)
         self.class.load_agents_usages([self]) if  !instance_variable_defined?("@usages")  || force_update
         @usages
+      end
+
+      def self.load_agents_keywords(agent)
+        q = Goo.sparql_query_client.select(:keywords).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id, :property, :agent], [:id, LinkedData::Models::OntologySubmission.attribute_uri(:keywords), :keywords])
+        q = q.filter("?agent = <#{agent.id}>")
+        q = q.values(:id,  *agent.usages.keys.map { |uri| RDF::URI(uri.to_s)})
+
+
+        keywords = q.solutions.map { |solution| solution[:keywords].to_s }
+        agent.instance_variable_set("@keywords", keywords)
+        agent.loaded_attributes.add(:keywords)
+      end
+      def keywords(force_update: false)
+        self.class.load_agents_keywords(self) if  !instance_variable_defined?("@keywords")  || force_update
+        @keywords
       end
 
       def unique_identifiers(inst, attr)
