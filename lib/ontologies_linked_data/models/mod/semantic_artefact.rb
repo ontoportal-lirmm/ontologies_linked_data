@@ -170,6 +170,14 @@ module LinkedData
                 LinkedData::Models::HydraPage.new(page, pagesize, all_count, all_artefacts)
             end
 
+            ##
+            # Retrieves the latest submission for the ontology that matches the specified status.
+            #
+            # Queries the associated ontology for its most recent submission with the given status and, if found,
+            # returns a new SemanticArtefactDistribution wrapping the submission. Returns nil if no matching submission exists.
+            #
+            # @param status [Object] The submission status used to filter results (e.g., 'published', 'pending').
+            # @return [SemanticArtefactDistribution, nil] The distribution instance for the latest submission or nil if not found.
             def latest_distribution(status)
                 sub = @ontology.latest_submission(status)
                 SemanticArtefactDistribution.new(sub) unless sub.nil?

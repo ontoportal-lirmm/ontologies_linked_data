@@ -176,7 +176,17 @@ class Object
   end
 
   ##
-  # Handle enumerables by recursing
+  ##
+  # Recursively converts enumerable elements and page objects into their flexible hash representations.
+  #
+  # This method processes Arrays, Sets, and Hashes by transforming each element (or value, for hashes)
+  # using the object's {#to_flex_hash} method, preserving the collection's original type. It also provides
+  # specialized handling for page objects: HydraPage instances are converted via {#convert_hydra_page} and
+  # Goo::Base::Page objects via {#convert_goo_page}.
+  #
+  # @param options [Hash] Serialization options that determine attribute inclusion and conversion rules.
+  # @yield [hash] Optional block for additional processing of the generated flex hash.
+  # @return [Enumerable, nil] A new enumerable containing converted elements, or nil if the object does not match any supported enumerable type.
   def enumerable_handling(options, &block)
     if (self.is_a?(Array) || self.is_a?(Set)) && !self.is_a?(Goo::Base::Page)
       new_enum = self.class.new
