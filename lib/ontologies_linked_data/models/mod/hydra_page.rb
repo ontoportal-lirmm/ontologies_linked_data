@@ -17,7 +17,7 @@ module LinkedData
         {
           'hydra': 'http://www.w3.org/ns/hydra/core#',
           'Collection': 'hydra:Collection',
-          'collection': {'@id': 'hydra:member'},
+          'member': 'hydra:member',
           'totalItems': 'hydra:totalItems',
           'itemsPerPage': 'hydra:itemsPerPage',
           'view': 'hydra:view',

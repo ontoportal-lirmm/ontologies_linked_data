@@ -121,7 +121,6 @@ module LinkedData
             link_to LinkedData::Hypermedia::Link.new("distributions", lambda {|s| "artefacts/#{s.acronym}/distributions"}, LinkedData::Models::SemanticArtefactDistribution.type_uri),
                     LinkedData::Hypermedia::Link.new("record", lambda {|s| "artefacts/#{s.acronym}/record"}),
                     LinkedData::Hypermedia::Link.new("resources", lambda {|s| "artefacts/#{s.acronym}/resources"}),
-                    LinkedData::Hypermedia::Link.new("single_resource", lambda {|s| "artefacts/#{s.acronym}/resources/{:resourceID}"}),
                     LinkedData::Hypermedia::Link.new("classes", lambda {|s| "artefacts/#{s.acronym}/classes"}, LinkedData::Models::Class.uri_type),
                     LinkedData::Hypermedia::Link.new("concepts", lambda {|s| "artefacts/#{s.acronym}/concepts"}, LinkedData::Models::Class.uri_type),
                     LinkedData::Hypermedia::Link.new("properties", lambda {|s| "artefacts/#{s.acronym}/properties"}, "#{Goo.namespaces[:metadata].to_s}Property"),
