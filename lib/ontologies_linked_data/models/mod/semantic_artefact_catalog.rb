@@ -16,7 +16,7 @@ require 'ontologies_linked_data/models/review'
 
 module LinkedData
     module Models
-        class SemanticArtefactCatalog < LinkedData::Models::Base
+        class SemanticArtefactCatalog < LinkedData::Models::ModBase
 
 
             model :SemanticArtefactCatalog, namespace: :mod, scheme: File.join(__dir__, '../../../../config/schemes/semantic_artefact_catalog.yml'),

@@ -31,9 +31,8 @@ module LinkedData
           global_context["@context"].merge!(LinkedData::Models::HydraPage.generate_hydra_context)
         end
         result.merge!(global_context) unless global_context.empty?
-        result.merge!({ "@graph" => hash }) if hash.is_a?(Array)
         result.merge!(hash) if hash.is_a?(Hash)
-        # result.merge!(global_links) unless global_links.empty?
+        result.merge!(global_links) unless global_links.empty?
         MultiJson.dump(result)
       end
 
@@ -65,10 +64,9 @@ module LinkedData
         if global_links.nil?
           hash["links"] = links
           hash["links"].merge!(generate_links_context(hashed_obj)) if generate_context?(options)
-        # # we will enable this if we want links with the hydra schema
-        # elsif global_links.empty?
-        #   global_links["links"] = links
-        #   global_links["links"].merge!(generate_links_context(hashed_obj)) if generate_context?(options)
+        elsif global_links.empty?
+          global_links["links"] = links
+          global_links["links"].merge!(generate_links_context(hashed_obj)) if generate_context?(options)
         end
       end
 
@@ -94,15 +92,8 @@ module LinkedData
 
       def self.mod_object?(obj)
         return false if obj.nil?
-
         single_object = (obj.class == Array) && obj.any? ? obj.first : obj
-
-        # check the object class is one of the mod models
-        [
-          LinkedData::Models::HydraPage,
-          LinkedData::Models::SemanticArtefact,
-          LinkedData::Models::SemanticArtefactDistribution
-        ].any? { |klass| single_object.is_a?(klass) }
+        single_object.class.ancestors.include?(LinkedData::Models::HydraPage) || single_object.class.ancestors.include?(LinkedData::Models::ModBase)
       end
       
 

@@ -7,7 +7,7 @@ require 'ontologies_linked_data/models/skos/skosxl'
 module LinkedData
     module Models
 
-        class SemanticArtefact < LinkedData::Models::Base
+        class SemanticArtefact < LinkedData::Models::ModBase
             include LinkedData::Concerns::SemanticArtefact::AttributeMapping
             include LinkedData::Concerns::SemanticArtefact::AttributeFetcher
 
