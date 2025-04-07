@@ -41,7 +41,7 @@ module LinkedData
       
       def self.process_common_serialization(hash, hashed_obj, options, global_links= nil, global_context= nil)
         current_cls = hashed_obj.respond_to?(:klass) ? hashed_obj.klass : hashed_obj.class
-        result_lang ||= get_languages(get_object_submission(hashed_obj), options[:lang])
+        result_lang = get_languages(get_object_submission(hashed_obj), options[:lang])
 
         add_id_and_type(hash, hashed_obj, current_cls)
         add_links(hash, hashed_obj, options, global_links) if generate_links?(options)
