@@ -72,12 +72,11 @@ module LinkedData
 
       def self.add_context(hash, hashed_obj, options, current_cls, result_lang, global_context)
         return if global_context&.any?
-        
-        context = generate_context(hashed_obj, hash.keys, options)
 
         if global_context.nil?
           if current_cls.ancestors.include?(Goo::Base::Resource) && !current_cls.embedded?
-              hash.merge!(context)
+            context = generate_context(hashed_obj, hash.keys, options)
+            hash.merge!(context)
           elsif (hashed_obj.instance_of?(LinkedData::Models::ExternalClass) || hashed_obj.instance_of?(LinkedData::Models::InterportalClass)) && !current_cls.embedded?
             # Add context for ExternalClass
             external_class_context = { "@context" => { "@vocab" => Goo.vocabulary.to_s, "prefLabel" => "http://data.bioontology.org/metadata/skosprefLabel" } }
@@ -85,6 +84,7 @@ module LinkedData
           end
           hash['@context']['@language'] = result_lang if hash['@context']
         elsif global_context.empty?
+          context = generate_context(hashed_obj, hash.keys, options)
           global_context.replace(context)
           global_context["@context"]["@language"] = result_lang unless global_context.empty?
         end
