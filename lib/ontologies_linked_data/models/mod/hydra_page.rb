@@ -4,7 +4,7 @@ module LinkedData
 
       def convert_hydra_page(options, &block)
         {
-          '@id': 'Collection',
+          '@id': get_request_path(options),
           '@type': 'hydra:Collection',
           totalItems: self.aggregate,
           itemsPerPage: self.size,
@@ -31,9 +31,8 @@ module LinkedData
       private
 
       def generate_hydra_page_view(options, page, page_count)
-        request = options[:request]
-        request_path = request ? "#{LinkedData.settings.rest_url_prefix.chomp("/")}#{request.path}" : nil
-        params = request ? request.params.dup : {}
+        request_path = get_request_path(options)
+        params = options[:request] ? options[:request].params.dup : {}
 
         build_url = ->(page_number) {
           query = Rack::Utils.build_nested_query(params.merge("page" => page_number.to_s))
@@ -48,6 +47,11 @@ module LinkedData
           nextPage: page < page_count ? build_url.call(page + 1) : nil,
           lastPage: page_count != 0 ? build_url.call(page_count) : build_url.call(1)
         }
+      end
+      
+      def get_request_path(options)
+        request_path = options[:request] ? "#{LinkedData.settings.rest_url_prefix.chomp("/")}#{options[:request].path}" : nil
+        request_path
       end
 
     end
