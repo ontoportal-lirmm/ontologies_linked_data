@@ -13,12 +13,25 @@ module LinkedData
                         hash[model][attr] = mapped_attr
                     end
 
+                    populate_from_self(grouped_attributes[self.class]) if grouped_attributes[self.class].any?
                     fetch_from_ontology(grouped_attributes[:ontology]) if grouped_attributes[:ontology].any?
                     fetch_from_submission(grouped_attributes[:ontology_submission]) if grouped_attributes[:ontology_submission].any?
                     fetch_from_metrics(grouped_attributes[:metric]) if grouped_attributes[:metric].any?
                 end
             
                 private
+
+                def populate_from_self(attributes)
+                    attributes.each_key do |attr|
+                      if self.class.handler?(attr)
+                        send(attr)
+                      else
+                        value = self.class.default(attr)
+                        value = value.call(self) if value.is_a?(Proc)
+                        send("#{attr}=", value || (respond_to?(attr) ? send(attr) : nil))
+                      end
+                    end
+                end
             
                 def fetch_from_ontology(attributes)
                     return if attributes.empty?

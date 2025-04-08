@@ -148,7 +148,7 @@ module LinkedData
                     LinkedData::Hypermedia::Link.new("submissions", lambda {|s| "submissions"}, LinkedData::Models::OntologySubmission.type_uri),
                     LinkedData::Hypermedia::Link.new("submission_metadata", lambda {|s| "submission_metadata"}, nil),
                     LinkedData::Hypermedia::Link.new("artefacts", lambda {|s| "artefacts"}, LinkedData::Models::SemanticArtefact.type_uri),
-                    LinkedData::Hypermedia::Link.new("records", lambda {|s| "records"}, nil),
+                    LinkedData::Hypermedia::Link.new("records", lambda {|s| "records"}, LinkedData::Models::SemanticArtefactCatalogRecord.type_uri),
                     LinkedData::Hypermedia::Link.new("users", lambda {|s| "users"}, LinkedData::Models::User.type_uri),
                     LinkedData::Hypermedia::Link.new("agents", lambda {|s| "agents"}, LinkedData::Models::Agent.type_uri),
                     LinkedData::Hypermedia::Link.new("groups", lambda {|s| "groups"}, LinkedData::Models::Group.type_uri),
