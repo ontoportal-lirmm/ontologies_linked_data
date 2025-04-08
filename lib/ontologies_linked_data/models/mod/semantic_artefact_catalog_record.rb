@@ -7,24 +7,28 @@ module LinkedData
       model :SemanticArtefactCatalogRecord, namespace: :mod, name_with: ->(r) { record_id_generator(r) }
 
       # mod specs attributes
-      attribute_mapped :homepage, namespace: :foaf, mapped_to: { model: self }, handler: :record_home_page
+      attribute_mapped :acronym, namespace: :omv, mapped_to: { model: :ontology }
+      attribute_mapped :relatedArtefactId, mapped_to: { model: self }, default: ->(r) {  RDF::URI("#{(Goo.id_prefix)}artefacts/#{CGI.escape(r.ontology.acronym.to_s)}") }
+      attribute_mapped :homepage, namespace: :foaf, mapped_to: { model: self },  default: ->(r) { RDF::URI("http://#{LinkedData.settings.ui_host}/#{r.ontology.acronym}") } #handler: :record_home_page
       attribute_mapped :created, namespace: :dcterms, mapped_to: { model: self }, handler: :get_creation_date
       attribute_mapped :modified, namespace: :dcterms, mapped_to: { model: self }, handler: :get_modification_date
       attribute_mapped :curatedOn, namespace: :pav, mapped_to: { model: :ontology_submission }
       attribute_mapped :curatedBy, namespace: :pav, mapped_to: { model: :ontology_submission }
 
-      # additional attributes that might be here
-      attribute_mapped :acronym, namespace: :omv, mapped_to: { model: :ontology }
+      # additional attributes
       attribute_mapped :viewingRestriction, mapped_to: { model: :ontology }
       attribute_mapped :administeredBy, mapped_to: { model: :ontology }
+      attribute_mapped :doNotUpdate, mapped_to: { model: :ontology }
+      attribute_mapped :flat, mapped_to: { model: :ontology }
+      attribute_mapped :summaryOnly, mapped_to: { model: :ontology }
+      attribute_mapped :acl, mapped_to: { model: :ontology }
+      attribute_mapped :ontologyType, mapped_to: { model: :ontology }
+      attribute_mapped :classType, mapped_to: { model: :ontology_submission }
+      attribute_mapped :missingImports, mapped_to: { model: :ontology_submission }
       attribute_mapped :submissionStatus, mapped_to: { model: :ontology_submission }
-      attribute_mapped :status, namespace: :omv, mapped_to: { model: :ontology_submission }
-      attribute_mapped :description, namespace: :omv, mapped_to: { model: :ontology_submission }
       attribute_mapped :pullLocation, mapped_to: { model: :ontology_submission }
       attribute_mapped :dataDump, namespace: :void, mapped_to: { model: :ontology_submission }
       attribute_mapped :csvDump, mapped_to: { model: :ontology_submission }
-      attribute_mapped :uriLookupEndpoint, namespace: :void, mapped_to: { model: :ontology_submission }
-      attribute_mapped :openSearchDescription, namespace: :void, mapped_to: { model: :ontology_submission }
       attribute_mapped :uploadFilePath, mapped_to: { model: :ontology_submission }
       attribute_mapped :diffFilePath, mapped_to: { model: :ontology_submission }
       attribute_mapped :masterFileName, mapped_to: { model: :ontology_submission }
@@ -36,7 +40,7 @@ module LinkedData
       # Access control
       read_restriction_based_on ->(record) { record.ontology }
 
-      serialize_default :acronym, :homepage, :created, :modified, :curatedOn, :curatedBy
+      serialize_default :acronym, :relatedArtefactId, :homepage, :created, :modified, :curatedOn, :curatedBy
       serialize_never :ontology, :submission
 
       def self.record_id_generator(record)
@@ -85,11 +89,6 @@ module LinkedData
       end
       
       private
-    
-      def record_home_page
-        RDF::URI("http://#{LinkedData.settings.ui_host}/#{ontology.acronym}")
-      end
-      
       def get_modification_date
         fetch_submission_date(:max_by)
       end
