@@ -44,7 +44,7 @@ module LinkedData
       serialize_never :ontology, :submission
 
       def self.record_id_generator(record)
-        record.ontology.bring(:acronym) if !record.ontology.loaded_attributes.include?(:acronym)
+        record.ontology.bring(:acronym) if record.ontology.bring?(:acronym)
         raise ArgumentError, "Acronym is nil for ontology  #{record.ontology.id} to generate id" if record.ontology.acronym.nil?
         return RDF::URI.new(
           "#{(Goo.id_prefix)}records/#{CGI.escape(record.ontology.acronym.to_s)}"
@@ -73,21 +73,6 @@ module LinkedData
         Goo::Base::Page.new(page, pagesize, all_count, all_records)
       end
       
-      ##
-      ## find all records of one artefact
-      ## these are mapped to the submissions of an ontology
-      def artefact_all_records(attributes)
-        @ontology.bring(:submissions) unless @ontology.loaded_attributes.include?(:submissions)
-        all_records = @ontology.submissions.map do |s|
-          SemanticArtefactCatalogRecord.new.tap do |sacr|  
-            sacr.ontology = @ontology
-            sacr.submission = s
-            sacr.bring(*attributes) if attributes
-          end
-        end
-        all_records
-      end
-      
       private
       def get_modification_date
         fetch_submission_date(:max_by)
@@ -98,11 +83,11 @@ module LinkedData
       end
       
       def fetch_submission_date(method)
-        @ontology.bring(submissions: [:submissionId]) unless @ontology.loaded_attributes.include?(:submissions)
+        @ontology.bring(submissions: [:submissionId, :creationDate]) if @ontology.bring?(:submissions)
         submission = @ontology.submissions.public_send(method, &:submissionId)
         return unless submission
       
-        submission.bring(:creationDate) unless submission.loaded_attributes.include?(:creationDate)
+        submission.bring(:creationDate) unless submission.bring?(:creationDate)
         submission.creationDate
       end
 
