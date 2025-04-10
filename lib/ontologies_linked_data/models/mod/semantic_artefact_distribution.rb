@@ -60,6 +60,7 @@ module LinkedData
             attribute_mapped :classesWithNoAuthorMetadata, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
             attribute_mapped :classesWithNoDateMetadata, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
             attribute_mapped :numberOfMappings, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
+            attribute_mapped :byteSize, namespace: :dcat, mapped_to: { model: self }, handler: :calculate_byte_size
             
             # Attr special to SemanticArtefactDistribution
             attribute :ontology, type: :ontology
@@ -70,7 +71,7 @@ module LinkedData
             
             serialize_default :distributionId, :title, :hasRepresentationLanguage, :hasSyntax, :description, :created, :modified, 
                               :conformsToKnowledgeRepresentationParadigm, :usedEngineeringMethodology, :prefLabelProperty, 
-                              :synonymProperty, :definitionProperty, :accessURL, :downloadURL
+                              :synonymProperty, :definitionProperty, :accessURL, :downloadURL, :byteSize
 
             serialize_never :submission
 
@@ -90,6 +91,16 @@ module LinkedData
                 @submission.bring(*[:submissionId, :ontology=>[:acronym, :administeredBy, :acl, :viewingRestriction]])
                 @distributionId = sub.submissionId
                 @ontology = @submission.ontology
+            end
+            
+            def calculate_byte_size
+                @submission.bring(:uploadFilePath) if @submission.bring?(:uploadFilePath)
+                updload_file_path = @submission.uploadFilePath
+                if updload_file_path
+                    File.size(updload_file_path)
+                else
+                    0
+                end
             end
 
 
