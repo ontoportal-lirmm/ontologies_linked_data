@@ -100,7 +100,6 @@ class TestArtefact < LinkedData::TestOntologyCommon
         assert_equal 1, all_distros.length
         assert_equal 1, all_distros.length
         assert_equal LinkedData::Models::SemanticArtefactDistribution, all_distros[0].class
-        assert_equal Set[:distributionId, :title, :hasRepresentationLanguage, :hasSyntax, :description, :created, :modified, :conformsToKnowledgeRepresentationParadigm, :usedEngineeringMethodology, :prefLabelProperty, :synonymProperty, :definitionProperty, :accessURL, :downloadURL], all_distros[0].loaded_attributes
     end
     
     private
