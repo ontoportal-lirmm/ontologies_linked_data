@@ -1,6 +1,6 @@
 module LinkedData
   module Models
-    class SemanticArtefactCatalogRecord < LinkedData::Models::Base
+    class SemanticArtefactCatalogRecord < LinkedData::Models::ModBase
       include LinkedData::Concerns::SemanticArtefact::AttributeMapping
       include LinkedData::Concerns::SemanticArtefact::AttributeFetcher
 
