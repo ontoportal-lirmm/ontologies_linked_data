@@ -168,9 +168,10 @@ module LinkedData
                     LinkedData::Hypermedia::Link.new("replies", lambda {|s| "replies"}, LinkedData::Models::Notes::Reply.type_uri),
                     LinkedData::Hypermedia::Link.new("reviews", lambda {|s| "reviews"}, LinkedData::Models::Review.type_uri)
               
-            serialize_default :acronym, :title, :identifier, :status, :language, :type, :accessRights, :license, :rightsHolder, :description,
+            serialize_default :acronym, :title, :color, :description, :logo,:identifier, :status, :language, :type, :accessRights, :license, :rightsHolder,
                               :landingPage, :keyword, :bibliographicCitation, :created, :modified , :contactPoint, :creator, :contributor, 
-                              :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL
+                              :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL,
+                              :numberOfArtefacts, :federated_portals, :fundedBy
 
             def self.type_uri
                 namespace[model_name].to_s
