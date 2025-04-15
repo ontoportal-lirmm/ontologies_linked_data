@@ -70,7 +70,7 @@ module LinkedData
             sacr.bring(*attributes) if attributes
           end
         end
-        Goo::Base::Page.new(page, pagesize, all_count, all_records)
+        LinkedData::Models::HydraPage.new(page, pagesize, all_count, all_records)
       end
       
       private

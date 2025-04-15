@@ -9,7 +9,7 @@ module LinkedData
           totalItems: self.aggregate,
           itemsPerPage: self.size,
           view: generate_hydra_page_view(options, self.page_number, self.total_pages),
-          collection: map { |item| item.to_flex_hash(options, &block) }
+          member: map { |item| item.to_flex_hash(options, &block) }
         }
       end
       

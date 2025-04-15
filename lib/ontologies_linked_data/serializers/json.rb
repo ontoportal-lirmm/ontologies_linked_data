@@ -6,10 +6,10 @@ module LinkedData
       CONTEXTS = {}
 
       def self.serialize(obj, options = {})
-        # Handle mod object serialization apart to not break everything
+
         return serialize_mod_objects(obj, options) if mod_object?(obj)
 
-        # Handle the serialization for all other objects in the old way
+        # Handle the serialization for all other objects in the standard way
         hash = obj.to_flex_hash(options) do |hash, hashed_obj|
           process_common_serialization(hash, hashed_obj, options)
         end

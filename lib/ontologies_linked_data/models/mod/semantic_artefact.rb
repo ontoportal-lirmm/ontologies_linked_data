@@ -180,15 +180,22 @@ module LinkedData
                 SemanticArtefactDistribution.new(sub) unless sub.nil?
             end
         
-            def all_distributions(options = {})
-                to_bring = options[:includes]
-                @ontology.bring(:submissions)
-        
-                @ontology.submissions.map do |submission|
+            def all_distributions(attributes, page, pagesize)
+                filter_by_acronym = Goo::Filter.new(ontology: [:acronym]) == @ontology.acronym
+                submissions_count =  OntologySubmission.where.filter(filter_by_acronym).count
+                submissions_page = OntologySubmission.where.include(:distributionId)
+                                                    .filter(filter_by_acronym)
+                                                    .order_by(distributionId: :desc)
+                                                    .page(page, pagesize)
+                                                    .page_count_set(submissions_count)
+                                                    .all
+
+                all_distributions = submissions_page.map do |submission|
                     SemanticArtefactDistribution.new(submission).tap do |dist|
-                        dist.bring(*to_bring) if to_bring
+                        dist.bring(*attributes) if attributes
                     end
                 end
+                LinkedData::Models::HydraPage.new(page, pagesize, submissions_count, all_distributions)
             end
     
             def analytics
