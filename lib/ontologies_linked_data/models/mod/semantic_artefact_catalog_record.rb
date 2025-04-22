@@ -1,6 +1,6 @@
 module LinkedData
   module Models
-    class SemanticArtefactCatalogRecord < LinkedData::Models::Base
+    class SemanticArtefactCatalogRecord < LinkedData::Models::ModBase
       include LinkedData::Concerns::SemanticArtefact::AttributeMapping
       include LinkedData::Concerns::SemanticArtefact::AttributeFetcher
 
@@ -70,7 +70,7 @@ module LinkedData
             sacr.bring(*attributes) if attributes
           end
         end
-        Goo::Base::Page.new(page, pagesize, all_count, all_records)
+        LinkedData::Models::HydraPage.new(page, pagesize, all_count, all_records)
       end
       
       private

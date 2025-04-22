@@ -1,7 +1,7 @@
 module LinkedData
     module Models
 
-        class SemanticArtefactDistribution < LinkedData::Models::Base
+        class SemanticArtefactDistribution < LinkedData::Models::ModBase
             include LinkedData::Concerns::SemanticArtefact::AttributeMapping
             include LinkedData::Concerns::SemanticArtefact::AttributeFetcher
 
