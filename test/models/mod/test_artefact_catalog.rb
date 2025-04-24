@@ -28,7 +28,7 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
       logo: "https://ontoportal.org/images/logo.png",
       license: "https://opensource.org/licenses/BSD-2-Clause",
       federated_portals: [
-        "{:name=>\"agroportal\", :api=>\"http://data.agroportal.lirmm.fr\", :ui=>\"http://agroportal.lirmm.fr\", :apikey=>\"1cfae05f-9e67-486f-820b-b393dec5764b\", :color=>\"#3cb371\"}"
+        "{:name=>\"agroportal\", :api=>\"http://data.agroportal.lirmm.fr\", :ui=>\"http://agroportal.lirmm.fr\", :apikey=>\"DUMMY_API_KEY_123456\", :color=>\"#3cb371\"}"
       ],
       fundedBy: [
         "{:img_src=>\"https://ontoportal.org/images/logo.png\", :url=>\"https://ontoportal.org/\"}"
