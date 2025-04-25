@@ -95,8 +95,8 @@ module LinkedData
             
             def calculate_byte_size
                 @submission.bring(:uploadFilePath) if @submission.bring?(:uploadFilePath)
-                updload_file_path = @submission.uploadFilePath
-                File.exist?(updload_file_path) ? File.size(updload_file_path) : 0
+                upload_file_path = @submission.uploadFilePath
+                File.exist?(upload_file_path.to_s) ? File.size(upload_file_path.to_s) : 0
             end
 
 
