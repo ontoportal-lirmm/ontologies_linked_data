@@ -26,7 +26,13 @@ module LinkedData
       enable_indexing(:agents_metadata)
 
       def embedded_doc
-        "#{self.name} #{self.acronym} #{self.email} #{self.agentType}"
+        {
+          "id": "#{self.id}",
+          "name": "#{self.name}",
+          "acronym": "#{self.acronym}",
+          "email": "#{self.email}",
+          "agentType": "#{self.agentType}"
+        }.to_json
       end
 
       def self.load_agents_usages(agents = [], agent_attributes =  OntologySubmission.agents_attr_uris)
