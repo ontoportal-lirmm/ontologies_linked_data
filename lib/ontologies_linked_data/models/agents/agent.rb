@@ -17,7 +17,7 @@ module LinkedData
       attribute :affiliations, enforce: %i[Agent list is_organization], namespace: :org, property: :memberOf
       attribute :creator, type: :user, enforce: [:existence]
       embed :identifiers, :affiliations
-      embed_values affiliations: LinkedData::Models::Agent.goo_attrs_to_load + [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load]
+      embed_values affiliations: [:name, :agentType, :homepage, :acronym, :email, :identifiers]
       serialize_methods :usages
 
       write_access :creator
