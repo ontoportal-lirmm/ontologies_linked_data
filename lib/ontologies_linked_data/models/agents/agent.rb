@@ -33,6 +33,7 @@ module LinkedData
         q = Goo.sparql_query_client.select(:id, :property, :agent, :status).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id,LinkedData::Models::OntologySubmission.attribute_uri(:submissionStatus),:status], [:id, :property, :agent])
         q = q.filter("?status = <#{RDF::URI.new(LinkedData::Models::SubmissionStatus.id_prefix + 'RDF')}> || ?status = <#{RDF::URI.new(LinkedData::Models::SubmissionStatus.id_prefix + 'UPLOADED')}>")
         q = q.filter(agent_attributes.map{|attr| "?property = <#{attr}>"}.join(' || '))
+        q = q.values(:agent,  *agents.map { |agent| RDF::URI(agent.id.to_s)})
 
         data = q.each_solution.group_by{|x| x[:agent]}
 
