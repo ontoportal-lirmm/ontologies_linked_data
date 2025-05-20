@@ -33,12 +33,13 @@ class Object
       only = Set.new(options[:include_for_class] || [])
     end
 
-    if all # Get everything
+    if all && !options[:nested] # Get everything if not an embedded object
       methods = self.class.hypermedia_settings[:serialize_methods] if self.is_a?(LinkedData::Hypermedia::Resource)
     end
 
-    # Check to see if we're nested, if so remove necessary properties
+    # Check to see if we're nested, if so remove necessary properties and serialize methods
     only = only - do_not_serialize_nested(options)
+    only -= self.class.hypermedia_settings[:serialize_methods] if options[:nested]
 
     # Determine whether to use defaults from the DSL or all attributes
     hash = populate_attributes(hash, all, only, options)
@@ -190,6 +191,8 @@ class Object
         new_hash[key] = value.to_flex_hash(options, &block)
       end
       return new_hash
+    elsif kind_of?(LinkedData::Models::HydraPage)
+      return self.convert_hydra_page(options, &block)
     elsif kind_of?(Goo::Base::Page)
       return convert_goo_page(options, &block)
     end

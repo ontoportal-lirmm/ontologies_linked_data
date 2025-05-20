@@ -63,7 +63,12 @@ fundedBy:
   helpText: "Founder of the catalog"
   example: ''
   enforcedValues: [img_src: "", url: "" ]
-  default: []
+  default: [
+    {
+      img_src: 'https://ontoportal.org/images/logo.png',
+      url: 'https://ontoportal.org/'
+    }
+  ]
 
 federated_portals:
   display: "general"
@@ -71,7 +76,15 @@ federated_portals:
   helpText: "The Federated portal"
   example: ''
   enforcedValues: [name: "", api: "", ui: "", apikey: "", color: "" ]
-  default: []
+  default: [
+    {
+      name: 'agroportal',
+      api: 'http://data.agroportal.lirmm.fr',
+      ui: 'http://agroportal.lirmm.fr',
+      apikey: "DUMMY_API_KEY_123456",
+      color: '#3cb371'
+    }
+  ]
 
 homepage:
   display: "general"

@@ -1,7 +1,7 @@
 module LinkedData
     module Models
 
-        class SemanticArtefactDistribution < LinkedData::Models::Base
+        class SemanticArtefactDistribution < LinkedData::Models::ModBase
             include LinkedData::Concerns::SemanticArtefact::AttributeMapping
             include LinkedData::Concerns::SemanticArtefact::AttributeFetcher
 
@@ -9,7 +9,7 @@ module LinkedData
             
             # SAD attrs that map with submission
             attribute_mapped :distributionId, mapped_to: { model: :ontology_submission, attribute: :submissionId }
-            attribute_mapped :title, namespace: :dcterms, mapped_to: { model: :ontology_submission, attribute: :URI }
+            attribute_mapped :title, namespace: :dcterms, mapped_to: { model: :ontology, attribute: :name }
             attribute_mapped :deprecated, namespace: :owl, mapped_to: { model: :ontology_submission }
             attribute_mapped :hasRepresentationLanguage, namespace: :mod, mapped_to: { model: :ontology_submission, attribute: :hasOntologyLanguage }
             attribute_mapped :hasFormalityLevel, namespace: :mod, mapped_to: { model: :ontology_submission }
@@ -60,8 +60,10 @@ module LinkedData
             attribute_mapped :classesWithNoAuthorMetadata, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
             attribute_mapped :classesWithNoDateMetadata, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
             attribute_mapped :numberOfMappings, namespace: :mod, enforce: [:integer],  mapped_to: { model: :metric }
+            attribute_mapped :byteSize, namespace: :dcat, mapped_to: { model: self }, handler: :calculate_byte_size
             
             # Attr special to SemanticArtefactDistribution
+            attribute :ontology, type: :ontology
             attribute :submission, type: :ontology_submission
 
             # Access control
@@ -69,7 +71,7 @@ module LinkedData
             
             serialize_default :distributionId, :title, :hasRepresentationLanguage, :hasSyntax, :description, :created, :modified, 
                               :conformsToKnowledgeRepresentationParadigm, :usedEngineeringMethodology, :prefLabelProperty, 
-                              :synonymProperty, :definitionProperty, :accessURL, :downloadURL
+                              :synonymProperty, :definitionProperty, :accessURL, :downloadURL, :byteSize
 
             serialize_never :submission
 
@@ -78,7 +80,7 @@ module LinkedData
                 ss.submission.ontology.bring(:acronym) if !ss.submission.ontology.loaded_attributes.include?(:acronym)
                 raise ArgumentError, "Acronym is nil to generate id" if ss.submission.ontology.acronym.nil?
                 return RDF::URI.new(
-                  "#{(Goo.id_prefix)}artefacts/#{CGI.escape(ss.submission.ontology.acronym.to_s)}/distributions/#{ss.submission.submissionId.to_s}"
+                  "#{(Goo.id_prefix)}artefacts/#{CGI.escape(ss.ontology.acronym.to_s)}/distributions/#{ss.submission.submissionId.to_s}"
                 )
             end
 
@@ -88,6 +90,13 @@ module LinkedData
                 @submission = sub
                 @submission.bring(*[:submissionId, :ontology=>[:acronym, :administeredBy, :acl, :viewingRestriction]])
                 @distributionId = sub.submissionId
+                @ontology = @submission.ontology
+            end
+            
+            def calculate_byte_size
+                @submission.bring(:uploadFilePath) if @submission.bring?(:uploadFilePath)
+                upload_file_path = @submission.uploadFilePath
+                File.exist?(upload_file_path.to_s) ? File.size(upload_file_path.to_s) : 0
             end
 
 

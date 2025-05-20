@@ -16,7 +16,7 @@ require 'ontologies_linked_data/models/review'
 
 module LinkedData
     module Models
-        class SemanticArtefactCatalog < LinkedData::Models::Base
+        class SemanticArtefactCatalog < LinkedData::Models::ModBase
 
 
             model :SemanticArtefactCatalog, namespace: :mod, scheme: File.join(__dir__, '../../../../config/schemes/semantic_artefact_catalog.yml'),
@@ -148,7 +148,7 @@ module LinkedData
                     LinkedData::Hypermedia::Link.new("submissions", lambda {|s| "submissions"}, LinkedData::Models::OntologySubmission.type_uri),
                     LinkedData::Hypermedia::Link.new("submission_metadata", lambda {|s| "submission_metadata"}, nil),
                     LinkedData::Hypermedia::Link.new("artefacts", lambda {|s| "artefacts"}, LinkedData::Models::SemanticArtefact.type_uri),
-                    LinkedData::Hypermedia::Link.new("records", lambda {|s| "records"}, nil),
+                    LinkedData::Hypermedia::Link.new("records", lambda {|s| "records"}, LinkedData::Models::SemanticArtefactCatalogRecord.type_uri),
                     LinkedData::Hypermedia::Link.new("users", lambda {|s| "users"}, LinkedData::Models::User.type_uri),
                     LinkedData::Hypermedia::Link.new("agents", lambda {|s| "agents"}, LinkedData::Models::Agent.type_uri),
                     LinkedData::Hypermedia::Link.new("groups", lambda {|s| "groups"}, LinkedData::Models::Group.type_uri),
@@ -168,9 +168,10 @@ module LinkedData
                     LinkedData::Hypermedia::Link.new("replies", lambda {|s| "replies"}, LinkedData::Models::Notes::Reply.type_uri),
                     LinkedData::Hypermedia::Link.new("reviews", lambda {|s| "reviews"}, LinkedData::Models::Review.type_uri)
               
-            serialize_default :acronym, :title, :identifier, :status, :language, :type, :accessRights, :license, :rightsHolder, :description,
+            serialize_default :acronym, :title, :color, :description, :logo,:identifier, :status, :language, :type, :accessRights, :license, :rightsHolder,
                               :landingPage, :keyword, :bibliographicCitation, :created, :modified , :contactPoint, :creator, :contributor, 
-                              :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL
+                              :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL,
+                              :numberOfArtefacts, :federated_portals, :fundedBy
 
             def self.type_uri
                 namespace[model_name].to_s

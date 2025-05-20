@@ -17,8 +17,8 @@ module LinkedData
       attribute :affiliations, enforce: %i[Agent list is_organization], namespace: :org, property: :memberOf
       attribute :creator, type: :user, enforce: [:existence]
       embed :identifiers, :affiliations
-      embed_values affiliations: LinkedData::Models::Agent.goo_attrs_to_load + [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load]
       serialize_methods :usages, :keywords
+      embed_values affiliations: [:name, :agentType, :homepage, :acronym, :email, :identifiers]
 
       write_access :creator
       access_control_load :creator
@@ -26,7 +26,13 @@ module LinkedData
       enable_indexing(:agents_metadata)
 
       def embedded_doc
-        "#{self.name} #{self.acronym} #{self.email} #{self.agentType}"
+        {
+          "id": "#{self.id}",
+          "name": "#{self.name}",
+          "acronym": "#{self.acronym}",
+          "email": "#{self.email}",
+          "agentType": "#{self.agentType}"
+        }.to_json
       end
 
       def self.load_agents_usages(agents = [], agent_attributes =  OntologySubmission.agents_attr_uris)
