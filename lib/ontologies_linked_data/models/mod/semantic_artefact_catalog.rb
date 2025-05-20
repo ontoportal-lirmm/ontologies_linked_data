@@ -41,18 +41,18 @@ module LinkedData
             attribute :relation, namespace: :dcterms, enforce: [:string]
             attribute :hasPolicy, namespace: :mod, enforce: [:string]
             attribute :themeTaxonomy, namespace: :mod, enforce: [:string]
-            
+
             attribute :created, namespace: :dcterms, enforce: [:date]
             attribute :curatedOn, namespace: :pav, enforce: [:date]
-            
+
             attribute :deprecated, namespace: :owl, enforce: [:boolean]
-            
+
             attribute :homepage, namespace: :foaf, enforce: [:url], default: ->(s) { RDF::URI("http://#{LinkedData.settings.ui_host}") }
             attribute :logo, namespace: :foaf, enforce: [:url]
             attribute :license, namespace: :dcterms, enforce: [:url]
             attribute :mailingList, namespace: :mod, enforce: [:url]
             attribute :fairScore, namespace: :mod, enforce: [:url]
-            
+
             attribute :federated_portals, enforce: [:list]
             attribute :fundedBy, namespace: :foaf, enforce: [:list]
             attribute :language, namespace: :dcterms, enforce: [:list]
@@ -132,7 +132,7 @@ module LinkedData
                 numberOfMappings: :mappings_counts,
                 numberOfAgents: :agents_counts
             }
-              
+
             METRICS_ATTRIBUTES.each do |attr_name, config|
                 handler = config.is_a?(Hash) ? config[:handler] : config
                 mapped_to = config.is_a?(Hash) ? config[:mapped_to] : attr_name
@@ -140,15 +140,12 @@ module LinkedData
                 define_method(handler) { calculate_attr_from_metrics(mapped_to) }
             end
 
-            link_to LinkedData::Hypermedia::Link.new("doc/legacy-api", lambda {|s| "documentation"}, nil),
-                    LinkedData::Hypermedia::Link.new("doc/mod-api", lambda {|s| "doc/api"}, nil),
+            link_to LinkedData::Hypermedia::Link.new("documentation", lambda {|s| "documentation"}, nil),
                     LinkedData::Hypermedia::Link.new("ontologies", lambda {|s| "ontologies"},  LinkedData::Models::Ontology.type_uri),
                     LinkedData::Hypermedia::Link.new("ontologies_full", lambda {|s| "ontologies_full"}, LinkedData::Models::Ontology.type_uri),
                     LinkedData::Hypermedia::Link.new("ontology_metadata", lambda {|s| "ontology_metadata"}, nil),
                     LinkedData::Hypermedia::Link.new("submissions", lambda {|s| "submissions"}, LinkedData::Models::OntologySubmission.type_uri),
                     LinkedData::Hypermedia::Link.new("submission_metadata", lambda {|s| "submission_metadata"}, nil),
-                    LinkedData::Hypermedia::Link.new("artefacts", lambda {|s| "artefacts"}, LinkedData::Models::SemanticArtefact.type_uri),
-                    LinkedData::Hypermedia::Link.new("records", lambda {|s| "records"}, LinkedData::Models::SemanticArtefactCatalogRecord.type_uri),
                     LinkedData::Hypermedia::Link.new("users", lambda {|s| "users"}, LinkedData::Models::User.type_uri),
                     LinkedData::Hypermedia::Link.new("agents", lambda {|s| "agents"}, LinkedData::Models::Agent.type_uri),
                     LinkedData::Hypermedia::Link.new("groups", lambda {|s| "groups"}, LinkedData::Models::Group.type_uri),
@@ -166,17 +163,22 @@ module LinkedData
                     LinkedData::Hypermedia::Link.new("annotator", lambda {|s| "annotator"}, nil),
                     LinkedData::Hypermedia::Link.new("notes", lambda {|s| "notes"}, LinkedData::Models::Note.type_uri),
                     LinkedData::Hypermedia::Link.new("replies", lambda {|s| "replies"}, LinkedData::Models::Notes::Reply.type_uri),
-                    LinkedData::Hypermedia::Link.new("reviews", lambda {|s| "reviews"}, LinkedData::Models::Review.type_uri)
-              
+                    LinkedData::Hypermedia::Link.new("reviews", lambda {|s| "reviews"}, LinkedData::Models::Review.type_uri),
+                    LinkedData::Hypermedia::Link.new("mod-api_documentation", lambda {|s| "mod-api/doc"}, nil),
+                    LinkedData::Hypermedia::Link.new("artefacts", lambda {|s| "mod-api/artefacts"}, LinkedData::Models::SemanticArtefact.type_uri),
+                    LinkedData::Hypermedia::Link.new("records", lambda {|s| "mod-api/records"}, LinkedData::Models::SemanticArtefactCatalogRecord.type_uri),
+                    LinkedData::Hypermedia::Link.new("search_content", lambda {|s| "mod-api/search/content"}, nil),
+                    LinkedData::Hypermedia::Link.new("search_metadata", lambda {|s| "mod-api/search/metadata"}, nil)
+
             serialize_default :acronym, :title, :color, :description, :logo,:identifier, :status, :language, :type, :accessRights, :license, :rightsHolder,
-                              :landingPage, :keyword, :bibliographicCitation, :created, :modified , :contactPoint, :creator, :contributor, 
+                              :landingPage, :keyword, :bibliographicCitation, :created, :modified , :contactPoint, :creator, :contributor,
                               :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL,
                               :numberOfArtefacts, :federated_portals, :fundedBy
 
             def self.type_uri
                 namespace[model_name].to_s
             end
-            
+
             def ontologies_count
                 LinkedData::Models::Ontology.where(viewingRestriction: 'public').count
             end
@@ -204,11 +206,11 @@ module LinkedData
             def set_preferred_namespace_uri
                 ""
             end
-            
+
             def set_preferred_namespace_prefix
                 ""
             end
-            
+
             def set_metadata_voc
                 ""
             end
@@ -216,11 +218,11 @@ module LinkedData
             def mod_uri
                  RDF::URI("https://w3id.org/mod")
             end
-            
+
             def set_feature_list
                 []
             end
-            
+
             def set_supported_schema
                 []
             end
