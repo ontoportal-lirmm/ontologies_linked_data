@@ -20,6 +20,8 @@ module LinkedData
       embed_values affiliations: [:name, :agentType, :homepage, :acronym, :email, :identifiers]
       serialize_methods :usages
 
+      prevent_serialize_when_nested :usages  
+          
       write_access :creator
       access_control_load :creator
 
