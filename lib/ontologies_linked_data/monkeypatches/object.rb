@@ -33,13 +33,12 @@ class Object
       only = Set.new(options[:include_for_class] || [])
     end
 
-    if all && !options[:nested] # Get everything if not an embedded object
+    if all # Get everything
       methods = self.class.hypermedia_settings[:serialize_methods] if self.is_a?(LinkedData::Hypermedia::Resource)
     end
 
-    # Check to see if we're nested, if so remove necessary properties and serialize methods
+    # Check to see if we're nested, if so remove necessary properties
     only = only - do_not_serialize_nested(options)
-    only -= self.class.hypermedia_settings[:serialize_methods] if options[:nested]
 
     # Determine whether to use defaults from the DSL or all attributes
     hash = populate_attributes(hash, all, only, options)
