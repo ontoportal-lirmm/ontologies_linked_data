@@ -17,8 +17,8 @@ module LinkedData
       attribute :affiliations, enforce: %i[Agent list is_organization], namespace: :org, property: :memberOf
       attribute :creator, type: :user, enforce: [:existence]
       embed :identifiers, :affiliations
+      serialize_methods :usages, :keywords
       embed_values affiliations: [:name, :agentType, :homepage, :acronym, :email, :identifiers]
-      serialize_methods :usages
 
       prevent_serialize_when_nested :usages  
           
@@ -41,6 +41,7 @@ module LinkedData
         q = Goo.sparql_query_client.select(:id, :property, :agent, :status).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id,LinkedData::Models::OntologySubmission.attribute_uri(:submissionStatus),:status], [:id, :property, :agent])
         q = q.filter("?status = <#{RDF::URI.new(LinkedData::Models::SubmissionStatus.id_prefix + 'RDF')}> || ?status = <#{RDF::URI.new(LinkedData::Models::SubmissionStatus.id_prefix + 'UPLOADED')}>")
         q = q.filter(agent_attributes.map{|attr| "?property = <#{attr}>"}.join(' || '))
+        q = q.values(:agent,  *agents.map { |agent| RDF::URI(agent.id.to_s)})
 
         data = q.each_solution.group_by{|x| x[:agent]}
 
@@ -63,6 +64,21 @@ module LinkedData
       def usages(force_update: false)
         self.class.load_agents_usages([self]) if  !instance_variable_defined?("@usages")  || force_update
         @usages
+      end
+
+      def self.load_agents_keywords(agent)
+        q = Goo.sparql_query_client.select(:keywords).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id, :property, :agent], [:id, LinkedData::Models::OntologySubmission.attribute_uri(:keywords), :keywords])
+        q = q.filter("?agent = <#{agent.id}>")
+        q = q.values(:id,  *agent.usages.keys.map { |uri| RDF::URI(uri.to_s)})
+
+
+        keywords = q.solutions.map { |solution| solution[:keywords].to_s }
+        agent.instance_variable_set("@keywords", keywords)
+        agent.loaded_attributes.add(:keywords)
+      end
+      def keywords(force_update: false)
+        self.class.load_agents_keywords(self) if  !instance_variable_defined?("@keywords")  || force_update
+        @keywords
       end
 
       def unique_identifiers(inst, attr)
