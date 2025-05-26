@@ -17,7 +17,7 @@ module LinkedData
       attribute :affiliations, enforce: %i[Agent list is_organization], namespace: :org, property: :memberOf
       attribute :creator, type: :user, enforce: [:existence]
       embed :identifiers, :affiliations
-      serialize_methods :usages, :keywords
+      serialize_methods :usages, :keywords, :groups, :categories
       embed_values affiliations: [:name, :agentType, :homepage, :acronym, :email, :identifiers]
 
       prevent_serialize_when_nested :usages  
@@ -81,6 +81,31 @@ module LinkedData
         @keywords
       end
 
+      def self.load_agents_categories_groups(agent)
+        q = Goo.sparql_query_client.select(:groups, :categories).distinct.from(LinkedData::Models::Ontology.uri_type)
+        q = q.optional([:id, LinkedData::Models::Ontology.attribute_uri(:group), :groups])
+        q = q.optional([:id, LinkedData::Models::Ontology.attribute_uri(:hasDomain), :categories])
+        # Strip trailing '/submissions/<id>' from URIs
+        uris = agent.usages.keys.map do |uri|
+          cleaned_uri = uri.to_s.sub(/\/submissions\/\d+$/, "")
+          RDF::URI(cleaned_uri)
+        end
+        q = q.values(:id, *uris)
+        
+        [:groups, :categories].each do |attr|
+          values = q.solutions.map { |solution| solution[attr] }.compact.reject(&:empty?)
+          agent.instance_variable_set("@#{attr}", values)
+          agent.loaded_attributes.add(attr)
+        end
+      end 
+      def categories
+        self.class.load_agents_categories_groups(self) if !instance_variable_defined?("@categories")  
+        @categories
+      end
+      def groups
+        self.class.load_agents_categories_groups(self) if !instance_variable_defined?("@groups")  
+        @groups
+      end
       def unique_identifiers(inst, attr)
         inst.bring(attr) if inst.bring?(attr)
         identifiers = inst.send(attr)
