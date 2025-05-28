@@ -17,10 +17,10 @@ module LinkedData
       attribute :affiliations, enforce: %i[Agent list is_organization], namespace: :org, property: :memberOf
       attribute :creator, type: :user, enforce: [:existence]
       embed :identifiers, :affiliations
-      serialize_methods :usages, :keywords
+      serialize_methods :usages, :keywords, :groups, :categories, :relatedAgents, :affiliatedAgents
       embed_values affiliations: [:name, :agentType, :homepage, :acronym, :email, :identifiers]
 
-      prevent_serialize_when_nested :usages  
+      prevent_serialize_when_nested :usages, :affiliations, :keywords, :groups, :categories, :relatedAgents, :affiliatedAgents
           
       write_access :creator
       access_control_load :creator
@@ -81,6 +81,72 @@ module LinkedData
         @keywords
       end
 
+      def self.load_agents_categories_groups(agent)
+        q = Goo.sparql_query_client.select(:groups, :categories).distinct.from(LinkedData::Models::Ontology.uri_type)
+        q = q.optional([:id, LinkedData::Models::Ontology.attribute_uri(:group), :groups])
+        q = q.optional([:id, LinkedData::Models::Ontology.attribute_uri(:hasDomain), :categories])
+        # Strip trailing '/submissions/<id>' from URIs
+        uris = agent.usages.keys.map do |uri|
+          cleaned_uri = uri.to_s.sub(/\/submissions\/\d+$/, "")
+          RDF::URI(cleaned_uri)
+        end
+        q = q.values(:id, *uris)
+        
+        [:groups, :categories].each do |attr|
+          values = q.solutions.map { |solution| solution[attr] }.compact.uniq.reject(&:empty?)
+          agent.instance_variable_set("@#{attr}", values)
+          agent.loaded_attributes.add(attr)
+        end
+      end 
+      def categories
+        self.class.load_agents_categories_groups(self) if !instance_variable_defined?("@categories")  
+        @categories
+      end
+      def groups
+        self.class.load_agents_categories_groups(self) if !instance_variable_defined?("@groups")  
+        @groups
+      end
+
+
+      def self.load_related_agents(agent)
+        q = Goo.sparql_query_client.select(:id, :agent).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id, :property, :agent])
+        q = q.filter(OntologySubmission.agents_attr_uris.map{|attr| "?property = <#{attr}>"}.join(' || '))
+        q = q.values(:id,  *agent.usages.keys.map { |uri| RDF::URI(uri.to_s)})
+        relatedAgentsIds = q.each_solution.group_by{|x| x[:agent].to_s}
+                            .reject { |agent_id, _| agent_id == agent.id.to_s }
+                            .transform_values { |solutions| solutions.map { |s| s[:id] } }
+        # map the previously fetched usages
+        relatedAgents = self.fetch_agents_data(relatedAgentsIds.keys).each { |agent| agent.usages = relatedAgentsIds[agent.id.to_s].map(&:to_s).uniq }
+        
+        agent.instance_variable_set("@relatedAgents", relatedAgents)
+        agent.loaded_attributes.add(:relatedAgents)
+      end     
+      
+      def relatedAgents
+        self.class.load_related_agents(self) if !instance_variable_defined?("@relatedAgents")  
+        @relatedAgents
+      end
+
+      def self.load_affiliated_agents(agent)
+        return nil unless agent.agentType == 'organization'
+        q = Goo.sparql_query_client.select(:id).distinct.from(LinkedData::Models::Agent.uri_type)
+        q = q.where([:id, LinkedData::Models::Agent.attribute_uri(:affiliations), :agent])
+        q = q.values(:agent,  *agent.id)
+        
+        affiliatedAgentsIds = q.solutions.map { |solution| solution[:id].to_s }.uniq
+        affiliatedAgents = self.fetch_agents_data(affiliatedAgentsIds) 
+
+        
+        agent.instance_variable_set("@affiliatedAgents", affiliatedAgents)
+        agent.loaded_attributes.add(:affiliatedAgents)
+
+      end     
+      
+      def affiliatedAgents
+        self.class.load_affiliated_agents(self) if !instance_variable_defined?("@affiliatedAgents")
+        @affiliatedAgents
+      end
+
       def unique_identifiers(inst, attr)
         inst.bring(attr) if inst.bring?(attr)
         identifiers = inst.send(attr)
@@ -106,6 +172,32 @@ module LinkedData
         end
 
         []
+      end
+      def self.fetch_agents_data(affiliated_agents_ids)
+        return [] if affiliated_agents_ids.empty?
+
+        agent_ids = affiliated_agents_ids.map(&:to_s).uniq
+
+        q = Goo.sparql_query_client
+          .select(:id, :name, :acronym, :agentType)
+          .distinct
+          .from(LinkedData::Models::Agent.uri_type)
+          .where(
+            [:id, LinkedData::Models::Agent.attribute_uri(:name), :name],
+            [:id, LinkedData::Models::Agent.attribute_uri(:agentType), :agentType]
+          )
+          .optional([:id, LinkedData::Models::Agent.attribute_uri(:acronym), :acronym])
+          .values(:id, *agent_ids.map { |uri| RDF::URI(uri.to_s) })
+
+        q.solutions.map do |agent|
+          LinkedData::Models::Agent.read_only(
+            id: agent[:id].to_s,
+            name: agent[:name].to_s,
+            acronym: agent[:acronym].to_s,
+            agentType: agent[:agentType].to_s,
+            usages: nil
+          )
+        end
       end
     end
   end
