@@ -67,12 +67,16 @@ module LinkedData
       end
 
       def self.load_agents_keywords(agent)
-        q = Goo.sparql_query_client.select(:keywords).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id, :property, :agent], [:id, LinkedData::Models::OntologySubmission.attribute_uri(:keywords), :keywords])
-        q = q.filter("?agent = <#{agent.id}>")
-        q = q.values(:id,  *agent.usages.keys.map { |uri| RDF::URI(uri.to_s)})
+        if agent.usages.empty?
+          keywords = []
+        else
+          q = Goo.sparql_query_client.select(:keywords).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id, :property, :agent], [:id, LinkedData::Models::OntologySubmission.attribute_uri(:keywords), :keywords])
+          q = q.filter("?agent = <#{agent.id}>")
+          q = q.values(:id,  *agent.usages.keys.map { |uri| RDF::URI(uri.to_s)})
 
 
-        keywords = q.solutions.map { |solution| solution[:keywords].to_s }
+          keywords = q.solutions.map { |solution| solution[:keywords].to_s }
+        end
         agent.instance_variable_set("@keywords", keywords)
         agent.loaded_attributes.add(:keywords)
       end
@@ -103,15 +107,20 @@ module LinkedData
       end
 
       def self.load_related_agents(agent)
-        q = Goo.sparql_query_client.select(:id, :agent).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id, :property, :agent])
-        q = q.filter(OntologySubmission.agents_attr_uris.map{|attr| "?property = <#{attr}>"}.join(' || '))
-        q = q.values(:id,  *agent.usages.keys.map { |uri| RDF::URI(uri.to_s)})
-        relatedAgentsIds = q.each_solution.group_by{|x| x[:agent].to_s}
-                            .reject { |agent_id, _| agent_id == agent.id.to_s }
-                            .transform_values { |solutions| solutions.map { |s| s[:id] } }
-        # map the previously fetched usages
-        relatedAgents = self.fetch_agents_data(relatedAgentsIds.keys).each { |agent| agent.usages = relatedAgentsIds[agent.id.to_s].map(&:to_s).uniq }
-        
+        if agent.usages.empty?
+          relatedAgents = []
+        else
+          q = Goo.sparql_query_client.select(:id, :agent).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id, :property, :agent])
+          q = q.filter(OntologySubmission.agents_attr_uris.map{|attr| "?property = <#{attr}>"}.join(' || '))
+          q = q.values(:id,  *agent.usages.keys.map { |uri| RDF::URI(uri.to_s)})
+          relatedAgentsIds = q.each_solution.group_by{|x| x[:agent].to_s}
+                              .reject { |agent_id, _| agent_id == agent.id.to_s }
+                              .transform_values { |solutions| solutions.map { |s| s[:id] } }
+          # map the previously fetched usages
+          relatedAgents = self.fetch_agents_data(relatedAgentsIds.keys)
+                              .reject { |ag| ag.id == agent.id }
+                              .each { |agent| agent.usages = relatedAgentsIds[agent.id.to_s].map(&:to_s).uniq }
+        end
         agent.instance_variable_set("@relatedAgents", relatedAgents)
         agent.loaded_attributes.add(:relatedAgents)
       end     
