@@ -80,33 +80,27 @@ module LinkedData
         self.class.load_agents_keywords(self) if  !instance_variable_defined?("@keywords")  || force_update
         @keywords
       end
+      
+      def self.load_agents_categories(agent)
+        if agent.usages.empty?
+          categories = []
+        else
+          uris = agent.class.strip_submission_id_from_uris(agent.usages.keys)
+                    
+          q = Goo.sparql_query_client.select(:categories).distinct.from(LinkedData::Models::Ontology.uri_type)
+          q = q.optional([:id, LinkedData::Models::Ontology.attribute_uri(:hasDomain), :categories])
+          q = q.values(:id, *uris)
+          
+          categories = q.solutions.map { |solution| solution[:categories] || solution["categories"] }.compact.uniq.reject(&:empty?)
+        end
+        agent.instance_variable_set("@categories", categories)
+        agent.loaded_attributes.add("categories")
+      end
 
-      def self.load_agents_categories_groups(agent)
-        q = Goo.sparql_query_client.select(:groups, :categories).distinct.from(LinkedData::Models::Ontology.uri_type)
-        q = q.optional([:id, LinkedData::Models::Ontology.attribute_uri(:group), :groups])
-        q = q.optional([:id, LinkedData::Models::Ontology.attribute_uri(:hasDomain), :categories])
-        # Strip trailing '/submissions/<id>' from URIs
-        uris = agent.usages.keys.map do |uri|
-          cleaned_uri = uri.to_s.sub(/\/submissions\/\d+$/, "")
-          RDF::URI(cleaned_uri)
-        end
-        q = q.values(:id, *uris)
-        
-        [:groups, :categories].each do |attr|
-          values = q.solutions.map { |solution| solution[attr] }.compact.uniq.reject(&:empty?)
-          agent.instance_variable_set("@#{attr}", values)
-          agent.loaded_attributes.add(attr)
-        end
-      end 
       def categories
-        self.class.load_agents_categories_groups(self) if !instance_variable_defined?("@categories")  
+        self.class.load_agents_categories(self)
         @categories
       end
-      def groups
-        self.class.load_agents_categories_groups(self) if !instance_variable_defined?("@groups")  
-        @groups
-      end
-
 
       def self.load_related_agents(agent)
         q = Goo.sparql_query_client.select(:id, :agent).distinct.from(LinkedData::Models::OntologySubmission.uri_type).where([:id, :property, :agent])
@@ -197,6 +191,13 @@ module LinkedData
             agentType: agent[:agentType].to_s,
             usages: nil
           )
+        end
+      end
+
+      def self.strip_submission_id_from_uris(uris)
+        uris.map do |uri|
+          cleaned_uri = uri.to_s.sub(%r{/submissions/\d+$}, '')
+          RDF::URI(cleaned_uri)
         end
       end
     end
