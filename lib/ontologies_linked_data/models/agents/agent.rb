@@ -120,6 +120,7 @@ module LinkedData
           relatedAgents = self.fetch_agents_data(relatedAgentsIds.keys)
                               .reject { |ag| ag.id == agent.id }
                               .each { |agent| agent.usages = relatedAgentsIds[agent.id.to_s].map(&:to_s).uniq }
+                              .map { |agent| agent.to_h.reject { |k, _| [:klass, :aggregates, :unmapped].include?(k) }}
         end
         agent.instance_variable_set("@relatedAgents", relatedAgents)
         agent.loaded_attributes.add(:relatedAgents)
@@ -137,7 +138,7 @@ module LinkedData
         q = q.values(:agent,  *agent.id)
         
         affiliatedAgentsIds = q.solutions.map { |solution| solution[:id].to_s }.uniq
-        affiliatedAgents = self.fetch_agents_data(affiliatedAgentsIds) 
+        affiliatedAgents = self.fetch_agents_data(affiliatedAgentsIds).map { |agent| agent.to_h.reject { |k, _| [:klass, :aggregates, :unmapped].include?(k) }} 
 
         
         agent.instance_variable_set("@affiliatedAgents", affiliatedAgents)
