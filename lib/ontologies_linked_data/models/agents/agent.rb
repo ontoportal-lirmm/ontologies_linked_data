@@ -17,10 +17,10 @@ module LinkedData
       attribute :affiliations, enforce: %i[Agent list is_organization], namespace: :org, property: :memberOf
       attribute :creator, type: :user, enforce: [:existence]
       embed :identifiers, :affiliations
-      serialize_methods :usages, :keywords, :groups, :categories, :relatedAgents, :affiliatedAgents
+      serialize_methods :usages, :keywords, :groups, :categories, :subjects, :relatedAgents, :affiliatedAgents
       embed_values affiliations: [:name, :agentType, :homepage, :acronym, :email, :identifiers]
 
-      prevent_serialize_when_nested :usages, :affiliations, :keywords, :groups, :categories, :relatedAgents, :affiliatedAgents
+      prevent_serialize_when_nested :usages, :affiliations, :keywords, :groups, :categories, :subjects, :relatedAgents, :affiliatedAgents
           
       write_access :creator
       access_control_load :creator
@@ -104,6 +104,27 @@ module LinkedData
       def categories
         self.class.load_agents_categories(self)
         @categories
+      end
+
+      def self.load_agents_subjects(agent)
+        if agent.usages.empty?
+          subjects = []
+        else
+          uris = agent.class.strip_submission_id_from_uris(agent.usages.keys)
+                    
+          q = Goo.sparql_query_client.select(:subjects).distinct.from(LinkedData::Models::OntologySubmission.uri_type)
+          q = q.optional([:id, LinkedData::Models::OntologySubmission.attribute_uri(:hasDomain), :subjects])
+          q = q.values(:id, *uris)
+          
+          subjects = q.solutions.map { |solution| solution[:subjects] || solution["subjects"] }.compact.uniq.reject(&:empty?)
+        end
+        agent.instance_variable_set("@subjects", subjects)
+        agent.loaded_attributes.add("subjects")
+      end
+
+      def subjects
+        self.class.load_agents_subjects(self)
+        @subjects
       end
 
       def self.load_related_agents(agent)
