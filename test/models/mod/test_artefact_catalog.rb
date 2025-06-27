@@ -72,6 +72,6 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
     sac = LinkedData::Models::SemanticArtefactCatalog.all.first
     all_attrs_to_bring = LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([:all])
     sac.bring(*all_attrs_to_bring)
-    assert_equal all_attrs_to_bring.sort, (sac.loaded_attributes.to_a + [:type]).sort
+    assert_equal (all_attrs_to_bring.flat_map { |e| e.is_a?(Hash) ? e.keys : e }).sort, (sac.loaded_attributes.to_a + [:type]).sort
   end
 end
