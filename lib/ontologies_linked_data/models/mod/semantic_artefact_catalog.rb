@@ -175,6 +175,8 @@ module LinkedData
                               :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL,
                               :numberOfArtefacts, :federated_portals, :fundedBy
 
+            embed :rightsHolder, :contactPoint, :creator, :contributor, :curatedBy, :translator, :publisher, :endorsedBy
+
             def self.type_uri
                 namespace[model_name].to_s
             end
