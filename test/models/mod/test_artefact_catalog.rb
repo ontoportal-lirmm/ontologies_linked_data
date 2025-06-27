@@ -56,7 +56,7 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
       default_attrs = LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([])
       assert_equal [:acronym, :title, :color, :description, :logo, :identifier, :status, :language, :type, :accessRights, :license, :rightsHolder, 
       :landingPage, :keyword, :bibliographicCitation, :created, :modified, :contactPoint, :creator, :contributor, :publisher, :subject,
-      :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL, :numberOfArtefacts, :federated_portals, :fundedBy], default_attrs
+      :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL, :numberOfArtefacts, :federated_portals, :fundedBy].sort, (default_attrs.flat_map { |e| e.is_a?(Hash) ? e.keys : e }).sort
 
       specified_attrs = LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([:acronym, :title, :keyword, :featureList])
       assert_equal [:acronym, :title, :keyword, :featureList], specified_attrs
