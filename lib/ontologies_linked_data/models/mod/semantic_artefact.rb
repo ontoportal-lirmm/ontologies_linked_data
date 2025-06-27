@@ -119,16 +119,16 @@ module LinkedData
             attribute :ontology, type: :ontology, enforce: [:existence]
             
             links_load :acronym
-            link_to LinkedData::Hypermedia::Link.new("distributions", lambda {|s| "artefacts/#{s.acronym}/distributions"}, LinkedData::Models::SemanticArtefactDistribution.type_uri),
-                    LinkedData::Hypermedia::Link.new("record", lambda {|s| "artefacts/#{s.acronym}/record"}, LinkedData::Models::SemanticArtefactCatalogRecord.type_uri),
-                    LinkedData::Hypermedia::Link.new("resources", lambda {|s| "artefacts/#{s.acronym}/resources"}),
-                    LinkedData::Hypermedia::Link.new("classes", lambda {|s| "artefacts/#{s.acronym}/classes"}, LinkedData::Models::Class.uri_type),
-                    LinkedData::Hypermedia::Link.new("concepts", lambda {|s| "artefacts/#{s.acronym}/concepts"}, LinkedData::Models::Class.uri_type),
-                    LinkedData::Hypermedia::Link.new("properties", lambda {|s| "artefacts/#{s.acronym}/properties"}, "#{Goo.namespaces[:metadata].to_s}Property"),
-                    LinkedData::Hypermedia::Link.new("individuals", lambda {|s| "artefacts/#{s.acronym}/classes/roots"}, LinkedData::Models::Class.uri_type),
-                    LinkedData::Hypermedia::Link.new("schemes", lambda {|s| "artefacts/#{s.acronym}/schemes"}, LinkedData::Models::SKOS::Scheme.uri_type),
-                    LinkedData::Hypermedia::Link.new("collection", lambda {|s| "artefacts/#{s.acronym}/collections"}, LinkedData::Models::SKOS::Collection.uri_type),
-                    LinkedData::Hypermedia::Link.new("labels", lambda {|s| "artefacts/#{s.acronym}/labels"}, LinkedData::Models::SKOS::Label.uri_type)
+            link_to LinkedData::Hypermedia::Link.new("distributions", lambda {|s| "mod-api/artefacts/#{s.acronym}/distributions"}, LinkedData::Models::SemanticArtefactDistribution.type_uri),
+                    LinkedData::Hypermedia::Link.new("record", lambda {|s| "mod-api/artefacts/#{s.acronym}/record"}, LinkedData::Models::SemanticArtefactCatalogRecord.type_uri),
+                    LinkedData::Hypermedia::Link.new("resources", lambda {|s| "mod-api/artefacts/#{s.acronym}/resources"}),
+                    LinkedData::Hypermedia::Link.new("classes", lambda {|s| "mod-api/artefacts/#{s.acronym}/resources/classes"}, LinkedData::Models::Class.uri_type),
+                    LinkedData::Hypermedia::Link.new("concepts", lambda {|s| "mod-api/artefacts/#{s.acronym}/resources/concepts"}, LinkedData::Models::Class.uri_type),
+                    LinkedData::Hypermedia::Link.new("properties", lambda {|s| "mod-api/artefacts/#{s.acronym}/resources/properties"}, "#{Goo.namespaces[:metadata].to_s}Property"),
+                    LinkedData::Hypermedia::Link.new("individuals", lambda {|s| "mod-api/artefacts/#{s.acronym}/resources/individuals"}, LinkedData::Models::Class.uri_type),
+                    LinkedData::Hypermedia::Link.new("schemes", lambda {|s| "mod-api/artefacts/#{s.acronym}/resources/schemes"}, LinkedData::Models::SKOS::Scheme.uri_type),
+                    LinkedData::Hypermedia::Link.new("collection", lambda {|s| "mod-api/artefacts/#{s.acronym}/resources/collections"}, LinkedData::Models::SKOS::Collection.uri_type),
+                    LinkedData::Hypermedia::Link.new("labels", lambda {|s| "mod-api/artefacts/#{s.acronym}/resources/labels"}, LinkedData::Models::SKOS::Label.uri_type)
 
             # Access control
             read_restriction_based_on ->(artefct) { artefct.ontology }
