@@ -110,13 +110,17 @@ module LinkedData
         if agent.usages.empty?
           subjects = []
         else
-          uris = agent.class.strip_submission_id_from_uris(agent.usages.keys)
-                    
+          uris = agent.usages.keys
           q = Goo.sparql_query_client.select(:subjects).distinct.from(LinkedData::Models::OntologySubmission.uri_type)
           q = q.optional([:id, LinkedData::Models::OntologySubmission.attribute_uri(:hasDomain), :subjects])
           q = q.values(:id, *uris)
           
-          subjects = q.solutions.map { |solution| solution[:subjects] || solution["subjects"] }.compact.uniq.reject(&:empty?)
+          subjects = q.solutions
+             .map { |solution| solution[:subjects] || solution["subjects"] }
+             .compact
+             .map(&:to_s)
+             .reject(&:empty?)
+             .uniq
         end
         agent.instance_variable_set("@subjects", subjects)
         agent.loaded_attributes.add("subjects")
