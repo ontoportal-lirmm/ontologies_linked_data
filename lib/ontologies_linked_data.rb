@@ -40,7 +40,8 @@ require "ontologies_linked_data/metrics/metrics"
 # Require base model
 require 'ontologies_linked_data/models/base'
 
-
+# Require base job
+require 'ontologies_linked_data/jobs/base'
 
 
 # Require all models and services
@@ -67,6 +68,11 @@ models.each do |m|
   require m
 end
 
+# We need to require deterministic - that is why we have the sort.
+jobs = Dir.glob("#{project_root}/ontologies_linked_data/jobs/**/*.rb").sort
+jobs.each do |job|
+  require job
+end
 
 
 module LinkedData
