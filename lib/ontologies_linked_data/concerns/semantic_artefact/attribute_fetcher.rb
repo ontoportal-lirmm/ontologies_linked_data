@@ -43,21 +43,21 @@ module LinkedData
             
                 def fetch_from_submission(attributes)
                     return if attributes.empty?
-                    @latest ||= defined?(@ontology) ? @ontology.latest_submission(status: :ready) : @submission
-                    return unless @latest
-                    @latest.bring(*attributes.values)
+                    @submission_to_fetch_from ||= defined?(@submission) ? @submission : defined?(@ontology) ? @ontology.latest_submission(status: :ready) : nil
+                    return unless @submission_to_fetch_from
+                    @submission_to_fetch_from.bring(*attributes.values)
                     attributes.each do |attr, mapped_attr|
-                        self.send("#{attr}=", @latest.send(mapped_attr)) if @latest.respond_to?(mapped_attr)
+                        self.send("#{attr}=", @submission_to_fetch_from.send(mapped_attr)) if @submission_to_fetch_from.respond_to?(mapped_attr)
                     end
                 end
             
                 def fetch_from_metrics(attributes)
                     return if attributes.empty?
-                    @latest ||= defined?(@ontology) ? @ontology.latest_submission(status: :ready) : @submission
-                    return unless @latest
-                    @latest.bring(metrics: [attributes.values])
+                    @submission_to_fetch_from ||= defined?(@submission) ? @submission : defined?(@ontology) ? @ontology.latest_submission(status: :ready) : nil
+                    return unless @submission_to_fetch_from
+                    @submission_to_fetch_from.bring(metrics: [attributes.values])
                     attributes.each do |attr, mapped_attr|
-                        metric_value = @latest.metrics&.respond_to?(mapped_attr) ? @latest.metrics.send(mapped_attr) || 0 : 0
+                        metric_value = @submission_to_fetch_from.metrics&.respond_to?(mapped_attr) ? @submission_to_fetch_from.metrics.send(mapped_attr) || 0 : 0
                         self.send("#{attr}=", metric_value)
                     end
                 end
