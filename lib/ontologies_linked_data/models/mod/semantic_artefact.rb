@@ -185,11 +185,9 @@ module LinkedData
                 submissions_count =  OntologySubmission.where.filter(filter_by_acronym).count
                 submissions_page = OntologySubmission.where.include(:distributionId)
                                                     .filter(filter_by_acronym)
-                                                    .order_by(distributionId: :desc)
                                                     .page(page, pagesize)
                                                     .page_count_set(submissions_count)
                                                     .all
-
                 all_distributions = submissions_page.map do |submission|
                     SemanticArtefactDistribution.new(submission).tap do |dist|
                         dist.bring(*attributes) if attributes
