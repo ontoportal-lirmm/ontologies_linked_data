@@ -7,48 +7,86 @@ module LinkedData
 
       def self.serialize(obj, options = {})
 
+        return serialize_mod_objects(obj, options) if mod_object?(obj)
 
+        # Handle the serialization for all other objects in the standard way
         hash = obj.to_flex_hash(options) do |hash, hashed_obj|
-          current_cls = hashed_obj.respond_to?(:klass) ? hashed_obj.klass : hashed_obj.class
-          result_lang = self.get_languages(get_object_submission(hashed_obj), options[:lang]) if result_lang.nil?
-
-          # Add the id to json-ld attribute
-          if current_cls.ancestors.include?(LinkedData::Hypermedia::Resource) && !current_cls.embedded? && hashed_obj.respond_to?(:id)
-            prefixed_id = LinkedData::Models::Base.replace_url_id_to_prefix(hashed_obj.id)
-            hash["@id"] = prefixed_id.to_s
-          end
-
-          # Add the type
-          hash["@type"] = type(current_cls, hashed_obj) if hash["@id"]
-
-          # Generate links
-          # NOTE: If this logic changes, also change in xml.rb
-          if generate_links?(options)
-            links = LinkedData::Hypermedia.generate_links(hashed_obj)
-            unless links.empty?
-              hash["links"] = links
-              hash["links"].merge!(generate_links_context(hashed_obj)) if generate_context?(options)
-            end
-          end
-
-          # Generate context
-          if current_cls.ancestors.include?(Goo::Base::Resource) && !current_cls.embedded?
-            if generate_context?(options)
-              context = generate_context(hashed_obj, hash.keys, options)
-              hash.merge!(context)
-            end
-          elsif (hashed_obj.instance_of?(LinkedData::Models::ExternalClass) || hashed_obj.instance_of?(LinkedData::Models::InterportalClass)) && !current_cls.embedded?
-            # Add context for ExternalClass
-            context_hash = { "@vocab" => Goo.vocabulary.to_s, "prefLabel" => "http://data.bioontology.org/metadata/skosprefLabel" }
-            context = { "@context" => context_hash }
-            hash.merge!(context)
-          end
-          hash['@context']['@language'] = result_lang if hash['@context']
+          process_common_serialization(hash, hashed_obj, options)
         end
         MultiJson.dump(hash)
       end
+      
+      def self.serialize_mod_objects(obj, options = {})
+        # using one context and links in mod objects
+        global_context = {}
 
+        hash = obj.to_flex_hash(options) do |hash, hashed_obj|
+          process_common_serialization(hash, hashed_obj, options, global_context)
+        end
+
+        result = {}
+        # handle adding the context for HydraPage
+        if obj.is_a?(LinkedData::Models::HydraPage)
+          global_context["@context"] ||= {}
+          global_context["@context"].merge!(LinkedData::Models::HydraPage.generate_hydra_context)
+        end
+        result.merge!(global_context) unless global_context.empty?
+        result.merge!(hash) if hash.is_a?(Hash)
+        MultiJson.dump(result)
+      end
+
+      
       private
+      
+      def self.process_common_serialization(hash, hashed_obj, options, global_context= nil)
+        current_cls = hashed_obj.respond_to?(:klass) ? hashed_obj.klass : hashed_obj.class
+        result_lang = get_languages(get_object_submission(hashed_obj), options[:lang])
+
+        add_id_and_type(hash, hashed_obj, current_cls)
+        add_links(hash, hashed_obj, options) if generate_links?(options)
+        add_context(hash, hashed_obj, options, current_cls, result_lang, global_context) if generate_context?(options)
+      end
+
+      def self.add_id_and_type(hash, hashed_obj, current_cls)
+        return unless current_cls.ancestors.include?(LinkedData::Hypermedia::Resource) && !current_cls.embedded? && hashed_obj.respond_to?(:id)
+
+        hash["@id"] = LinkedData::Models::Base.replace_url_id_to_prefix(hashed_obj.id).to_s
+        hash["@type"] = type(current_cls, hashed_obj) if hash["@id"]
+      end
+
+      def self.add_links(hash, hashed_obj, options)
+        links = LinkedData::Hypermedia.generate_links(hashed_obj)
+        return if links.empty?
+        hash["links"] = links
+        hash["links"].merge!(generate_links_context(hashed_obj)) if generate_context?(options)
+      end
+
+      def self.add_context(hash, hashed_obj, options, current_cls, result_lang, global_context)
+        return if global_context&.any?
+
+        if global_context.nil?
+          if current_cls.ancestors.include?(Goo::Base::Resource) && !current_cls.embedded?
+            context = generate_context(hashed_obj, hash.keys, options)
+            hash.merge!(context)
+          elsif (hashed_obj.instance_of?(LinkedData::Models::ExternalClass) || hashed_obj.instance_of?(LinkedData::Models::InterportalClass)) && !current_cls.embedded?
+            # Add context for ExternalClass
+            external_class_context = { "@context" => { "@vocab" => Goo.vocabulary.to_s, "prefLabel" => "http://data.bioontology.org/metadata/skosprefLabel" } }
+            hash.merge!(external_class_context)
+          end
+          hash['@context']['@language'] = result_lang if hash['@context']
+        elsif global_context.empty?
+          context = generate_context(hashed_obj, hash.keys, options)
+          global_context.replace(context)
+          global_context["@context"]["@language"] = result_lang unless global_context.empty?
+        end
+      end
+
+      def self.mod_object?(obj)
+        return false if obj.nil?
+        single_object = (obj.class == Array) && obj.any? ? obj.first : obj
+        single_object.class.ancestors.include?(LinkedData::Models::HydraPage) || single_object.class.ancestors.include?(LinkedData::Models::ModBase)
+      end
+      
 
       def self.get_object_submission(obj)
         obj.class.respond_to?(:attributes) && obj.class.attributes.include?(:submission) ? obj.submission : nil

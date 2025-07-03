@@ -13,8 +13,6 @@ module LinkedData
 
       embedded true
 
-      serialize_default  :notation, :schemaAgency
-    
       write_access :creator
       access_control_load :creator
 
