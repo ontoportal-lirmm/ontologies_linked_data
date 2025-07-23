@@ -99,7 +99,7 @@ module LinkedData
       # Usage metadata
       attribute :knownUsage, namespace: :omv, type: :list
       attribute :designedForOntologyTask, namespace: :omv, type: %i[list uri]
-      attribute :hasDomain, namespace: :omv, type: :list, default: ->(s) { ontology_has_domain(s) }
+      attribute :hasDomain, namespace: :omv, type: :list
       attribute :coverage, namespace: :dct
       attribute :example, namespace: :vann, type: :list
 
