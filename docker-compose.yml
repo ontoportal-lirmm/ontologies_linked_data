@@ -15,6 +15,15 @@ x-app: &app
     REDIS_PORT: 6379
     SOLR_TERM_SEARCH_URL: http://solr-term-ut:8983/solr/term_search_core1
     SOLR_PROP_SEARCH_URL: http://solr-prop-ut:8983/solr/prop_search_core1
+    GOO_BACKEND_NAME: virtuoso
+    GOO_PORT: 8890
+    GOO_HOST: virtuoso-ut
+    GOO_PATH_DATA: /sparql-auth/
+    GOO_PATH_QUERY: /sparql-auth/
+    GOO_PATH_UPDATE: /sparql-auth/
+    USE_DIGEST_AUTH: true
+    DB_USER: dba
+    DB_PASSWORD: dba
   stdin_open: true
   tty: true
   command: /bin/bash
@@ -93,19 +102,20 @@ services:
       - ag
 
   virtuoso-ut:
-    image: tenforce/virtuoso:virtuoso7.2.5
+    image: openlink/virtuoso-opensource-7:7.2.15
     platform: linux/amd64
     environment:
       - SPARQL_UPDATE=true
+      - DBA_PASSWORD=dba
     ports:
       - 1111:1111
       - 8890:8890
     profiles:
       - vo
     healthcheck:
-      test: [ "CMD-SHELL", "curl -sf  http://localhost:8890/sparql  || exit 1" ]
-      start_period: 10s
-      interval: 60s
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8890/sparql || exit 1"]
+      start_period: 20s
+      interval: 20s
       timeout: 5s
       retries: 3
 
