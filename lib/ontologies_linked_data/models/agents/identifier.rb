@@ -6,7 +6,7 @@ module LinkedData
 
       model :Identifier, namespace: :adms, name_with: lambda {  |i| generate_identifier(i.notation, i.schemaAgency)}
 
-      attribute :notation, namespace: :skos, enforce: %i[existence no_url]
+      attribute :notation, namespace: :skos, enforce: %i[existence no_url notation_format]
       attribute :schemaAgency, namespace: :adms, enforcedValues: IDENTIFIER_SCHEMES.keys, enforce: [:existence]
       attribute :schemeURI, handler: :scheme_uri_infer
       attribute :creator, type: :user, enforce: [:existence]
@@ -29,6 +29,33 @@ module LinkedData
         inst.bring(attr) if inst.bring?(attr)
         notation = inst.send(attr)
         return  notation&.start_with?('http') ? [:no_url, "`notation` must not be a URL"]  : []
+      end
+
+      def notation_format(inst, attr)
+        inst.bring([attr, :schemaAgency]) if inst.bring?(attr)
+        notation = inst.send(attr)
+        schema_agency = inst.send(:schemaAgency)
+
+        # Validate notation format depending on schema to not have weird ids
+        case schema_agency
+        when "ROR"
+          unless notation.match?(/^[0-9a-z]{9}$/i) # ROR IDs are 9-char base32
+            return [:notation_format, "`notation` must be compliant with ROR format"]
+          end
+        when "ORCID"
+          unless notation.match?(/^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/)
+            return [:notation_format, "`notation` must be compliant with ORCID format"]
+          end
+        when "ISNI"
+          unless notation.match?(/^\d{4}\s?\d{4}\s?\d{4}\s?\d{3}[\dX]$/)
+            return [:notation_format, "`notation` must be compliant with ISNI format"]
+          end
+        when "GRID"
+          unless notation.match?(/^grid\.[0-9]+\.[a-f0-9]{1,2}$/i)
+            return [:notation_format, "`notation` must be compliant with GRID format"]
+          end
+        end
+
       end
 
       def scheme_uri_infer
