@@ -164,7 +164,7 @@ module LinkedData
                     LinkedData::Hypermedia::Link.new("notes", lambda {|s| "notes"}, LinkedData::Models::Note.type_uri),
                     LinkedData::Hypermedia::Link.new("replies", lambda {|s| "replies"}, LinkedData::Models::Notes::Reply.type_uri),
                     LinkedData::Hypermedia::Link.new("reviews", lambda {|s| "reviews"}, LinkedData::Models::Review.type_uri),
-                    LinkedData::Hypermedia::Link.new("mod-api_documentation", lambda {|s| "mod-api/doc"}, nil),
+                    LinkedData::Hypermedia::Link.new("mod-api_documentation", lambda {|s| "mod-api/doc/api"}, nil),
                     LinkedData::Hypermedia::Link.new("artefacts", lambda {|s| "mod-api/artefacts"}, LinkedData::Models::SemanticArtefact.type_uri),
                     LinkedData::Hypermedia::Link.new("records", lambda {|s| "mod-api/records"}, LinkedData::Models::SemanticArtefactCatalogRecord.type_uri),
                     LinkedData::Hypermedia::Link.new("search_content", lambda {|s| "mod-api/search/content"}, nil),
