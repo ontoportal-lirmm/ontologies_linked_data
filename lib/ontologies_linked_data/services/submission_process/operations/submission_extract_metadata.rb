@@ -72,6 +72,18 @@ module LinkedData
 
           next unless attr_settings[:extractedMetadata] && attr_not_excluded
 
+          extracted_once = attr_settings[:extractedMetadata] == "once"
+          if extracted_once
+            # if the attribute should be extracted only once, check if it has already been set in the before last submission
+            values_before = check_value_from_before_latest_submission(attr, logger)
+
+            if values_before.present?
+              @submission.send("#{attr}=", values_before)
+              next
+            end
+          end
+
+
           # a boolean to check if a value that should be single have already been extracted
           single_extracted = false
           type = enforce?(attr, :list) ? :list : :string
@@ -283,6 +295,21 @@ eos
         end
         agent
       end
+
+      def check_value_from_before_latest_submission(attr, logger)
+        @ontology ||= @submission.ontology
+        @ontology.bring(submissions: [:submissionId])
+
+        @submissions ||= @ontology.submissions.to_a.sort_by { |s| -s.submissionId }
+        return nil if @submissions.size < 2
+
+        before_last_sub = @submissions[-2]
+        before_last_sub.bring(attr)
+
+        before_last_sub.public_send(attr.to_s)
+      end
+
+
     end
   end
 end
