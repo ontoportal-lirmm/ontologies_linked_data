@@ -47,8 +47,10 @@ module LinkedData
             return [:notation_format, "`notation` must be compliant with ORCID format"]
           end
         when "ISNI"
-          unless notation.match?(/^\d{4}\s?\d{4}\s?\d{4}\s?\d{3}[\dX]$/)
-            return [:notation_format, "`notation` must be compliant with ISNI format"]
+          # 16 digits, last one can be X
+          # spaces optiona between the numbers but the problem is that spaces will not be accepted in sparql query becuase goo change them to \u00          
+          unless notation.match?(/^\d{15}[\dX]$/)
+            return [:notation_format, "`notation` must be 16 digits (last digit may be X) without spaces"]
           end
         when "GRID"
           unless notation.match?(/^grid\.[0-9]+\.[a-f0-9]{1,2}$/i)
