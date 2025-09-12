@@ -44,7 +44,7 @@ module LinkedData
       serialize_never :passwordHash, :show_apikey, :resetToken, :resetTokenExpireTime
       serialize_filter lambda {|inst| show_apikey?(inst)}
 
-      link_to LinkedData::Hypermedia::Link.new("createdOntologies", lambda {|s| "users/#{s.username}/ontologies"}, nil)
+      link_to LinkedData::Hypermedia::Link.new("createdOntologies", lambda {|s| "users/#{s.id.split('/').last}/ontologies"}, nil)
 
       # Cache
       cache_timeout 3600
