@@ -68,7 +68,7 @@ namespace :test do
       ENV["COMPOSE_PROFILES"]="vo"
       Rake::Task["test:docker:up"].invoke
       #
-      unless system("curl -sf  http://localhost:8890/sparql  || exit 1")
+      unless system("curl -sf -o /dev/null http://localhost:8890/sparql  || exit 1")
         printf("waiting for Virtuoso container to initialize")
         sec = 0
         until system("curl -sf  http://localhost:8890/sparql || exit 1") do
@@ -99,7 +99,7 @@ namespace :test do
       #system("docker compose cp ./test/data/graphdb-repo-config.ttl graphdb:/opt/graphdb/dist/configs/templates/graphdb-repo-config.ttl")
       #system("docker compose cp ./test/data/graphdb-test-load.nt graphdb:/opt/graphdb/dist/configs/templates/graphdb-test-load.nt")
       #system('docker compose exec graphdb sh -c "importrdf load -f -c /opt/graphdb/dist/configs/templates/graphdb-repo-config.ttl -m parallel /opt/graphdb/dist/configs/templates/graphdb-test-load.nt ;"')
-      unless system("curl -sf http://localhost:7200/repositories || exit 1")
+      unless system("curl -o /dev/null -sf http://localhost:7200/repositories || exit 1")
         printf("waiting for Graphdb container to initialize")
         sec = 0
         until system("curl -sf http://localhost:7200/repositories || exit 1") do

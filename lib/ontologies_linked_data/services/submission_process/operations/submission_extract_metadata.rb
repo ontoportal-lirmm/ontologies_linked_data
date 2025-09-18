@@ -303,7 +303,7 @@ eos
         @submissions ||= @ontology.submissions.to_a.sort_by { |s| -s.submissionId }
         return nil if @submissions.size < 2
 
-        before_last_sub = @submissions[-2]
+        before_last_sub = @submissions[1]
         before_last_sub.bring(attr)
 
         before_last_sub.public_send(attr.to_s)

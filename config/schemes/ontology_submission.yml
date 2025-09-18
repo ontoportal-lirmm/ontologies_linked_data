@@ -290,7 +290,7 @@ copyrightHolder:
   description: [ 
     "SCHEMA: The party holding the legal copyright to the CreativeWork.",
     "DCTERMS: A person or organization owning or managing rights over the resource." ]
-  extractedMetadata: true
+  extractedMetadata: once
   
 ### Description
 
