@@ -35,6 +35,7 @@ module LinkedData
       attribute :resetToken
       attribute :resetTokenExpireTime
       attribute :provisionalClasses, inverse: { on: :provisional_class, attribute: :creator }
+      attribute :createdOntologies, enforce: [:list], handler: :load_created_ontologies
 
       # Hypermedia settings
       embed :subscription
@@ -42,6 +43,8 @@ module LinkedData
       serialize_default :username, :email, :role, :apikey
       serialize_never :passwordHash, :show_apikey, :resetToken, :resetTokenExpireTime
       serialize_filter lambda {|inst| show_apikey?(inst)}
+
+      link_to LinkedData::Hypermedia::Link.new("createdOntologies", lambda {|s| "users/#{s.id.split('/').last}/ontologies"}, nil)
 
       # Cache
       cache_timeout 3600
@@ -94,6 +97,22 @@ module LinkedData
         end
 
         super
+      end
+
+      def load_created_ontologies
+        ontologies = []
+        q = Goo.sparql_query_client.select(:id, :acronym, :administeredBy).distinct
+              .from(Ontology.uri_type)
+              .where(
+                [:id, LinkedData::Models::Ontology.attribute_uri(:administeredBy), :administeredBy],
+                [:id, LinkedData::Models::Ontology.attribute_uri(:acronym), :acronym],
+              )
+              .filter("?administeredBy = <#{self.id}>")
+        acronyms = q.execute.map { |o| o.acronym.to_s }
+        return ontologies if acronyms.empty?
+        filter_by_acronym = Goo::Filter.new(:acronym).regex(acronyms.join('|'))
+        ontologies = Ontology.where.include(Ontology.goo_attrs_to_load([:all])).filter(filter_by_acronym).all
+        return ontologies
       end
 
       def admin?
