@@ -1161,6 +1161,51 @@ eos
     end
   end
 
+  def test_submission_extract_metadata_once
+    # This test is only testing one attributefields which is :hasCreator
+    # TO-DO: make generic to all the fields that has extracted once
+    submission_parse("AGROOE", "AGROOE Test extract metadata ontology",
+                      "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", 1,
+                      process_rdf: true, extract_metadata: true, generate_missing_labels: false, delete: true)
+    ont = LinkedData::Models::Ontology.find("AGROOE").first
+    sub1 = ont.latest_submission
+    refute_nil sub1
+
+    sub1.bring_remaining
+    hasCreator_old_values = ["Alfred DC", "Clement Jonquet", "Gaston Dcterms", "Huguette Doap", "Mirabelle Prov", "Paul Foaf", "Vincent Emonet"]
+    assert_equal hasCreator_old_values.sort, sub1.hasCreator.map { |x| x.bring_remaining.name }.sort    
+    sub1.save
+
+    agents_number = LinkedData::Models::Agent.where.count
+
+    # modifing the names of the agents (the curation phase)
+    hasCreator_old_values.each do |agent_name|
+      agent = LinkedData::Models::Agent.where(name: agent_name).first
+      refute_nil agent
+      agent.bring_remaining
+      agent.name = "#{agent_name}#{rand(1000..9999)}"
+      agent.save
+    end
+
+    assert agents_number, LinkedData::Models::Agent.where.count
+
+    # Create new submission
+    submission_parse("AGROOE", "AGROOE Test extract metadata ontology", "./test/data/ontology_files/agrooeMappings-05-05-2016.owl", 2, 
+                      process_rdf: true, extract_metadata: true, generate_missing_labels: false, delete: false)
+    ont = LinkedData::Models::Ontology.find("AGROOE").first
+    sub2 = ont.latest_submission
+    refute_nil sub2
+
+    sub2.bring_remaining
+    sub2.save
+
+    # Check if there is duplications
+    assert agents_number, LinkedData::Models::Agent.where.count
+    all_sub = LinkedData::Models::Ontology.find("AGROOE").first.bring(:submissions => [:hasCreator => [:name]]).submissions
+    sub0 = all_sub[0]
+    sub1 = all_sub[1]
+    sub0.hasCreator.map { |x| x.name }.sort == sub1.hasCreator.map { |x| x.name }.sort
+  end
 
   def test_submission_delete_remove_files
     #This one has resources wih accents.

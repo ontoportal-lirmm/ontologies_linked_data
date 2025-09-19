@@ -290,7 +290,7 @@ copyrightHolder:
   description: [ 
     "SCHEMA: The party holding the legal copyright to the CreativeWork.",
     "DCTERMS: A person or organization owning or managing rights over the resource." ]
-  extractedMetadata: true
+  extractedMetadata: once
   
 ### Description
 
@@ -504,7 +504,7 @@ hasCreator:
     "DOAP: Maintainer of a project, a project leader.",
     "SCHEMA:author: The author of this content or rating.",
     "SCHEMA:creator: The creator/author of this CreativeWork." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "omv:hasCreator", "dc:creator", "dcterms:creator", "foaf:maker", "prov:wasAttributedTo", "doap:maintainer", "pav:authoredBy", "pav:createdBy", "schema:author", "schema:creator" ]
 
 #Contributor
@@ -518,7 +518,7 @@ hasContributor:
     "OMV: Contributors to the creation of the ontology.",
     "PAV: The resource was contributed to by the given agent.",
     "DOAP: Project contributor" ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "omv:hasContributor", "dc:contributor", "dcterms:contributor", "doap:helper", "schema:contributor", "pav:contributedBy" ]
   
 #Curator
@@ -529,7 +529,7 @@ curatedBy:
   description: [ 
     "PAV: Specifies an agent specialist responsible for shaping the expression in an appropriate format. Often the primary agent responsible for ensuring the quality of the representation.", 
     "MOD: An ontology that is evaluated by an agent." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "mod:evaluatedBy", "pav:curatedBy" ]
 
 #Translator
@@ -539,7 +539,7 @@ translator:
   helpText: "Organization or person who adapts a creative work to different languages."
   description: [ 
     "SCHEMA: Organization or person who adapts a creative work to different languages, regional differences and technical requirements of a target market, or that translates during some event." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "schema:translator" ]
   
 #Publisher
@@ -551,7 +551,7 @@ publisher:
     "DCTERMS: An entity responsible for making the resource available.",
     "SCHEMA: The publisher of creative work.",
     "ADMS: The name of the agency that issued the identifier." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "dc:publisher", "dcterms:publisher", "schema:publisher", "adms:schemaAgency" ]
 
 #Funded or sponsored by
@@ -563,7 +563,7 @@ fundedBy:
     "MOD: An ontology that is sponsored by and developed under a project.",
     "FOAF: An organization funding a project or person.",
     "SCHEMA: The organization on whose behalf the creator was working." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "foaf:fundedBy", "mod:sponsoredBy", "schema:sourceOrganization" ]
   
 #Endorsed by
@@ -574,7 +574,7 @@ endorsedBy:
   description: [ 
     "MOD: An ontology endorsed by an agent.",
     "OMV: The parties that have expressed support or approval to this ontology." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "omv:endorsedBy", "mod:endorsedBy" ]
   
 ### Community
