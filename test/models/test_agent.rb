@@ -25,7 +25,7 @@ class TestAgent < LinkedData::TestCase
     ]
     @identifiers = [
       LinkedData::Models::AgentIdentifier.new(notation: '000h6jb29', schemaAgency: 'ROR', creator: @@user1),
-      LinkedData::Models::AgentIdentifier.new(notation: '000h6jb29', schemaAgency: 'ORCID', creator: @@user1),
+      LinkedData::Models::AgentIdentifier.new(notation: '0000-0012-1501-8134', schemaAgency: 'ORCID', creator: @@user1),
     ]
 
     @identifiers.each { |i| i.save }
@@ -75,7 +75,7 @@ class TestAgent < LinkedData::TestCase
 
     refute LinkedData::Models::AgentIdentifier.new(notation: '000h6jb29', schemaAgency: 'ROR', creator: @@user1).valid?
 
-    assert LinkedData::Models::AgentIdentifier.new(notation: '000h6jb29', schemaAgency: 'ORCID', creator: @@user1).valid?
+    assert LinkedData::Models::AgentIdentifier.new(notation: '0000-0012-1501-8134', schemaAgency: 'ORCID', creator: @@user1).valid?
     id.delete
   end
 
