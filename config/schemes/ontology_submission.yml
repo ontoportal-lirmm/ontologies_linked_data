@@ -700,7 +700,7 @@ hasDomain:
       "FOAF: A topic of some page or document.",
       "OMV: Typically, the domain can refer to established topic hierarchies such as the general purpose topic hierarchy (DMOZ or the domain specific topic hierarchy ACM for the computer science domain.",
       "DCAT: A main category of the resource." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "omv:hasDomain", "dc:subject", "dcterms:subject", "foaf:topic", "dcat:theme", "schema:about" ]
     
 #Coverage

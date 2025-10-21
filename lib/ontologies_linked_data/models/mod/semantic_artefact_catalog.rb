@@ -40,7 +40,6 @@ module LinkedData
             attribute :bugDatabase, namespace: :doap, enforce: [:string]
             attribute :relation, namespace: :dcterms, enforce: [:string]
             attribute :hasPolicy, namespace: :mod, enforce: [:string]
-            attribute :themeTaxonomy, namespace: :mod, enforce: [:string]
 
             attribute :created, namespace: :dcterms, enforce: [:date]
             attribute :curatedOn, namespace: :pav, enforce: [:date]
@@ -53,6 +52,7 @@ module LinkedData
             attribute :mailingList, namespace: :mod, enforce: [:url]
             attribute :fairScore, namespace: :mod, enforce: [:url]
 
+            attribute :themeTaxonomy, namespace: :mod, enforce: [:list, :url]
             attribute :federated_portals, enforce: [:list]
             attribute :fundedBy, namespace: :foaf, enforce: [:list]
             attribute :language, namespace: :dcterms, enforce: [:list]
