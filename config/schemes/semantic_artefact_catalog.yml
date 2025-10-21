@@ -590,8 +590,8 @@ themeTaxonomy:
   display: "general"
   label: "Theme Taxonomy"
   helpText: "Taxonomy themes of the catalog."
-  example: "UNESCO Thesaurus"
-  default: "UNESCO Thesaurus"
+  example: [http://vocabularies.unesco.org/thesaurus]
+  default: [http://vocabularies.unesco.org/thesaurus]
 
 distribution:
   display: "general"
