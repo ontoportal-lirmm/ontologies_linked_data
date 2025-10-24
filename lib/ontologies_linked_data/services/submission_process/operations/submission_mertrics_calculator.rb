@@ -23,7 +23,7 @@ module LinkedData
         # by owlapi_wrapper when new submission of UMLS ontology is created.
         # Ruby code/sparql for calculating max_depth fails for large UMLS
         # ontologie with AllegroGraph backend
-        metrics_from_owlapi = metrics_from_file
+        metrics_from_owlapi = @submission.metrics_from_file
         max_depth = metrics_from_owlapi[1][3] unless metrics_from_owlapi.empty?
 
         generate_metrics_file(class_count, indiv_count, prop_count, max_depth)
