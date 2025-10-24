@@ -44,7 +44,7 @@ module LinkedData
 
         if @submission.hasOntologyLanguage.umls?
           triples_file_path = @submission.triples_file_path
-          logger.info("Using UMLS turtle file found, skipping OWLAPI parse")
+          logger.info("UMLS turtle file found; doing OWLAPI parse to extract metrics")
           logger.flush
           mime_type = LinkedData::MediaTypes.media_type_from_base(LinkedData::MediaTypes::TURTLE)
           SubmissionMetricsCalculator.new(@submission).generate_umls_metrics_file(triples_file_path)
