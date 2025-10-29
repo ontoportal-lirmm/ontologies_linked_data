@@ -1110,7 +1110,7 @@ eos
     assert_equal 0, metrics.classesWithMoreThan25Children
     assert_equal 0, metrics.maxChildCount
     assert_equal 0, metrics.averageChildCount
-    assert_equal 0, metrics.maxDepth
+    assert_equal 7, metrics.maxDepth
 
     #test UMLS metrics
     acronym = 'UMLS-TST'
