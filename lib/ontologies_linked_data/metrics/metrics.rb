@@ -9,10 +9,7 @@ module LinkedData
       is_flat = submission.ontology.flat
       roots = submission.roots
       
-      rdfsSC = nil
-      unless is_flat
-          rdfsSC = Goo.namespaces[:rdfs][:subClassOf]
-      end
+      rdfsSC = Goo.namespaces[:rdfs][:subClassOf]
       max_depth = max_depth_fn(submission, logger, is_flat, rdfsSC) 
 
       cls_metrics = {}
