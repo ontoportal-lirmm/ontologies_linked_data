@@ -75,7 +75,7 @@ module LinkedData
       attribute :released, type: :date_time, enforce: [:existence]
       attribute :valid, namespace: :dct, type: :date_time
       attribute :curatedOn, namespace: :pav, type: %i[date_time list]
-      attribute :creationDate, namespace: :omv, type: :date_time, default: ->(x) { Date.today.to_datetime }
+      attribute :creationDate, namespace: :omv, type: :date_time, default: ->(x) { DateTime.now }
       attribute :modificationDate, namespace: :omv, type: :date_time
 
       # Person and organizations metadata
