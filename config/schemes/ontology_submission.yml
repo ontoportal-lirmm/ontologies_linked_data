@@ -360,7 +360,7 @@ keywords:
     "OMV: List of keywords related to an ontology.",
     "DCAT: A keyword or tag describing a resource.",
     "MOD: A keyword(s) is used to describe the content of an ontology." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "omv:keywords", "mod:keyword", "dcat:keyword", "schema:keywords" ]
 
 #Hidden label
