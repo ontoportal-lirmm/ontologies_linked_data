@@ -515,7 +515,7 @@ class TestOntology < LinkedData::TestOntologyCommon
     ontology.save
     
     saved_ontology = LinkedData::Models::Ontology.find(ontology.id).include(:sampleQueries).first
-    assert_equal queries, saved_ontology.sampleQueries
+    assert_equal queries.sort, saved_ontology.sampleQueries.sort
     
     ontology.delete
     user.delete
