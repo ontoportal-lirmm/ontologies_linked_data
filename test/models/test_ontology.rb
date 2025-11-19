@@ -496,4 +496,29 @@ class TestOntology < LinkedData::TestOntologyCommon
     assert_equal "test 1", otest.name
   end
 
+  def test_ontology_sample_queries
+    user = LinkedData::Models::User.new(username: "test_user_sq", email: "test_sq@example.org")
+    user.passwordHash = "test_password"
+    user.save
+    
+    ontology = LinkedData::Models::Ontology.new
+    ontology.acronym = "TEST-ONT-SQ"
+    ontology.name = "Test Ontology Sample Queries"
+    ontology.administeredBy = [user]
+    queries = [
+      "SELECT * WHERE {\n ?s ?p ?o \n} LIMIT 10",
+      "SELECT ?s \nWHERE { \n?s a owl:Class \n}"
+    ]
+    ontology.sampleQueries = queries
+    
+    assert ontology.valid?
+    ontology.save
+    
+    saved_ontology = LinkedData::Models::Ontology.find(ontology.id).include(:sampleQueries).first
+    assert_equal queries.sort, saved_ontology.sampleQueries.sort
+    
+    ontology.delete
+    user.delete
+  end
+
 end

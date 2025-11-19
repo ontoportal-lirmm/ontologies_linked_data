@@ -48,6 +48,7 @@ module LinkedData
       attribute :flat, enforce: [:boolean]
       attribute :hasDomain, namespace: :omv, enforce: [:list, :category]
       attribute :summaryOnly, enforce: [:boolean]
+      attribute :sampleQueries, namespace: :mod, enforce: [:list, :string]
 
       attribute :acl, enforce: [:list, :user]
 
@@ -56,7 +57,7 @@ module LinkedData
       attribute :ontologyType, enforce: [:ontology_type], default: lambda { |record| LinkedData::Models::OntologyType.find("ONTOLOGY").include(:code).first }
 
       # Hypermedia settings
-      serialize_default :administeredBy, :acronym, :name, :summaryOnly, :flat, :ontologyType, :group, :hasDomain, :viewingRestriction, :viewOf, :views
+      serialize_default :administeredBy, :acronym, :name, :summaryOnly, :flat, :ontologyType, :group, :hasDomain, :viewingRestriction, :viewOf, :views, :sampleQueries
       links_load :acronym
       link_to LinkedData::Hypermedia::Link.new("submissions", lambda {|s| "ontologies/#{s.acronym}/submissions"}, LinkedData::Models::OntologySubmission.uri_type),
               LinkedData::Hypermedia::Link.new("properties", lambda {|s| "ontologies/#{s.acronym}/properties"}, "#{Goo.namespaces[:metadata].to_s}Property"),

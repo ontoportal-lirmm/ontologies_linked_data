@@ -25,6 +25,7 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
       description: "Welcome to OntoPortal Appliance, your ontology repository for your ontologies",
       status: "alpha",
       accessRights: "public",
+      sampleQueries: [],
       logo: "https://ontoportal.org/images/logo.png",
       license: "https://opensource.org/licenses/BSD-2-Clause",
       federated_portals: [
@@ -56,7 +57,7 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
       default_attrs = LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([])
       assert_equal [:acronym, :title, :color, :description, :logo, :identifier, :status, :language, :type, :accessRights, :license, :rightsHolder, 
       :landingPage, :keyword, :bibliographicCitation, :created, :modified, :contactPoint, :creator, :contributor, :publisher, :subject,
-      :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL, :numberOfArtefacts, :federated_portals, :fundedBy].sort, (default_attrs.flat_map { |e| e.is_a?(Hash) ? e.keys : e }).sort
+      :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL, :numberOfArtefacts, :federated_portals, :fundedBy, :sampleQueries].sort, (default_attrs.flat_map { |e| e.is_a?(Hash) ? e.keys : e }).sort
 
       specified_attrs = LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([:acronym, :title, :keyword, :featureList])
       assert_equal [:acronym, :title, :keyword, :featureList], specified_attrs
@@ -73,5 +74,21 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
     all_attrs_to_bring = LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([:all])
     sac.bring(*all_attrs_to_bring)
     assert_equal (all_attrs_to_bring.flat_map { |e| e.is_a?(Hash) ? e.keys : e }).sort, (sac.loaded_attributes.to_a + [:type]).sort
+  end
+
+  def test_semantic_artefact_catalog_sample_queries
+    catalog = LinkedData::Models::SemanticArtefactCatalog.new
+    catalog.acronym = "TEST-CAT-SQ"
+    catalog.title = "Test Catalog Sample Queries"
+    queries = ["SELECT * WHERE {\n ?s ?p ?o \n} LIMIT 5"]
+    catalog.sampleQueries = queries
+    assert_equal queries, catalog.sampleQueries
+    if catalog.valid?
+        catalog.save
+        saved_catalog = LinkedData::Models::SemanticArtefactCatalog.find(catalog.id).first
+        saved_catalog.bring(*LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load([]))
+        assert_equal queries, saved_catalog.sampleQueries
+        catalog.delete
+    end
   end
 end
