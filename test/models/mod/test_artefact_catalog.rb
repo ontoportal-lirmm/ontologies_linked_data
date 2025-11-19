@@ -25,7 +25,7 @@ class TestArtefactCatalog < LinkedData::TestOntologyCommon
       description: "Welcome to OntoPortal Appliance, your ontology repository for your ontologies",
       status: "alpha",
       accessRights: "public",
-      sampleQueries: ["SELECT * WHERE {\n ?s ?p ?o \n} LIMIT 5"],
+      sampleQueries: [],
       logo: "https://ontoportal.org/images/logo.png",
       license: "https://opensource.org/licenses/BSD-2-Clause",
       federated_portals: [
