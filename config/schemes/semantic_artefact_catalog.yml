@@ -688,3 +688,9 @@ numberOfAgents:
   label: "Number of Agents"
   helpText: "The total number of agents associated with the catalog."
   example: 100
+
+sampleQueries:
+  display: "other"
+  label: "Sample Queries"
+  helpText: "Sample SPARQL queries for the catalog or a semantic artefact."
+  example: []
