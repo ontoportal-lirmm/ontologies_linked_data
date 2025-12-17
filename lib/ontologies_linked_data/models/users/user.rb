@@ -84,7 +84,7 @@ module LinkedData
 
       def update_last_login
         self.lastLoginAt = DateTime.now
-        self.save
+        self.save(override_security: true)
       end
 
       def save(*args)
