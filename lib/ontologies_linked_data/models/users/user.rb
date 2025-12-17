@@ -28,6 +28,7 @@ module LinkedData
       attribute :githubId, enforce: [:unique]
       attribute :orcidId, enforce: [:unique]
       attribute :created, enforce: [:date_time], :default => lambda { |record| DateTime.now }
+      attribute :lastLoginAt, enforce: [:date_time], :default => lambda { |record| DateTime.now }
       attribute :passwordHash, enforce: [:existence]
       attribute :apikey, enforce: [:unique], :default => lambda {|x| SecureRandom.uuid}
       attribute :subscription, enforce: [:list, :subscription]
@@ -79,6 +80,11 @@ module LinkedData
           super(attributes)
         end
         self
+      end
+
+      def update_last_login
+        self.lastLoginAt = DateTime.now
+        self.save
       end
 
       def save(*args)
