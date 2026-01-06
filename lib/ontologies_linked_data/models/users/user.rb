@@ -43,7 +43,7 @@ module LinkedData
       embed_values :role => [:role]
       serialize_default :username, :email, :role, :apikey
       serialize_never :passwordHash, :show_apikey, :resetToken, :resetTokenExpireTime
-      serialize_filter lambda {|inst| show_apikey?(inst)}
+      serialize_filter lambda {|inst| filter_attributes(inst)}
 
       link_to LinkedData::Hypermedia::Link.new("createdOntologies", lambda {|s| "users/#{s.id.split('/').last}/ontologies"}, nil)
 
@@ -61,6 +61,19 @@ module LinkedData
         else
           return attributes - [:apikey]
         end
+      end
+
+      def self.show_lastLoginAt?(attrs)
+        unless Thread.current[:remote_user]&.admin?
+          return attrs - [:lastLoginAt]
+        end
+        return attrs
+      end
+
+      def self.filter_attributes(inst)
+        attrs = show_apikey?(inst)
+        attrs = show_lastLoginAt?(attrs)
+        attrs
       end
 
       def embedded_doc
