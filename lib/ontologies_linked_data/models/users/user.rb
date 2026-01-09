@@ -129,7 +129,7 @@ module LinkedData
               .filter("?administeredBy = <#{self.id}>")
         acronyms = q.execute.map { |o| o.acronym.to_s }
         return ontologies if acronyms.empty?
-        filter_by_acronym = Goo::Filter.new(:acronym).regex(acronyms.join('|'))
+        filter_by_acronym = Goo::Filter.new(:acronym).regex("^(#{acronyms.join('|')})$")
         ontologies = Ontology.where.include(Ontology.goo_attrs_to_load([:all])).filter(filter_by_acronym).all
         return ontologies
       end
