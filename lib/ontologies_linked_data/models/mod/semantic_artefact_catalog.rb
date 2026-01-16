@@ -53,7 +53,7 @@ module LinkedData
             attribute :mailingList, namespace: :mod, enforce: [:url]
             attribute :fairScore, namespace: :mod, enforce: [:url]
 
-            attribute :themeTaxonomy, namespace: :mod, enforce: [:list, :url]
+            attribute :themeTaxonomy, namespace: :dcat, enforce: [:list, :url]
             attribute :federated_portals, enforce: [:list]
             attribute :fundedBy, namespace: :foaf, enforce: [:list]
             attribute :language, namespace: :dcterms, enforce: [:list]
