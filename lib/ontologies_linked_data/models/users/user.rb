@@ -42,6 +42,7 @@ module LinkedData
       embed :subscription
       embed_values :role => [:role]
       serialize_default :username, :email, :role, :apikey
+      serialize_for_admin_and_self :lastLoginAt, :created, :email, :role
       serialize_never :passwordHash, :show_apikey, :resetToken, :resetTokenExpireTime
       serialize_filter lambda {|inst| filter_attributes(inst)}
 

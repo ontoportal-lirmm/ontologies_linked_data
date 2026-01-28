@@ -43,19 +43,19 @@ class Object
     # Determine whether to use defaults from the DSL or all attributes
     hash = populate_attributes(hash, all, only, options)
 
-    # Remove banned attributes (from DSL or defined here)
-    hash = remove_bad_attributes(hash)
-
     # Infer methods from only
     only.each do |prop|
       methods << prop unless hash.key?(prop)
     end
-
+    
     # Add methods
     methods = methods - do_not_serialize_nested(options)
     methods.each do |method|
       populate_attribute(hash, method) if self.respond_to?(method) rescue next
     end
+    
+    # Remove banned attributes (from DSL or defined here)
+    hash = remove_bad_attributes(hash)
 
     # Get rid of everything except the 'only'
     hash.keep_if {|k,v| only.include?(k) } unless only.empty?
@@ -120,7 +120,6 @@ class Object
 
     # Provide the hash for serialization processes to add data
     yield hash, self if block_given?
-
     hash
   end
 
@@ -243,7 +242,6 @@ class Object
       attributes = self.is_a?(Struct) ? self.members : self.instance_variables.map {|e| e.to_s.delete("@").to_sym }
 
       attributes = attributes - do_not_serialize_nested(options)
-
       attributes.each do |attribute|
         next unless self.respond_to?(attribute)
         populate_attribute(hash, attribute)
@@ -252,6 +250,7 @@ class Object
       # Only get stuff we need
       hash = populate_hash_from_list(hash, only)
     else
+
       attributes = current_cls.hypermedia_settings[:serialize_default]
       hash = populate_hash_from_list(hash, attributes)
     end
@@ -260,8 +259,10 @@ class Object
 
   def populate_attribute(hash, attribute)
     if self.method(attribute).parameters.eql?([[:rest, :args]])
+
       hash[attribute] = self.send(attribute, include_languages: true)
     else
+
       # a serialized method
       hash[attribute] = self.send(attribute)
     end
@@ -270,7 +271,6 @@ class Object
   def populate_hash_from_list(hash, attributes)
     attributes.each do |attribute|
       attribute = attribute.to_sym
-
       next unless self.respond_to?(attribute)
       begin
         populate_attribute(hash, attribute)
@@ -286,6 +286,7 @@ class Object
   def remove_bad_attributes(hash)
     bad_attributes = DO_NOT_SERIALIZE.dup
     bad_attributes.concat(self.class.hypermedia_settings[:serialize_never]) unless !self.is_a?(LinkedData::Hypermedia::Resource)
+    bad_attributes.concat(self.class.hypermedia_settings[:serialize_for_admin_and_self]) unless self.writable?(Thread.current[:remote_user])
     bad_attributes.each do |bad_attribute|
       hash.delete(bad_attribute)
       hash.delete(bad_attribute.to_sym)
