@@ -286,9 +286,7 @@ class Object
   def remove_bad_attributes(hash)
     bad_attributes = DO_NOT_SERIALIZE.dup
     bad_attributes.concat(self.class.hypermedia_settings[:serialize_never]) unless !self.is_a?(LinkedData::Hypermedia::Resource)
-    if self.is_a?(LinkedData::Models::Base) && !self.writable?(Thread.current[:remote_user])
-      bad_attributes.concat(self.class.hypermedia_settings[:serialize_for_admin_and_self])
-    end
+    bad_attributes.concat(self.class.hypermedia_settings[:serialize_for_admin_and_self]) unless self.writable?(Thread.current[:remote_user])
     bad_attributes.each do |bad_attribute|
       hash.delete(bad_attribute)
       hash.delete(bad_attribute.to_sym)
