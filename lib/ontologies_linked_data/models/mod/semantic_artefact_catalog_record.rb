@@ -47,7 +47,7 @@ module LinkedData
         record.ontology.bring(:acronym) if record.ontology.bring?(:acronym)
         raise ArgumentError, "Acronym is nil for ontology  #{record.ontology.id} to generate id" if record.ontology.acronym.nil?
         return RDF::URI.new(
-          "#{(Goo.id_prefix)}records/#{CGI.escape(record.ontology.acronym.to_s)}"
+          "#{(Goo.id_prefix)}mod-api/records/#{CGI.escape(record.ontology.acronym.to_s)}"
         )
       end
 

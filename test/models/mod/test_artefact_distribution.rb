@@ -9,7 +9,7 @@ class TestArtefactDistribution < LinkedData::TestOntologyCommon
         sa.ontology.bring(*:submissions)
         sad = LinkedData::Models::SemanticArtefactDistribution.new(sa.ontology.submissions[0])
         assert_equal LinkedData::Models::SemanticArtefactDistribution , sad.class
-        assert_equal "http://data.bioontology.org/artefacts/STY/distributions/1", sad.id.to_s
+        assert_equal "http://data.bioontology.org/mod-api/artefacts/STY/distributions/1", sad.id.to_s
     end
 
     def test_goo_attrs_to_load

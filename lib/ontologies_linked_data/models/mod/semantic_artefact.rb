@@ -144,7 +144,7 @@ module LinkedData
                 ss.ontology.bring(:acronym) if !ss.ontology.loaded_attributes.include?(:acronym)
                 raise ArgumentError, "Acronym is nil for ontology  #{ss.ontology.id} to generate id" if ss.ontology.acronym.nil?
                 return RDF::URI.new(
-                  "#{(Goo.id_prefix)}artefacts/#{CGI.escape(ss.ontology.acronym.to_s)}"
+                  "#{(Goo.id_prefix)}mod-api/artefacts/#{CGI.escape(ss.ontology.acronym.to_s)}"
                 )
             end
 

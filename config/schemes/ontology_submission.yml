@@ -360,7 +360,7 @@ keywords:
     "OMV: List of keywords related to an ontology.",
     "DCAT: A keyword or tag describing a resource.",
     "MOD: A keyword(s) is used to describe the content of an ontology." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "omv:keywords", "mod:keyword", "dcat:keyword", "schema:keywords" ]
 
 #Hidden label
@@ -477,11 +477,11 @@ creationDate:
   extractedMetadata: true
   metadataMappings: [ "dcterms:dateSubmitted", "schema:datePublished" ]
 
-### Persons and organizations
+### agents
 
 #Contact
 contact:
-  display: "persons and organizations" 
+  display: "agents" 
   label: "Contact"
   helpText: "The persons who can be contacted to enquire about an ontology. Composed of the contacts name and email."
   description: [ 
@@ -491,7 +491,7 @@ contact:
 
 #Creator
 hasCreator:
-  display: "persons and organizations" 
+  display: "agents" 
   label: "Creator"
   helpText: "Main responsible for the creation of the ontology."
   description: [ 
@@ -509,7 +509,7 @@ hasCreator:
 
 #Contributor
 hasContributor:
-  display: "persons and organizations" 
+  display: "agents" 
   label: "Contributor"
   helpText: "Contributors to the creation of the ontology."
   description: [ 
@@ -523,7 +523,7 @@ hasContributor:
   
 #Curator
 curatedBy:
-  display: "persons and organizations" 
+  display: "agents" 
   label: "Curator"
   helpText: "Specifies an agent specialist responsible for curating/evaluating the ontology."
   description: [ 
@@ -534,7 +534,7 @@ curatedBy:
 
 #Translator
 translator:
-  display: "persons and organizations" 
+  display: "agents" 
   label: "Translator"
   helpText: "Organization or person who adapts a creative work to different languages."
   description: [ 
@@ -544,7 +544,7 @@ translator:
   
 #Publisher
 publisher:
-  display: "persons and organizations" 
+  display: "agents" 
   label: "Publisher"
   helpText: "An entity responsible for making the ontology available."
   description: [ 
@@ -556,7 +556,7 @@ publisher:
 
 #Funded or sponsored by
 fundedBy:
-  display: "persons and organizations" 
+  display: "agents" 
   label: "Funded or sponsored by"
   helpText: "An organization funding a project or person."
   description: [ 
@@ -568,7 +568,7 @@ fundedBy:
   
 #Endorsed by
 endorsedBy:
-  display: "persons and organizations" 
+  display: "agents" 
   label: "Endorsed by"
   helpText: "The parties that have expressed support or approval to this ontology."
   description: [ 
@@ -700,7 +700,7 @@ hasDomain:
       "FOAF: A topic of some page or document.",
       "OMV: Typically, the domain can refer to established topic hierarchies such as the general purpose topic hierarchy (DMOZ or the domain specific topic hierarchy ACM for the computer science domain.",
       "DCAT: A main category of the resource." ]
-  extractedMetadata: true
+  extractedMetadata: once
   metadataMappings: [ "omv:hasDomain", "dc:subject", "dcterms:subject", "foaf:topic", "dcat:theme", "schema:about" ]
     
 #Coverage

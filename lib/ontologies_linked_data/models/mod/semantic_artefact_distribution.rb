@@ -80,7 +80,7 @@ module LinkedData
                 ss.submission.ontology.bring(:acronym) if !ss.submission.ontology.loaded_attributes.include?(:acronym)
                 raise ArgumentError, "Acronym is nil to generate id" if ss.submission.ontology.acronym.nil?
                 return RDF::URI.new(
-                  "#{(Goo.id_prefix)}artefacts/#{CGI.escape(ss.ontology.acronym.to_s)}/distributions/#{ss.submission.submissionId.to_s}"
+                  "#{(Goo.id_prefix)}mod-api/artefacts/#{CGI.escape(ss.ontology.acronym.to_s)}/distributions/#{ss.submission.submissionId.to_s}"
                 )
             end
 

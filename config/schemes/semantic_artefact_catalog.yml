@@ -589,9 +589,9 @@ record:
 themeTaxonomy:
   display: "general"
   label: "Theme Taxonomy"
-  helpText: "Taxonomy themes of the catalog."
-  example: "UNESCO Thesaurus"
-  default: "UNESCO Thesaurus"
+  helpText: "A knowledge organization system (KOS) used to classify catalog's datasets and services."
+  example: [ "http://vocabularies.unesco.org/thesaurus" ]
+  default: [ "http://vocabularies.unesco.org/thesaurus" ]
 
 distribution:
   display: "general"
@@ -688,3 +688,9 @@ numberOfAgents:
   label: "Number of Agents"
   helpText: "The total number of agents associated with the catalog."
   example: 100
+
+sampleQueries:
+  display: "other"
+  label: "Sample Queries"
+  helpText: "Sample SPARQL queries for the catalog or a semantic artefact."
+  example: []

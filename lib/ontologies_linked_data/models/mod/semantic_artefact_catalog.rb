@@ -40,7 +40,7 @@ module LinkedData
             attribute :bugDatabase, namespace: :doap, enforce: [:string]
             attribute :relation, namespace: :dcterms, enforce: [:string]
             attribute :hasPolicy, namespace: :mod, enforce: [:string]
-            attribute :themeTaxonomy, namespace: :mod, enforce: [:string]
+            attribute :sampleQueries, namespace: :mod, enforce: [:list, :string]
 
             attribute :created, namespace: :dcterms, enforce: [:date]
             attribute :curatedOn, namespace: :pav, enforce: [:date]
@@ -53,6 +53,7 @@ module LinkedData
             attribute :mailingList, namespace: :mod, enforce: [:url]
             attribute :fairScore, namespace: :mod, enforce: [:url]
 
+            attribute :themeTaxonomy, namespace: :dcat, enforce: [:list, :url]
             attribute :federated_portals, enforce: [:list]
             attribute :fundedBy, namespace: :foaf, enforce: [:list]
             attribute :language, namespace: :dcterms, enforce: [:list]
@@ -173,7 +174,7 @@ module LinkedData
             serialize_default :acronym, :title, :color, :description, :logo,:identifier, :status, :language, :type, :accessRights, :license, :rightsHolder,
                               :landingPage, :keyword, :bibliographicCitation, :created, :modified , :contactPoint, :creator, :contributor,
                               :publisher, :subject, :coverage, :createdWith, :accrualMethod, :accrualPeriodicity, :wasGeneratedBy, :accessURL,
-                              :numberOfArtefacts, :federated_portals, :fundedBy
+                              :numberOfArtefacts, :federated_portals, :fundedBy, :sampleQueries
 
             embed :rightsHolder, :contactPoint, :creator, :contributor, :curatedBy, :translator, :publisher, :endorsedBy
 

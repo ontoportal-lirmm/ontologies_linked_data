@@ -28,6 +28,7 @@ module LinkedData
       attribute :githubId, enforce: [:unique]
       attribute :orcidId, enforce: [:unique]
       attribute :created, enforce: [:date_time], :default => lambda { |record| DateTime.now }
+      attribute :lastLoginAt, enforce: [:date_time], :default => lambda { |record| DateTime.now }
       attribute :passwordHash, enforce: [:existence]
       attribute :apikey, enforce: [:unique], :default => lambda {|x| SecureRandom.uuid}
       attribute :subscription, enforce: [:list, :subscription]
@@ -35,13 +36,16 @@ module LinkedData
       attribute :resetToken
       attribute :resetTokenExpireTime
       attribute :provisionalClasses, inverse: { on: :provisional_class, attribute: :creator }
+      attribute :createdOntologies, enforce: [:list], handler: :load_created_ontologies
 
       # Hypermedia settings
       embed :subscription
       embed_values :role => [:role]
       serialize_default :username, :email, :role, :apikey
       serialize_never :passwordHash, :show_apikey, :resetToken, :resetTokenExpireTime
-      serialize_filter lambda {|inst| show_apikey?(inst)}
+      serialize_filter lambda {|inst| filter_attributes(inst)}
+
+      link_to LinkedData::Hypermedia::Link.new("createdOntologies", lambda {|s| "users/#{s.id.split('/').last}/ontologies"}, nil)
 
       # Cache
       cache_timeout 3600
@@ -57,6 +61,19 @@ module LinkedData
         else
           return attributes - [:apikey]
         end
+      end
+
+      def self.show_lastLoginAt?(attrs)
+        unless Thread.current[:remote_user]&.admin?
+          return attrs - [:lastLoginAt]
+        end
+        return attrs
+      end
+
+      def self.filter_attributes(inst)
+        attrs = show_apikey?(inst)
+        attrs = show_lastLoginAt?(attrs)
+        attrs
       end
 
       def embedded_doc
@@ -78,6 +95,11 @@ module LinkedData
         self
       end
 
+      def update_last_login
+        self.lastLoginAt = DateTime.now
+        self.save(override_security: true)
+      end
+
       def save(*args)
         # Reset ontology cache if user changes their custom set
         if LinkedData.settings.enable_http_cache && self.modified_attributes.include?(:customOntology)
@@ -94,6 +116,22 @@ module LinkedData
         end
 
         super
+      end
+
+      def load_created_ontologies
+        ontologies = []
+        q = Goo.sparql_query_client.select(:id, :acronym, :administeredBy).distinct
+              .from(Ontology.uri_type)
+              .where(
+                [:id, LinkedData::Models::Ontology.attribute_uri(:administeredBy), :administeredBy],
+                [:id, LinkedData::Models::Ontology.attribute_uri(:acronym), :acronym],
+              )
+              .filter("?administeredBy = <#{self.id}>")
+        acronyms = q.execute.map { |o| o.acronym.to_s }
+        return ontologies if acronyms.empty?
+        filter_by_acronym = Goo::Filter.new(:acronym).regex("^(#{acronyms.join('|')})$")
+        ontologies = Ontology.where.include(Ontology.goo_attrs_to_load([:all])).filter(filter_by_acronym).all
+        return ontologies
       end
 
       def admin?
