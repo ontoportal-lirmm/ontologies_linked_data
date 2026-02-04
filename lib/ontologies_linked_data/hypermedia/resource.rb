@@ -35,7 +35,6 @@ module LinkedData
           :serialize_never,
           :serialize_methods,
           :serialize_filter,
-          :serialize_for_admin_and_self,
           :prevent_serialize_when_nested
         ]
 
