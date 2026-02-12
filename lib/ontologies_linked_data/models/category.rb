@@ -15,7 +15,7 @@ module LinkedData
       def validate_acronym(inst, attr)
         inst.bring(attr) if inst.bring?(attr)
         acronym = inst.send(attr)
-        return acronym.match?(/^[A-Z][A-Z0-9_-]*$/) ? [] : [:validate_acronym, "`acronym` must be uppercase letters, numbers, underscores or hyphens only and must start with a letter"]
+        return acronym&.match?(/^[A-Z][A-Z0-9_-]*$/) ? [] : [:validate_acronym, "`acronym` must be uppercase letters, numbers, underscores or hyphens only and must start with a letter"]
       end
 
     end
