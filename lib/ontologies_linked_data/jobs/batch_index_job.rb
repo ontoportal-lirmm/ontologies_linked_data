@@ -8,7 +8,7 @@ module LinkedData
       class ModelNotIndexableError < NonRetryableError; end
 
       def perform(model_name)
-        raise InvalidParameterError, 'model_name parameter is required' if model_name.blank?
+        raise ModelNotFoundError, 'model_name parameter is required' if model_name.blank?
 
         model = Goo.model_by_name(model_name.to_sym)
         raise ModelNotIndexableError, "#{model_name} is not indexable" if model.nil? || !model.index_enabled?
