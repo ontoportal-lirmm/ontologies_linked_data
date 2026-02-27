@@ -827,9 +827,17 @@ module LinkedData
         check
       end
 
+      class OntologyDownloadError < LinkedData::Jobs::Base::NonRetryableError; end
+
       # Download ont file from pullLocation in /tmp/uncompressed-ont-rest-file
       def download_ontology_file
-        file, filename = LinkedData::Utils::FileHelpers.download_file(self.pullLocation.to_s)
+        begin
+          file, filename = LinkedData::Utils::FileHelpers.download_file(self.pullLocation.to_s)
+        rescue Errno::ECONNREFUSED => e
+          raise OntologyDownloadError, "Failed to connect to the download location #{self.pullLocation}: #{e.message}"
+        rescue StandardError => e
+          raise OntologyDownloadError, "An error occurred while downloading the ontology from #{self.pullLocation}: #{e.message}"
+        end
         return file, filename
       end
 
