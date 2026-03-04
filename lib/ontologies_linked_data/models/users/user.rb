@@ -25,6 +25,8 @@ module LinkedData
       attribute :firstName
       attribute :lastName
       attribute :subscribed, default: false
+      attribute :subscribed_to_ontologies, default: false
+      attribute :subscribed_to_projects, default: false
       attribute :githubId, enforce: [:unique]
       attribute :orcidId, enforce: [:unique]
       attribute :created, enforce: [:date_time], :default => lambda { |record| DateTime.now }
@@ -41,7 +43,7 @@ module LinkedData
       # Hypermedia settings
       embed :subscription
       embed_values :role => [:role]
-      serialize_default :username, :email, :role, :apikey
+      serialize_default :username, :email, :role, :apikey, :subscribed_to_ontologies, :subscribed_to_projects
       serialize_never :passwordHash, :show_apikey, :resetToken, :resetTokenExpireTime
       serialize_filter lambda {|inst| filter_attributes(inst)}
 
