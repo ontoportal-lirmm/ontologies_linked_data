@@ -16,7 +16,7 @@ module LinkedData::Models
       value = inst.send(attr)
       acronym_regex = /\A[-_a-z]+\Z/
       if (acronym_regex.match value).nil?
-        return [:acronym_value_validator,"The acronym value #{value} is invalid"]
+        return [:acronym_value_validator,"`acronym` must contains lowercase letters, underscores or hyphens only"]
       end
       return [:acronym_value_validator, nil]
     end
