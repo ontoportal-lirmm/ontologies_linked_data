@@ -4,30 +4,15 @@ module LinkedData
       def self.notify(options = {})
         return unless LinkedData.settings.enable_notifications
 
-        headers = { 'Content-Type' => 'text/html' }
-        sender = options[:sender] || LinkedData.settings.email_sender
-        recipients = Array(options[:recipients]).uniq
-        raise ArgumentError, 'Recipient needs to be provided in options[:recipients]' if !recipients || recipients.empty?
+        email_options = {
+          'sender' => options[:sender],
+          'recipients' => options[:recipients],
+          'subject' => options[:subject],
+          'body' => options[:body]
+        }
 
-        # By default we override all recipients to avoid
-        # sending emails from testing environments.
-        # Set `email_disable_override` in production
-        # to send to the actual user.
-        unless LinkedData.settings.email_disable_override
-          headers['Overridden-Sender'] = recipients
-          recipients = LinkedData.settings.email_override
-        end
-
-        Pony.mail({
-                    to: recipients,
-                    from: sender,
-                    subject: options[:subject],
-                    body: options[:body],
-                    headers: headers,
-                    via: :smtp,
-                    enable_starttls_auto: LinkedData.settings.enable_starttls_auto,
-                    via_options: mail_options
-                  })
+        # Queue the email job
+        LinkedData::Jobs::EmailNotificationJob.perform_async(email_options)
       end
 
       def self.notify_support_grouped(subject, body)
