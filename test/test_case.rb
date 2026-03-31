@@ -5,9 +5,9 @@ if ENV['COVERAGE'] == 'true' || ENV['CI'] == 'true'
   # https://github.com/codecov/ruby-standard-2
   # Generate HTML and Cobertura reports which can be consumed by codecov uploader
   SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
-    SimpleCov::Formatter::HTMLFormatter,
-    SimpleCov::Formatter::CoberturaFormatter
-  ])
+                                                                    SimpleCov::Formatter::HTMLFormatter,
+                                                                    SimpleCov::Formatter::CoberturaFormatter
+                                                                  ])
   SimpleCov.start do
     add_filter '/test/'
     add_filter 'app.rb'
@@ -39,19 +39,20 @@ if ENV['OVERRIDE_CONFIG'] == 'true'
   end
 end
 
-
 require 'minitest/unit'
 require 'webmock/minitest'
+require 'sidekiq/testing'
+Sidekiq::Testing.inline!
 WebMock.allow_net_connect!
 MiniTest::Unit.autorun
 
 # Check to make sure you want to run if not pointed at localhost
 safe_hosts = Regexp.new(/localhost|-ut|ncbo-dev*|ncbo-unittest*/)
 def safe_redis_hosts?(sh)
-  return [LinkedData.settings.http_redis_host,
-   LinkedData.settings.goo_redis_host].select { |x|
+  [LinkedData.settings.http_redis_host,
+   LinkedData.settings.goo_redis_host].select do |x|
     x.match(sh)
-  }.length == 2
+  end.length == 2
 end
 unless LinkedData.settings.goo_host.match(safe_hosts) &&
        LinkedData.settings.search_server_url.match(safe_hosts) &&
@@ -106,7 +107,6 @@ module LinkedData
   MiniTest::Unit.runner = LinkedData::Unit.new
 
   class TestCase < MiniTest::Unit::TestCase
-
     # Ensure all threads exit on any exception
     Thread.abort_on_exception = true
 
@@ -120,7 +120,7 @@ module LinkedData
       user = users.first
 
       if user.nil?
-        user = LinkedData::Models::User.new({username: user_name})
+        user = LinkedData::Models::User.new({ username: user_name })
         user.email = 'a@example.org'
         user.passwordHash = 'XXXXX'
         user.save
@@ -130,7 +130,7 @@ module LinkedData
       ont = ont.first
 
       if ont.nil?
-        ont = LinkedData::Models::Ontology.new({acronym: acronym})
+        ont = LinkedData::Models::Ontology.new({ acronym: acronym })
         ont.name = "some name for #{acronym}"
         ont.administeredBy = [user]
         ont.save
@@ -139,7 +139,7 @@ module LinkedData
       contact.email = 'xxx@example.org'
       contact.name  = 'some name'
       contact.save
-      return owl, ont, user, contact
+      [owl, ont, user, contact]
     end
 
     ##
@@ -168,7 +168,7 @@ module LinkedData
     def delete_goo_models(gooModelArray)
       gooModelArray.each do |m|
         m.delete
-        assert_equal(false, m.exist?(reload=true), 'Failed to delete a goo model.')
+        assert_equal(false, m.exist?(reload = true), 'Failed to delete a goo model.')
       end
     end
 
@@ -185,7 +185,7 @@ module LinkedData
       assert_equal(false, m.errors[:creator].nil?) # We expect there to be errors on creator
       assert_instance_of(LinkedData::Models::User, user, "#{user} is not an instance of LinkedData::Models::User")
       assert_equal(true, user.valid?, "#{user} is not a valid instance of LinkedData::Models::User")
-      m.instance_of?(LinkedData::Models::Project) ? m.creator = [user] : m.creator = user
+      m.creator = (m.instance_of?(LinkedData::Models::Project) ? [user] : user)
       assert_equal(false, m.valid?, "#{m} .valid? returned true, it was expected to be invalid.")
       assert_equal(true, m.errors[:creator].nil?, "Invalid model: #{m.errors}")
     end
@@ -234,14 +234,14 @@ module LinkedData
       rs.each_solution do |sol|
         return sol[:c].object
       end
-      return 0
+      0
     end
 
     def self.backend_4s_delete
       raise StandardError, 'Too many triples in KB, does not seem right to run tests' unless
-            count_pattern('?s ?p ?o') < 400000
+            count_pattern('?s ?p ?o') < 400_000
 
-      graphs = Goo.sparql_query_client.query("SELECT DISTINCT  ?g WHERE  { GRAPH ?g { ?s ?p ?o . } }")
+      graphs = Goo.sparql_query_client.query('SELECT DISTINCT  ?g WHERE  { GRAPH ?g { ?s ?p ?o . } }')
       graphs.each_solution do |sol|
         Goo.sparql_data_client.delete_graph(sol[:g])
       end
