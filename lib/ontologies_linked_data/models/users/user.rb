@@ -19,7 +19,7 @@ module LinkedData
       attr_accessor :show_apikey
 
       model :user, name_with: :username
-      attribute :username, enforce: [:unique, :existence]
+      attribute :username, enforce: [:unique, :existence, :validate_username]
       attribute :email, enforce: [:unique, :existence]
       attribute :role, enforce: [:role, :list], :default => lambda {|x| [LinkedData::Models::Users::Role.default]}
       attribute :firstName
@@ -163,6 +163,12 @@ module LinkedData
 
       def self.page_visits_analytics
         load_data(PAGES_ANALYTICS_REDIS_FIELD)
+      end
+
+      def validate_username(inst, attr)
+        inst.bring(attr) if inst.bring?(attr)
+        username = inst.send(attr)
+        return username&.match?(/^[a-zA-Z0-9][a-zA-Z0-9._-]{3,18}[a-zA-Z0-9]$/) ? [] : [:validate_username, "`username` must be 5-20 characters, start and end with a letter or number, and may include ., _, or -"]
       end
 
       private

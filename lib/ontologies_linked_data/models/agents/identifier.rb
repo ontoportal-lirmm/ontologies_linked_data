@@ -6,7 +6,7 @@ module LinkedData
 
       model :Identifier, namespace: :adms, name_with: lambda {  |i| generate_identifier(i.notation, i.schemaAgency)}
 
-      attribute :notation, namespace: :skos, enforce: %i[existence no_url notation_format]
+      attribute :notation, namespace: :skos, enforce: %i[existence no_url validate_notation_format]
       attribute :schemaAgency, namespace: :adms, enforcedValues: IDENTIFIER_SCHEMES.keys, enforce: [:existence]
       attribute :schemeURI, handler: :scheme_uri_infer
       attribute :creator, type: :user, enforce: [:existence]
@@ -31,7 +31,7 @@ module LinkedData
         return  notation&.start_with?('http') ? [:no_url, "`notation` must not be a URL"]  : []
       end
 
-      def notation_format(inst, attr)
+      def validate_notation_format(inst, attr)
         inst.bring([attr, :schemaAgency]) if inst.bring?(attr)
         notation = inst.send(attr)
         schema_agency = inst.send(:schemaAgency)
