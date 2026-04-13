@@ -26,6 +26,8 @@ module LinkedData
           end
         end
 
+        populate_default_values(logger)
+
         if @submission.valid?
           @submission.save
         else
@@ -307,6 +309,35 @@ eos
         before_last_sub.bring(attr)
 
         before_last_sub.public_send(attr.to_s)
+      end
+
+      def populate_default_values(logger)
+        rest_url   = LinkedData.settings.rest_url_prefix.to_s
+        sparql_url = LinkedData.settings.sparql_endpoint_url.to_s
+
+        if !rest_url.empty?
+          default_catalog = RDF::URI.new(rest_url)
+          current_catalog_values = Array(@submission.includedInDataCatalog).map { |v| RDF::URI.new(v.to_s) }
+
+          if current_catalog_values.include?(default_catalog)
+            logger.info("Default catalog '#{default_catalog}' already present in includedInDataCatalog. Skipping.")
+          else
+            @submission.includedInDataCatalog = (current_catalog_values + [default_catalog]).uniq
+            logger.info("Default catalog '#{default_catalog}' added to includedInDataCatalog.")
+          end
+        end
+
+        if !sparql_url.empty?
+          default_endpoint = RDF::URI.new(sparql_url)
+          current_endpoints = Array(@submission.endpoint).map { |v| RDF::URI.new(v.to_s) }
+
+          if current_endpoints.include?(default_endpoint)
+            logger.info("Default endpoint '#{default_endpoint}' already present in endpoint. Skipping.")
+          else
+            @submission.endpoint = (current_endpoints + [default_endpoint]).uniq
+            logger.info("Default endpoint '#{default_endpoint}' added to endpoint.")
+          end
+        end
       end
 
 
