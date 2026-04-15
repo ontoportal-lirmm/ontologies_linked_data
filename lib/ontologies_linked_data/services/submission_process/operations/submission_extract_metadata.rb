@@ -313,8 +313,6 @@ eos
       end
 
 
-      # Generic helper: adds +url+ as a default RDF::URI value for the given submission +attr+
-      # (a symbol like :includedInDataCatalog or :endpoint) unless it is already present.
       def populate_default_value(attr, url, logger)
         return if url.empty?
 
