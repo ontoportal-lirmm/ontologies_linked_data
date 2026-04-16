@@ -21,7 +21,10 @@ module LinkedData
       embed_values affiliations: [:name, :agentType, :homepage, :acronym, :email, :identifiers]
 
       prevent_serialize_when_nested :usages, :affiliations, :keywords, :groups, :categories, :subjects, :relatedAgents, :affiliatedAgents
-          
+
+      # Hypermedia links
+      link_to LinkedData::Hypermedia::Link.new("ui", lambda { |a| "http://#{LinkedData.settings.ui_host}/agents/#{a.id.to_s.split('/').last}" }, self.uri_type)
+
       write_access :creator
       access_control_load :creator
 
