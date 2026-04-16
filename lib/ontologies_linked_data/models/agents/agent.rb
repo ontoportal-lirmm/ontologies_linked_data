@@ -23,7 +23,7 @@ module LinkedData
       prevent_serialize_when_nested :usages, :affiliations, :keywords, :groups, :categories, :subjects, :relatedAgents, :affiliatedAgents
 
       # Hypermedia links
-      link_to LinkedData::Hypermedia::Link.new("ui", lambda { |a| "http://#{LinkedData.settings.ui_host}/agents/#{a.id.to_s.split('/').last}" }, self.uri_type)
+      link_to LinkedData::Hypermedia::Link.new("ui", lambda { |a| "https://#{LinkedData.settings.ui_host}/agents/#{a.id.to_s.split('/').last}" }, self.uri_type)
 
       write_access :creator
       access_control_load :creator
