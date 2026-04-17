@@ -26,6 +26,9 @@ module LinkedData
           end
         end
 
+        populate_default_value(:includedInDataCatalog, LinkedData.settings.rest_url_prefix.to_s, logger)
+        populate_default_value(:endpoint, LinkedData.settings.sparql_endpoint_url.to_s, logger)
+
         if @submission.valid?
           @submission.save
         else
@@ -307,6 +310,21 @@ eos
         before_last_sub.bring(attr)
 
         before_last_sub.public_send(attr.to_s)
+      end
+
+
+      def populate_default_value(attr, url, logger)
+        return if url.empty?
+
+        default_uri     = RDF::URI.new(url)
+        current_values  = Array(@submission.public_send(attr)).map { |v| RDF::URI.new(v.to_s) }
+
+        if current_values.include?(default_uri)
+          logger.info("Default value '#{default_uri}' already present in #{attr}. Skipping.")
+        else
+          @submission.public_send(:"#{attr}=", (current_values + [default_uri]).uniq)
+          logger.info("Default value '#{default_uri}' added to #{attr}.")
+        end
       end
 
 

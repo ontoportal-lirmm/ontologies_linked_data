@@ -60,7 +60,11 @@ class TestArtefact < LinkedData::TestOntologyCommon
 
                 if value_submission_attr.is_a?(Array)
                     value_artefact_attr.each_with_index do |v, i|
-                        assert_equal v.id, value_submission_attr[i].id
+                        if v.respond_to?(:id) && value_submission_attr[i].respond_to?(:id)
+                            assert_equal v.id, value_submission_attr[i].id
+                        else
+                            assert_equal v, value_submission_attr[i]
+                        end
                     end
                 else
                     assert_equal value_artefact_attr, value_submission_attr
