@@ -12,7 +12,7 @@ module LinkedData
       attribute :contacts
       attribute :institution
       attribute :ontologyUsed, enforce: [:ontology, :list]
+      link_to LinkedData::Hypermedia::Link.new("ui", lambda { |p| "https://#{LinkedData.settings.ui_host}/projects/#{p.acronym}" }, self.uri_type)
     end
   end
 end
-
