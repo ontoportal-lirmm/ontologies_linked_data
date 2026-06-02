@@ -28,6 +28,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency("rsolr")
   gem.add_dependency("pony")
   gem.add_dependency("omni_logger")
+  gem.add_dependency("roo")
+  gem.add_dependency("rdf-rdfxml")
 
   gem.add_development_dependency("email_spec")
 
