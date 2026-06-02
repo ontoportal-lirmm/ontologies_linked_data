@@ -454,6 +454,10 @@ module LinkedData
         return File.join(self.data_folder, 'parsing.log')
       end
 
+      def parsing_logs_folder
+        return File.join(self.data_folder, 'parsing_logs')
+      end
+
       def triples_file_path
         self.bring(:uploadFilePath) if self.bring?(:uploadFilePath)
         self.bring(:masterFileName) if self.bring?(:masterFileName)

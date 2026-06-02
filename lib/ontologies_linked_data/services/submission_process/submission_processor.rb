@@ -34,30 +34,30 @@ module LinkedData
             @submission.archive
           else
 
-            @submission.generate_rdf(logger, reasoning: process_reasoning?(options)) if process_rdf?(options)
+            @submission.generate_rdf(step_logger(logger, 'parsed.log'), reasoning: process_reasoning?(options)) if process_rdf?(options)
 
             parsed = @submission.ready?(status: %i[rdf])
 
-            @submission = @submission.extract_metadata(logger, user_params: options[:params], heavy_extraction: extract_metadata?(options))
+            @submission = @submission.extract_metadata(step_logger(logger, 'metadata.log'), user_params: options[:params], heavy_extraction: extract_metadata?(options))
 
-            @submission.generate_missing_labels(logger) if generate_missing_labels?(options)
+            @submission.generate_missing_labels(step_logger(logger, 'labels.log')) if generate_missing_labels?(options)
 
-            @submission.generate_obsolete_classes(logger) if generate_obsolete_classes?(options)
+            @submission.generate_obsolete_classes(step_logger(logger, 'obsolete.log')) if generate_obsolete_classes?(options)
 
             if !parsed && (index_search?(options) || index_properties?(options) || index_all_data?(options))
               raise StandardError, "The submission #{@submission.ontology.acronym}/submissions/#{@submission.submissionId}
                                 cannot be indexed because it has not been successfully parsed"
             end
 
-            @submission.index_all(logger, commit: process_index_commit?(options)) if index_all_data?(options)
+            @submission.index_all(step_logger(logger, 'indexed.log'), commit: process_index_commit?(options)) if index_all_data?(options)
 
-            @submission.index_terms(logger, commit: process_index_commit?(options)) if index_search?(options)
+            @submission.index_terms(step_logger(logger, 'indexed.log'), commit: process_index_commit?(options)) if index_search?(options)
 
-            @submission.index_properties(logger, commit: process_index_commit?(options)) if index_properties?(options)
+            @submission.index_properties(step_logger(logger, 'indexed.log'), commit: process_index_commit?(options)) if index_properties?(options)
 
-            @submission.generate_metrics(logger) if process_metrics?(options)
+            @submission.generate_metrics(step_logger(logger, 'metrics.log')) if process_metrics?(options)
 
-            @submission.generate_diff(logger) if process_diff?(options)
+            @submission.generate_diff(step_logger(logger, 'diff.log')) if process_diff?(options)
           end
           @submission.save
           logger.info("Submission processing of #{@submission.id} completed successfully")
@@ -73,6 +73,19 @@ module LinkedData
         LinkedData::Utils::Notifications.submission_processed(@submission)
       rescue StandardError => e
         logger.error("Email sending failed: #{e.message}\n#{e.backtrace.join("\n\t")}"); logger.flush
+      end
+
+      # Build a logger for a processing step that writes both to the main log
+      # (the one passed into #process) and to a step-specific file located in the
+      # submission's parsing_logs folder. Loggers are memoized per file name so
+      # steps sharing a file (e.g. the indexers) append to the same handle.
+      def step_logger(main_logger, filename)
+        @step_loggers ||= {}
+        @step_loggers[filename] ||= begin
+          FileUtils.mkdir_p(@submission.parsing_logs_folder)
+          file_logger = Logger.new(File.join(@submission.parsing_logs_folder, filename))
+          LinkedData::Utils::MultiLogger.new(loggers: [main_logger, file_logger])
+        end
       end
 
       def process_archive?(options)
