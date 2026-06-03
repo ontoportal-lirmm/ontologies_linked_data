@@ -1,3 +1,5 @@
+require "ontologies_linked_data/parser/xlsx_converter"
+
 module LinkedData
   module Services
 
