@@ -16,20 +16,22 @@ module LinkedData
       end
 
 
-      def self.zip?(file_path)
-        file_path = file_path.to_s
-        raise ArgumentError, "File path #{file_path} not found" unless File.exist? file_path
+      ZIP_MIME_TYPES = %w[application/zip application/x-zip-compressed].freeze
+      GZIP_MIME_TYPES = %w[application/gzip application/x-gzip].freeze
 
-        file_type = `file --mime -b #{Shellwords.escape(file_path)}`
-        file_type.split(';')[0] == 'application/zip'
+      def self.zip?(file_path)
+        ZIP_MIME_TYPES.include?(file_mime_type(file_path))
       end
 
       def self.gzip?(file_path)
+        GZIP_MIME_TYPES.include?(file_mime_type(file_path))
+      end
+
+      def self.file_mime_type(file_path)
         file_path = file_path.to_s
         raise ArgumentError, "File path #{file_path} not found" unless File.exist? file_path
 
-        file_type = `file --mime -b #{Shellwords.escape(file_path)}`
-        file_type.split(';')[0] == 'application/x-gzip'
+        `file --mime -b #{Shellwords.escape(file_path)}`.split(';')[0].strip
       end
 
       def self.files_from_zip(file_path)
