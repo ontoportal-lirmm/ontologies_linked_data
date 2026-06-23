@@ -36,6 +36,8 @@ module LinkedData
       def initialize(file_path, ontology_id, base_uri)
         @file_path = file_path
         @ontology_id = ontology_id
+        base_uri = base_uri.to_s.strip
+        raise ArgumentError, "A base URI (submission URI) is required to convert the XLSX" if base_uri.empty?
         @base_uri = base_uri.chomp("/") + "/"
       end
 
@@ -51,6 +53,9 @@ module LinkedData
 
       def parse_xlsx
         spreadsheet = Roo::Spreadsheet.open(@file_path)
+        unless spreadsheet.sheets.include?(SHEET_NAME)
+          raise ArgumentError, "XLSX must contain a sheet named '#{SHEET_NAME}' (found: #{spreadsheet.sheets.join(', ')})"
+        end
         sheet = spreadsheet.sheet(SHEET_NAME)
 
         parsed = sheet.parse(headers: true)
@@ -71,10 +76,7 @@ module LinkedData
 
         # Validate required columns are not empty
         nan_cols = columns_with_nil(rows)
-        if (["Variable name"] & nan_cols).any? ||
-           (["Trait name", "Trait name "] & nan_cols).any? ||
-           (["Method name"] & nan_cols).any? ||
-           (["Scale name"] & nan_cols).any?
+        if (["Variable name", "Trait name", "Method name", "Scale name"] & nan_cols).any?
           raise ArgumentError, "Variable, trait, method or scale names should not be empty"
         end
 
@@ -85,7 +87,7 @@ module LinkedData
             if val.nil?
               row[col] = ""
             elsif val.is_a?(String)
-              row[col] = val.gsub(/["']/, "")
+              row[col] = val.strip.gsub(/\A["']+|["']+\z/, "")
             end
           end
         end
@@ -106,7 +108,7 @@ module LinkedData
       def normalize_row(row)
         normalized = {}
         row.each do |key, value|
-          normalized[key.to_s] = value
+          normalized[key.to_s.strip] = value
         end
         normalized
       end
@@ -172,15 +174,15 @@ module LinkedData
         graph << [ontology_uri, RDF.type, RDF::OWL.Ontology]
         graph << [ontology_uri, DCTERMS.license, RDF::URI("https://creativecommons.org/licenses/by/4.0/")]
 
+        crop = rows.first && rows.first["Crop"]
+        graph << [ontology_uri, RDF::RDFS.label, RDF::Literal("#{crop} ontology")] if crop && !crop.to_s.empty?
+
         rows.each do |row|
           var_id    = row["Variable ID"]
           var_name  = row["Variable name"]
-          crop      = row["Crop"]
           trait_id  = row["Trait ID"]
           method_id = row["Method ID"]
           scale_id  = row["Scale ID"]
-
-          graph << [ontology_uri, RDF::RDFS.label, RDF::Literal("#{crop} ontology")]
 
           var_uri = RDF::URI(ns + var_id)
 
