@@ -1,4 +1,3 @@
-require "ontologies_linked_data/parser/xlsx_converter"
 
 module LinkedData
   module Services
@@ -87,6 +86,7 @@ module LinkedData
       end
 
       def generate_rdf_from_xlsx(logger, reasoning: true)
+        require "ontologies_linked_data/parser/xlsx_converter"
         xlsx_path = @submission.master_file_path
         logger.info("XLSX format detected; converting to OWL via XlsxConverter")
         logger.info("XLSX path: #{xlsx_path}")
