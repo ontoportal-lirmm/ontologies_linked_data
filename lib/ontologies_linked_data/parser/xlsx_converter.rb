@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rdf"
-
 module LinkedData
   module Parser
     # Converts Crop Ontology Template XLSX files to OWL/RDF XML.
@@ -28,8 +26,9 @@ module LinkedData
 
       # Main entry point. Returns OWL/RDF XML string.
       def self.convert(file_path, ontology_id, base_uri)
-        require "roo" unless defined?(Roo)
-        require "rdf/rdfxml" unless defined?(RDF::RDFXML)
+        require "rdf"
+        require "rdf/rdfxml"
+        require "roo"
         new(file_path, ontology_id, base_uri).call
       end
 
