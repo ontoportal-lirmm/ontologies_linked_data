@@ -50,8 +50,6 @@ module LinkedData
           mime_type = LinkedData::MediaTypes.media_type_from_base(LinkedData::MediaTypes::TURTLE)
           SubmissionMetricsCalculator.new(@submission).generate_umls_metrics_file(triples_file_path)
           delete_and_append(triples_file_path, logger, mime_type)
-        elsif @submission.hasOntologyLanguage.xlsx?
-          generate_rdf_from_xlsx(logger, reasoning: reasoning)
         else
           output_rdf = @submission.rdf_path
 
@@ -83,54 +81,6 @@ module LinkedData
           logger.flush
           delete_and_append(triples_file_path, logger, mime_type)
         end
-      end
-
-      def generate_rdf_from_xlsx(logger, reasoning: true)
-        require "ontologies_linked_data/parser/xlsx_converter"
-        xlsx_path = @submission.master_file_path
-        logger.info("XLSX format detected; converting to OWL via XlsxConverter")
-        logger.info("XLSX path: #{xlsx_path}")
-        logger.flush
-
-        # Derive ontology_id from submission metadata
-        @submission.ontology.bring(:acronym) if @submission.ontology.bring?(:acronym)
-        ontology_id = @submission.ontology.acronym
-
-        # Derive base_uri from submission URI or default
-        @submission.bring(:URI) if @submission.bring?(:URI)
-        base_uri = @submission.URI.to_s
-
-        # Convert XLSX to OWL
-        owl_xml = LinkedData::Parser::XlsxConverter.convert(xlsx_path, ontology_id, base_uri)
-
-        # Write converted OWL to a temp file
-        converted_owl_path = File.join(@submission.data_folder, "converted_from_xlsx.owl")
-        File.write(converted_owl_path, owl_xml)
-        logger.info("XLSX converted to OWL (#{owl_xml.length} bytes), written to #{converted_owl_path}")
-        logger.flush
-
-        # Feed the converted OWL to OWLAPI for parsing
-        output_rdf = @submission.rdf_path
-        FileUtils.rm(output_rdf) if File.exist?(output_rdf)
-
-        owlapi = LinkedData::Parser::OWLAPICommand.new(
-          converted_owl_path,
-          File.expand_path(@submission.data_folder.to_s),
-          logger: logger
-        )
-        owlapi.disable_reasoner unless reasoning
-
-        triples_file_path, missing_imports = owlapi.parse
-
-        if missing_imports && !missing_imports.empty?
-          @submission.missingImports = missing_imports
-          missing_imports.each { |imp| logger.info("OWL_IMPORT_MISSING: #{imp}") }
-        else
-          @submission.missingImports = nil
-        end
-        logger.flush
-
-        delete_and_append(triples_file_path, logger, nil)
       end
 
       def delete_and_append(triples_file_path, logger, mime_type = nil)

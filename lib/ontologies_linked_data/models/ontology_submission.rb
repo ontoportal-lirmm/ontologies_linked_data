@@ -860,11 +860,48 @@ module LinkedData
 
       def owlapi_parser(logger: Logger.new($stdout))
         unzip_submission(logger)
-        LinkedData::Parser::OWLAPICommand.new(
-          owlapi_parser_input,
-          File.expand_path(self.data_folder.to_s),
-          master_file: self.masterFileName,
-          logger: logger)
+        self.bring(:hasOntologyLanguage) if self.bring?(:hasOntologyLanguage)
+
+        if hasOntologyLanguage&.xlsx?
+          # XLSX is not an OWLAPI-parsable format: convert it first and hand the
+          # resulting OWL to OWLAPI. This keeps parsable?/pull and RDF generation
+          # on the same plumbing (unzip, data_folder) as every other format.
+          LinkedData::Parser::OWLAPICommand.new(
+            File.expand_path(ensure_xlsx_converted(logger)),
+            File.expand_path(self.data_folder.to_s),
+            logger: logger)
+        else
+          LinkedData::Parser::OWLAPICommand.new(
+            owlapi_parser_input,
+            File.expand_path(self.data_folder.to_s),
+            master_file: self.masterFileName,
+            logger: logger)
+        end
+      end
+
+      # Path of the OWL produced from the uploaded XLSX template.
+      def xlsx_converted_owl_path
+        File.join(File.expand_path(self.data_folder.to_s), "converted_from_xlsx.owl")
+      end
+
+      # Convert the uploaded XLSX template to OWL and return the OWL path.
+      # Idempotent: reuses an already-converted file. Assumes the submission has
+      # been unzipped (callers go through owlapi_parser, which unzips first).
+      def ensure_xlsx_converted(logger = Logger.new($stdout))
+        converted = xlsx_converted_owl_path
+        return converted if File.exist?(converted)
+
+        require "ontologies_linked_data/parser/xlsx_converter"
+        self.bring(:URI) if self.bring?(:URI)
+        self.ontology.bring(:acronym) if self.ontology.bring?(:acronym)
+
+        logger.info("XLSX format detected; converting to OWL via XlsxConverter")
+        logger.info("XLSX path: #{master_file_path}")
+        owl_xml = LinkedData::Parser::XlsxConverter.convert(master_file_path, self.ontology.acronym, self.URI.to_s)
+        File.write(converted, owl_xml)
+        logger.info("XLSX converted to OWL (#{owl_xml.length} bytes) -> #{converted}")
+        logger.flush
+        converted
       end
 
       private
