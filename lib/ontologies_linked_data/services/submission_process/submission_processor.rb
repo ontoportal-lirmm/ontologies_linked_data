@@ -108,11 +108,6 @@ module LinkedData
       end
 
       def process_diff?(options)
-        # Bubastis diffs OWL, not spreadsheets; skip diff for XLSX submissions
-        # (the raw .xlsx would fail and stamp the version with a diff error).
-        @submission.bring(:hasOntologyLanguage) if @submission.bring?(:hasOntologyLanguage)
-        return false if @submission.hasOntologyLanguage&.xlsx?
-
         options.empty? || options[:diff].eql?(true)
       end
 

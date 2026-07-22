@@ -904,6 +904,24 @@ module LinkedData
         converted
       end
 
+      # File handed to the diff tool (Bubastis). For XLSX submissions this is the
+      # converted OWL — regenerated if missing — so the diff compares the two OWL
+      # versions instead of the raw spreadsheets. Other formats use the upload.
+      def diff_file_path(logger = Logger.new($stdout))
+        self.bring(:hasOntologyLanguage) if self.bring?(:hasOntologyLanguage)
+        if hasOntologyLanguage&.xlsx?
+          converted = xlsx_converted_owl_path
+          unless File.exist?(converted)
+            unzip_submission(logger)
+            ensure_xlsx_converted(logger)
+          end
+          File.expand_path(converted)
+        else
+          self.bring(:uploadFilePath) if self.bring?(:uploadFilePath)
+          File.expand_path(self.uploadFilePath)
+        end
+      end
+
       private
 
       def owlapi_parser_input
