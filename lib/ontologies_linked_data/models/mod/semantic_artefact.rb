@@ -3,6 +3,7 @@ require 'ontologies_linked_data/models/mod/semantic_artefact_catalog_record'
 require 'ontologies_linked_data/models/skos/scheme'
 require 'ontologies_linked_data/models/skos/collection'
 require 'ontologies_linked_data/models/skos/skosxl'
+require 'ontologies_linked_data/models/skos/definition'
 
 
 module LinkedData

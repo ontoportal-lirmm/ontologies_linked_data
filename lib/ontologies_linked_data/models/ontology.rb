@@ -9,6 +9,7 @@ require 'ontologies_linked_data/models/project'
 require 'ontologies_linked_data/models/skos/scheme'
 require 'ontologies_linked_data/models/skos/collection'
 require 'ontologies_linked_data/models/skos/skosxl'
+require 'ontologies_linked_data/models/skos/definition'
 require 'ontologies_linked_data/models/notes/note'
 require 'ontologies_linked_data/purl/purl_client'
 

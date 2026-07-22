@@ -198,6 +198,7 @@ module LinkedData
       conf.add_namespace(:cclicense, RDF::Vocabulary.new("http://creativecommons.org/licenses/"))
       conf.add_namespace(:nkos, RDF::Vocabulary.new("http://w3id.org/nkos#"))
       conf.add_namespace(:skosxl, RDF::Vocabulary.new("http://www.w3.org/2008/05/skos-xl#"))
+      conf.add_namespace(:vocbench, RDF::Vocabulary.new("http://art.uniroma2.it/ontologies/vocbench#"))
       conf.add_namespace(:dcterms, RDF::Vocabulary.new("http://purl.org/dc/terms/"))
       conf.add_namespace(:uneskos, RDF::Vocabulary.new("http://purl.org/umu/uneskos#"))
 

@@ -92,12 +92,12 @@ module LinkedData
       # Hypermedia settings
       embed :children, :ancestors, :descendants, :parents, :prefLabelXl, :altLabelXl, :hiddenLabelXl
       serialize_default :prefLabel, :synonym, :definition, :cui, :semanticType, :obsolete, :matchType, :ontologyType, :provisional, :created, :modified, :memberOf, :inScheme # an attribute used in Search (not shown out of context)
-      serialize_methods :properties, :childrenCount, :hasChildren
+      serialize_methods :properties, :childrenCount, :hasChildren, :definitionXl
       serialize_never :submissionAcronym, :submissionId, :submission, :descendants
       aggregates childrenCount: [:count, :children]
       links_load submission: [ontology: [:acronym]]
       do_not_load :descendants, :ancestors
-      prevent_serialize_when_nested :properties, :parents, :children, :ancestors, :descendants, :memberOf
+      prevent_serialize_when_nested :properties, :parents, :children, :ancestors, :descendants, :memberOf, :definitionXl
       link_to LinkedData::Hypermedia::Link.new("self", lambda {|s| "ontologies/#{s.submission.ontology.acronym}/classes/#{CGI.escape(s.id.to_s)}"}, self.uri_type),
               LinkedData::Hypermedia::Link.new("ontology", lambda {|s| "ontologies/#{s.submission.ontology.acronym}"}, Goo.vocabulary["Ontology"]),
               LinkedData::Hypermedia::Link.new("children", lambda {|s| "ontologies/#{s.submission.ontology.acronym}/classes/#{CGI.escape(s.id.to_s)}/children"}, self.uri_type),
@@ -384,6 +384,20 @@ module LinkedData
         properties = self.unmapped(*args)
         BLACKLIST_URIS.each {|bad_iri| properties.delete(RDF::URI.new(bad_iri))}
         properties
+      end
+
+      # Expose the content of reified skos:definition nodes (text + provenance).
+      # `definition` (the flat attribute) is unchanged: for reified definitions
+      # its entries are the bare node URIs; this method resolves those URIs into
+      # structured objects. Plain-literal definitions have no URI entries, so
+      # this returns an empty array and the flat `definition` still carries them.
+      def definitionXl
+        self.bring(:definition) if self.bring?(:definition)
+        uris = Array(self.definition).select { |d| d.is_a?(RDF::URI) }
+        return [] if uris.empty?
+
+        self.bring(:submission) if self.bring?(:submission)
+        LinkedData::Models::SKOS::Definition.reified(uris, self.submission)
       end
 
       def self.partially_load_children(models, threshold, submission)
