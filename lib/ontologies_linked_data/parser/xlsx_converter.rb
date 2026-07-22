@@ -114,45 +114,69 @@ module LinkedData
         end
       end
 
+      # Column pairs whose IDs are shared by name (all rows with the same Trait
+      # name get the same Trait ID, etc.). Variable IDs are unique per row.
+      SHARED_ID_COLUMNS = [
+        ["Trait name",  "Trait ID"],
+        ["Method name", "Method ID"],
+        ["Scale name",  "Scale ID"]
+      ].freeze
+
+      ID_COLUMNS = ["Variable ID", "Trait ID", "Method ID", "Scale ID"].freeze
+
+      # Fills in missing IDs. Minted IDs never reuse a value already present in
+      # the sheet (collision-safe), and within a single conversion the same
+      # trait/method/scale name always maps to one ID (O(n) via per-column maps).
+      #
+      # NOTE: numbering restarts per conversion, so a minted ID is NOT guaranteed
+      # to be stable across submissions (adding/reordering rows can shift it).
+      # Cross-version URI stability is a pending design decision (name-derived
+      # URIs or a previous-submission lookup) — see PR review.
       def auto_generate_ids!(rows)
-        term_id = 0
-
-        rows.each do |row|
-          if row["Variable ID"].to_s.strip.empty?
-            term_id += 1
-            row["Variable ID"] = "#{@ontology_id}:#{term_id.to_s.rjust(7, "0")}"
-          end
-
-          if row["Trait ID"].to_s.strip.empty?
-            existing = rows.find { |r| r["Trait name"] == row["Trait name"] && !r["Trait ID"].to_s.strip.empty? }
-            if existing
-              row["Trait ID"] = existing["Trait ID"]
-            else
-              term_id += 1
-              row["Trait ID"] = "#{@ontology_id}:#{term_id.to_s.rjust(7, "0")}"
-            end
-          end
-
-          if row["Method ID"].to_s.strip.empty?
-            existing = rows.find { |r| r["Method name"] == row["Method name"] && !r["Method ID"].to_s.strip.empty? }
-            if existing
-              row["Method ID"] = existing["Method ID"]
-            else
-              term_id += 1
-              row["Method ID"] = "#{@ontology_id}:#{term_id.to_s.rjust(7, "0")}"
-            end
-          end
-
-          if row["Scale ID"].to_s.strip.empty?
-            existing = rows.find { |r| r["Scale name"] == row["Scale name"] && !r["Scale ID"].to_s.strip.empty? }
-            if existing
-              row["Scale ID"] = existing["Scale ID"]
-            else
-              term_id += 1
-              row["Scale ID"] = "#{@ontology_id}:#{term_id.to_s.rjust(7, "0")}"
-            end
+        used_ids = collect_explicit_ids(rows)
+        counter = 0
+        mint = lambda do
+          loop do
+            counter += 1
+            candidate = "#{@ontology_id}:#{counter.to_s.rjust(7, "0")}"
+            next if used_ids.key?(candidate)
+            used_ids[candidate] = true
+            return candidate
           end
         end
+
+        # Variables are unique per row: one minted ID each.
+        rows.each do |row|
+          row["Variable ID"] = mint.call if row["Variable ID"].to_s.strip.empty?
+        end
+
+        # Trait / Method / Scale: reuse an explicit ID when a sibling row with the
+        # same name already carries one, otherwise mint a single ID per distinct name.
+        SHARED_ID_COLUMNS.each do |name_col, id_col|
+          name_to_id = {}
+          rows.each do |row|
+            id = row[id_col].to_s.strip
+            name_to_id[row[name_col]] ||= id unless id.empty?
+          end
+          rows.each do |row|
+            next unless row[id_col].to_s.strip.empty?
+            name_to_id[row[name_col]] ||= mint.call
+            row[id_col] = name_to_id[row[name_col]]
+          end
+        end
+      end
+
+      # Every ID explicitly present in the sheet, as a hash-set, so minting never
+      # collides with a value that already identifies another term.
+      def collect_explicit_ids(rows)
+        ids = {}
+        ID_COLUMNS.each do |col|
+          rows.each do |row|
+            v = row[col].to_s.strip
+            ids[v] = true unless v.empty?
+          end
+        end
+        ids
       end
 
       # === PHASE 2: Build OWL graph ===
