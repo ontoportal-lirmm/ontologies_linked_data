@@ -3,12 +3,6 @@
 module LinkedData
   module Parser
     # Converts Crop Ontology Template XLSX files to OWL/RDF XML.
-    #
-    # Logic ported from:
-    #   - xls2owl-ruby/lib/xls2owl/converter.rb
-    #   - cropontology/views/template.py (TemplateLoadView — XLSX parsing)
-    #   - cropontology/views/rdf_api.py (RDFCleanView — OWL generation)
-    #
     class XlsxConverter
       SHEET_NAME = "Template for submission"
 
