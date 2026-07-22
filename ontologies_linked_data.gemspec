@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency("bcrypt")
   gem.add_dependency("rack")
   gem.add_dependency("rack-test")
-  gem.add_dependency("rubyzip")
+  gem.add_dependency("rubyzip", "1.3.0")
   gem.add_dependency("libxml-ruby")
   gem.add_dependency("activesupport")
   gem.add_dependency("rsolr")
