@@ -114,8 +114,6 @@ module LinkedData
         end
       end
 
-      # Column pairs whose IDs are shared by name (all rows with the same Trait
-      # name get the same Trait ID, etc.). Variable IDs are unique per row.
       SHARED_ID_COLUMNS = [
         ["Trait name",  "Trait ID"],
         ["Method name", "Method ID"],
@@ -124,14 +122,6 @@ module LinkedData
 
       ID_COLUMNS = ["Variable ID", "Trait ID", "Method ID", "Scale ID"].freeze
 
-      # Fills in missing IDs. Minted IDs never reuse a value already present in
-      # the sheet (collision-safe), and within a single conversion the same
-      # trait/method/scale name always maps to one ID (O(n) via per-column maps).
-      #
-      # NOTE: numbering restarts per conversion, so a minted ID is NOT guaranteed
-      # to be stable across submissions (adding/reordering rows can shift it).
-      # Cross-version URI stability is a pending design decision (name-derived
-      # URIs or a previous-submission lookup) — see PR review.
       def auto_generate_ids!(rows)
         used_ids = collect_explicit_ids(rows)
         counter = 0
@@ -145,13 +135,10 @@ module LinkedData
           end
         end
 
-        # Variables are unique per row: one minted ID each.
         rows.each do |row|
           row["Variable ID"] = mint.call if row["Variable ID"].to_s.strip.empty?
         end
 
-        # Trait / Method / Scale: reuse an explicit ID when a sibling row with the
-        # same name already carries one, otherwise mint a single ID per distinct name.
         SHARED_ID_COLUMNS.each do |name_col, id_col|
           name_to_id = {}
           rows.each do |row|
@@ -166,8 +153,6 @@ module LinkedData
         end
       end
 
-      # Every ID explicitly present in the sheet, as a hash-set, so minting never
-      # collides with a value that already identifies another term.
       def collect_explicit_ids(rows)
         ids = {}
         ID_COLUMNS.each do |col|

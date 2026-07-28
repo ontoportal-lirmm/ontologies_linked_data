@@ -863,9 +863,6 @@ module LinkedData
         self.bring(:hasOntologyLanguage) if self.bring?(:hasOntologyLanguage)
 
         if hasOntologyLanguage&.xlsx?
-          # XLSX is not an OWLAPI-parsable format: convert it first and hand the
-          # resulting OWL to OWLAPI. This keeps parsable?/pull and RDF generation
-          # on the same plumbing (unzip, data_folder) as every other format.
           LinkedData::Parser::OWLAPICommand.new(
             File.expand_path(ensure_xlsx_converted(logger)),
             File.expand_path(self.data_folder.to_s),
@@ -879,14 +876,10 @@ module LinkedData
         end
       end
 
-      # Path of the OWL produced from the uploaded XLSX template.
       def xlsx_converted_owl_path
         File.join(File.expand_path(self.data_folder.to_s), "converted_from_xlsx.owl")
       end
 
-      # Convert the uploaded XLSX template to OWL and return the OWL path.
-      # Idempotent: reuses an already-converted file. Assumes the submission has
-      # been unzipped (callers go through owlapi_parser, which unzips first).
       def ensure_xlsx_converted(logger = Logger.new($stdout))
         converted = xlsx_converted_owl_path
         return converted if File.exist?(converted)
@@ -904,9 +897,6 @@ module LinkedData
         converted
       end
 
-      # File handed to the diff tool (Bubastis). For XLSX submissions this is the
-      # converted OWL — regenerated if missing — so the diff compares the two OWL
-      # versions instead of the raw spreadsheets. Other formats use the upload.
       def diff_file_path(logger = Logger.new($stdout))
         self.bring(:hasOntologyLanguage) if self.bring?(:hasOntologyLanguage)
         if hasOntologyLanguage&.xlsx?

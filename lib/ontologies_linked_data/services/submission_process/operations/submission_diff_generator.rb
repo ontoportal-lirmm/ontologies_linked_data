@@ -14,9 +14,6 @@ module LinkedData
 
       # accepts another submission in 'older' (it should be an 'older' ontology version)
       def init_diff_tool(older)
-        # For XLSX, diff_file_path returns the converted OWL, so Bubastis compares
-        # the two OWL versions rather than the raw spreadsheets. Other formats
-        # keep using the uploaded file.
         LinkedData::Diff::BubastisDiffCommand.new(
           older.diff_file_path,
           @submission.diff_file_path)
