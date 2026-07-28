@@ -14,6 +14,10 @@ module LinkedData
         LinkedData::Services::ObsoleteClassesGenerator.new(self).process(logger, file_path: self.master_file_path)
       end
 
+      def resolve_reified_definitions(logger)
+        LinkedData::Services::ResolveReifiedDefinitions.new(self).process(logger, file_path: self.master_file_path)
+      end
+
       def extract_metadata(logger, options = {})
         LinkedData::Services::SubmissionMetadataExtractor.new(self).process(logger, options)
       end

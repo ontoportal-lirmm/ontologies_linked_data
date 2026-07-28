@@ -5,6 +5,7 @@ module LinkedData
       ################################################################
       # Possible options with their defaults:
       #   process_rdf       = false
+      #   resolve_reified_definitions = follows process_rdf
       #   index_search      = false
       #   index_properties  = false
       #   index_commit      = false
@@ -43,6 +44,10 @@ module LinkedData
             @submission.generate_missing_labels(logger) if generate_missing_labels?(options)
 
             @submission.generate_obsolete_classes(logger) if generate_obsolete_classes?(options)
+
+            # Before indexing: the definitions it materializes have to reach Solr
+            # with the rest of the concept.
+            @submission.resolve_reified_definitions(logger) if resolve_reified_definitions?(options)
 
             if !parsed && (index_search?(options) || index_properties?(options) || index_all_data?(options))
               raise StandardError, "The submission #{@submission.ontology.acronym}/submissions/#{@submission.submissionId}
@@ -89,6 +94,10 @@ module LinkedData
 
       def generate_obsolete_classes?(options)
         options[:generate_obsolete_classes].nil? && process_rdf?(options) || options[:generate_obsolete_classes].eql?(true)
+      end
+
+      def resolve_reified_definitions?(options)
+        options[:resolve_reified_definitions].nil? && process_rdf?(options) || options[:resolve_reified_definitions].eql?(true)
       end
       
       def index_all_data?(options)
