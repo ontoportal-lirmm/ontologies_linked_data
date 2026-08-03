@@ -39,6 +39,11 @@ module LinkedData
         EXTENSIONS[self.acronym.downcase.to_sym]
       end
 
+      def master_file_extensions
+        return [".xlsx", ".xls", ".csv"] if xlsx?
+        [file_extension]
+      end
+
       def tree_property
         if obo?
           return Goo.vocabulary(:metadata)[:treeView]

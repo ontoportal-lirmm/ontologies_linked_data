@@ -381,8 +381,8 @@ module LinkedData
         elsif zip and files.length == 1
           self.masterFileName = files.first
           return true
-        elsif zip && self.masterFileName.nil? && LinkedData::Utils::FileHelpers.automaster?(self.uploadFilePath, self.hasOntologyLanguage.file_extension)
-          self.masterFileName = LinkedData::Utils::FileHelpers.automaster(self.uploadFilePath, self.hasOntologyLanguage.file_extension)
+        elsif zip && self.masterFileName.nil? && LinkedData::Utils::FileHelpers.automaster?(self.uploadFilePath, self.hasOntologyLanguage.master_file_extensions)
+          self.masterFileName = LinkedData::Utils::FileHelpers.automaster(self.uploadFilePath, self.hasOntologyLanguage.master_file_extensions)
           return true
         elsif zip and self.masterFileName.nil?
           # zip and masterFileName not set. The user has to choose.
