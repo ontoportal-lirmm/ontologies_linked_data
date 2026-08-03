@@ -69,8 +69,10 @@ module LinkedData
 
         # Validate required columns are not empty
         nan_cols = columns_with_nil(rows)
-        if (["Variable name", "Trait name", "Method name", "Scale name"] & nan_cols).any?
-          raise ArgumentError, "Variable, trait, method or scale names should not be empty"
+        required_cols = ["Variable name", "Trait name", "Method name", "Scale name", "Variable ID"]
+        missing_cols = required_cols & nan_cols
+        if missing_cols.any?
+          raise ArgumentError, "Required columns must not be empty: #{missing_cols.join(', ')}"
         end
 
         # Fill nil with empty string, remove quotes
@@ -133,10 +135,6 @@ module LinkedData
             used_ids[candidate] = true
             return candidate
           end
-        end
-
-        rows.each do |row|
-          row["Variable ID"] = mint.call if row["Variable ID"].to_s.strip.empty?
         end
 
         SHARED_ID_COLUMNS.each do |name_col, id_col|
