@@ -902,6 +902,8 @@ module LinkedData
         if hasOntologyLanguage&.xlsx?
           converted = xlsx_converted_owl_path
           unless File.exist?(converted)
+            self.bring(:uploadFilePath) if self.bring?(:uploadFilePath)
+            self.bring(:masterFileName) if self.bring?(:masterFileName)
             unzip_submission(logger)
             ensure_xlsx_converted(logger)
           end
