@@ -23,6 +23,10 @@ module LinkedData
         "Variable ID", "Trait ID", "Method ID", "Scale ID"
       ].freeze
 
+      REQUIRED_COLUMNS = [
+        "Variable name", "Trait name", "Method name", "Scale name", "Variable ID"
+      ].freeze
+
       # Main entry point. Returns OWL/RDF XML string.
       def self.convert(file_path, ontology_id, base_uri)
         require "rdf"
@@ -72,10 +76,12 @@ module LinkedData
         # Drop rows that are all nil/empty
         rows.reject! { |row| row.values.all? { |v| v.nil? || (v.is_a?(String) && v.empty?) } }
 
-        # Validate required columns are not empty
-        nan_cols = columns_with_nil(rows)
-        required_cols = ["Variable name", "Trait name", "Method name", "Scale name", "Variable ID"]
-        missing_cols = required_cols & nan_cols
+        # Validate required columns are not empty (per the TDv5 template spec).
+        # Trait/Method/Scale ID are intentionally excluded: the spec allows leaving
+        # them blank for auto-generation, which auto_generate_ids! still does.
+        missing_cols = REQUIRED_COLUMNS.select do |col|
+          rows.any? { |row| row[col].to_s.strip.empty? }
+        end
         if missing_cols.any?
           raise TemplateValidationError, "Required columns must not be empty: #{missing_cols.join(', ')}"
         end
@@ -111,14 +117,6 @@ module LinkedData
           normalized[key.to_s.strip] = value
         end
         normalized
-      end
-
-      def columns_with_nil(rows)
-        return [] if rows.empty?
-        cols = rows.first.keys
-        cols.select do |col|
-          rows.any? { |row| row[col].nil? || (row[col].is_a?(String) && row[col].empty?) }
-        end
       end
 
       SHARED_ID_COLUMNS = [
