@@ -23,8 +23,27 @@ class TestResolveReifiedDefinitions < LinkedData::TestOntologyCommon
   DCT_SOURCE = 'http://purl.org/dc/terms/source'
   SKOS_PREFLABEL = 'http://www.w3.org/2004/02/skos/core#prefLabel'
 
-  # Parsed with the step disabled: the test drives it explicitly so it can
-  # observe the graph before, after, and after a second run.
+  # A concept of the same fixture carrying no definition at all: its only
+  # resource valued properties are skos:broader, skos:inScheme and rdf:type.
+  # None of them is a reified definition, so the step has to leave it alone.
+  LINKED_CONCEPT = 'http://opendata.inrae.fr/thesaurusINRAE/c_0015b5e0'
+
+  # What those links turn into when the definition properties of the queries do
+  # not reach the backend: the labels of the broader concept, the labels of the
+  # concept schemes, and - through rdf:type - the definition SKOS gives to
+  # skos:Concept, which lands on every concept of the ontology at once.
+  LEAKED_TEXTS = {
+    'cell division' => 'skos:broader c_9399',
+    'division cellulaire' => 'skos:broader c_9399',
+    'BIO cell biology' => 'skos:inScheme mt_64',
+    'Thésaurus INRAE' => 'skos:inScheme thesaurusINRAE',
+    'An idea or notion; a unit of thought.' => 'rdf:type skos:Concept'
+  }.freeze
+
+  # Parsed with the step disabled, so everything the tests read afterwards can
+  # only have come from the step. It runs once, here rather than inside a test:
+  # minitest orders tests at random, so none of them may depend on being the one
+  # that runs it.
   def self.before_suite
     LinkedData::TestCase.backend_4s_delete
     self.new('').submission_parse('INRAETHES', 'Testing skos',
@@ -32,6 +51,16 @@ class TestResolveReifiedDefinitions < LinkedData::TestOntologyCommon
                                   1,
                                   process_rdf: true, extract_metadata: false, generate_missing_labels: false,
                                   resolve_reified_definitions: false)
+
+    test = self.new('')
+    sub = test.submission
+    sub.bring_remaining # the step writes its triples next to the master file
+    unless test.literal_definitions(sub, REIFIED_CONCEPT).empty?
+      raise "#{REIFIED_CONCEPT} already carries a literal definition once parsed, " \
+            'the assertions on the resolved text would prove nothing'
+    end
+
+    sub.resolve_reified_definitions(Logger.new(TestLogFile.new))
   end
 
   def submission
@@ -96,11 +125,6 @@ class TestResolveReifiedDefinitions < LinkedData::TestOntologyCommon
   # anything.
   def test_resolve_reified_definitions
     sub = submission
-    sub.bring_remaining # the step writes its triples next to the master file
-    assert_empty literal_definitions(sub, REIFIED_CONCEPT),
-                 'the fixture concept starts with no literal definition'
-
-    sub.resolve_reified_definitions(Logger.new(TestLogFile.new))
 
     definitions = literal_definitions(sub, REIFIED_CONCEPT)
     assert_equal 1, definitions.length
@@ -124,13 +148,36 @@ class TestResolveReifiedDefinitions < LinkedData::TestOntologyCommon
     assert_includes values, REIFIED_NODE, 'the node URI is left where the ontology put it'
 
     # Replayed on an already enriched graph, the step adds nothing.
+    sub.bring_remaining # the step writes its triples next to the master file
     sub.resolve_reified_definitions(Logger.new(TestLogFile.new))
     assert_equal 1, literal_definitions(sub, REIFIED_CONCEPT).length
   ensure
     RequestStore.store[:requested_lang] = nil
   end
 
-  private
+  # The other half of the pattern: only the definition properties lead to a
+  # reified definition. A concept whose resources are ordinary SKOS links keeps
+  # no definition out of them - the labels sitting on a broader concept or on a
+  # concept scheme are not its definition.
+  #
+  # This is what breaks first when the property restriction of the queries does
+  # not reach the backend, and it breaks silently: every skos:broader,
+  # skos:inScheme and rdf:type reads as a reified definition, the prefLabel of
+  # its target reads as the text, and the step writes two orders of magnitude
+  # more definitions than the ontology has.
+  def test_ordinary_links_are_not_reified_definitions
+    sub = submission
+
+    assert_empty definition_objects(sub, LINKED_CONCEPT),
+                 "#{LINKED_CONCEPT} has no definition in the fixture and gets none from the step"
+
+    # Each text named with the link it would have come through, so a failure
+    # says which one leaked rather than just counting definitions.
+    resolved = literal_definitions(sub, LINKED_CONCEPT).map(&:value)
+    LEAKED_TEXTS.each do |text, link|
+      refute_includes resolved, text, "#{link} of #{LINKED_CONCEPT} is not a reified definition"
+    end
+  end
 
   def definition_objects(sub, concept)
     query = <<~SPARQL

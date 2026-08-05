@@ -185,6 +185,13 @@ module LinkedData
 
       # skos:definition plus the properties the portal treats as its equivalent,
       # so a reified definition is picked up whichever one the ontology uses.
+      #
+      # The queries below restrict on these with FILTER(?p IN (...)) rather than
+      # a VALUES block: 4store parses VALUES and then silently ignores it, in
+      # every position. That turns each pattern into an unrestricted one, and a
+      # step meant to read a few hundred reified nodes instead walks every
+      # skos:broader, skos:inScheme and rdf:type of every concept and asserts
+      # the prefLabel it finds there as a definition.
       def definition_properties
         @submission.bring(:definitionProperty) if @submission.bring?(:definitionProperty)
 
@@ -203,7 +210,7 @@ module LinkedData
       # below, but paging that survives a shrinking match set costs nothing here
       # and does not have to be revisited if that ever stops being true.
       def reified_definition_concepts(properties, after)
-        filters = ['!isLiteral(?node)']
+        filters = ["?definitionProperty IN (#{properties.join(', ')})", '!isLiteral(?node)']
         # IRIs order by their string value, so the cursor can compare on str().
         filters << "str(?concept) > #{RDF::Literal.new(after.to_s).to_ntriples}" if after
 
@@ -211,7 +218,6 @@ module LinkedData
           SELECT DISTINCT ?concept
           FROM #{@submission.id.to_ntriples}
           WHERE {
-            VALUES ?definitionProperty { #{properties.join(' ')} }
             ?concept ?definitionProperty ?node .
             FILTER(#{filters.join(' && ')})
           }
@@ -225,11 +231,11 @@ module LinkedData
       end
 
       def resolve_concepts(logger, properties, concepts, stats)
-        values = concepts.map(&:to_ntriples).join(' ')
-        existing = existing_definitions(properties, values)
+        concept_list = concepts.map(&:to_ntriples).join(', ')
+        existing = existing_definitions(properties, concept_list)
         triples = []
 
-        definition_nodes(properties, values).each do |concept, concept_nodes|
+        definition_nodes(properties, concept_list).each do |concept, concept_nodes|
           concept_nodes.each do |node, predicates|
             literals = definition_text(predicates)
 
@@ -257,15 +263,15 @@ module LinkedData
       # The literals hanging off the reified nodes of a page of concepts, as
       # { concept => { node => { predicate => [literal] } } }. Nodes carrying no
       # literal at all are kept (empty), they are the ones to report.
-      def definition_nodes(properties, values)
+      def definition_nodes(properties, concept_list)
         query = <<~SPARQL
           SELECT ?concept ?node ?p ?o
           FROM #{@submission.id.to_ntriples}
           WHERE {
-            VALUES ?concept { #{values} }
-            VALUES ?definitionProperty { #{properties.join(' ')} }
             ?concept ?definitionProperty ?node .
-            FILTER(!isLiteral(?node))
+            FILTER(?concept IN (#{concept_list})
+                   && ?definitionProperty IN (#{properties.join(', ')})
+                   && !isLiteral(?node))
             OPTIONAL {
               ?node ?p ?o .
               FILTER(isLiteral(?o))
@@ -285,15 +291,15 @@ module LinkedData
 
       # The definitions a page of concepts already holds as literals, so nothing
       # gets asserted twice.
-      def existing_definitions(properties, values)
+      def existing_definitions(properties, concept_list)
         query = <<~SPARQL
           SELECT ?concept ?definition
           FROM #{@submission.id.to_ntriples}
           WHERE {
-            VALUES ?concept { #{values} }
-            VALUES ?definitionProperty { #{properties.join(' ')} }
             ?concept ?definitionProperty ?definition .
-            FILTER(isLiteral(?definition))
+            FILTER(?concept IN (#{concept_list})
+                   && ?definitionProperty IN (#{properties.join(', ')})
+                   && isLiteral(?definition))
           }
         SPARQL
 
