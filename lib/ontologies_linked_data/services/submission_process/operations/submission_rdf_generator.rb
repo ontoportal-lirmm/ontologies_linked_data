@@ -1,3 +1,4 @@
+require "ontologies_linked_data/parser/xlsx_converter"
 
 module LinkedData
   module Services
@@ -28,6 +29,13 @@ module LinkedData
           generate_rdf(logger, reasoning: reasoning)
           @submission.add_submission_status(status)
           @submission.save
+        rescue LinkedData::Parser::XlsxConverter::TemplateValidationError => e
+          logger.error("#{e.class}: #{e.message}\n#{e.backtrace.join("\n\t")}")
+          logger.flush
+          @submission.add_submission_status(LinkedData::Models::SubmissionStatus.find("ERROR_TDV5").first)
+          @submission.save
+          # If RDF generation fails, no point of continuing
+          raise e
         rescue StandardError => e
           logger.error("#{e.class}: #{e.message}\n#{e.backtrace.join("\n\t")}")
           logger.flush

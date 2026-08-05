@@ -4,6 +4,11 @@ module LinkedData
   module Parser
     # Converts Crop Ontology Template XLSX files to OWL/RDF XML.
     class XlsxConverter
+      # Raised when the uploaded file does not conform to the TDv5 template
+      # (missing sheet, missing required columns) — as opposed to downstream
+      # RDF/OWLAPI errors. Mapped to the ERROR_TDV5 submission status.
+      class TemplateValidationError < ArgumentError; end
+
       SHEET_NAME = "Template for submission"
 
       # Dublin Core Terms vocabulary
@@ -47,7 +52,7 @@ module LinkedData
       def parse_xlsx
         spreadsheet = Roo::Spreadsheet.open(@file_path)
         unless spreadsheet.sheets.include?(SHEET_NAME)
-          raise ArgumentError, "XLSX must contain a sheet named '#{SHEET_NAME}' (found: #{spreadsheet.sheets.join(', ')})"
+          raise TemplateValidationError, "XLSX must contain a sheet named '#{SHEET_NAME}' (found: #{spreadsheet.sheets.join(', ')})"
         end
         sheet = spreadsheet.sheet(SHEET_NAME)
 
@@ -72,7 +77,7 @@ module LinkedData
         required_cols = ["Variable name", "Trait name", "Method name", "Scale name", "Variable ID"]
         missing_cols = required_cols & nan_cols
         if missing_cols.any?
-          raise ArgumentError, "Required columns must not be empty: #{missing_cols.join(', ')}"
+          raise TemplateValidationError, "Required columns must not be empty: #{missing_cols.join(', ')}"
         end
 
         # Fill nil with empty string, remove quotes
