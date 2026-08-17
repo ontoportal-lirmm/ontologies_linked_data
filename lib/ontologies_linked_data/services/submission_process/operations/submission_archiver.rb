@@ -2,7 +2,7 @@ module LinkedData
   module Services
     class OntologySubmissionArchiver < OntologySubmissionProcess
 
-      FILES_TO_DELETE = ['labels.ttl', 'mappings.ttl', 'obsolete.ttl', 'owlapi.xrdf', 'errors.log']
+      FILES_TO_DELETE = ['labels.ttl', 'mappings.ttl', 'obsolete.ttl', 'definitions.ttl', 'owlapi.xrdf', 'errors.log']
       FOLDERS_TO_DELETE = ['unzipped']
       FILE_SIZE_ZIPPING_THRESHOLD = 100 * 1024 * 1024 # 100MB
 
