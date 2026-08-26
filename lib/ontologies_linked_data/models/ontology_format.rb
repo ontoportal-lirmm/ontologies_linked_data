@@ -1,7 +1,7 @@
 module LinkedData
   module Models
     class OntologyFormat < LinkedData::Models::Base
-      VALUES = ["OBO", "OWL", "UMLS", "PROTEGE", "SKOS"]
+      VALUES = ["OBO", "OWL", "UMLS", "PROTEGE", "SKOS", "XLSX"]
 
 
       model :ontology_format, name_with: :acronym
@@ -23,15 +23,25 @@ module LinkedData
         return id.to_s.end_with? "SKOS"
       end
 
+      def xlsx?
+        return id.to_s.end_with? "XLSX"
+      end
+
       EXTENSIONS = {
         owl: ".owl",
         obo: ".obo",
         umls: ".ttl",
-        skos: ".skos"
+        skos: ".skos",
+        xlsx: ".xlsx"
       }.freeze
       def file_extension
         self.bring(:acronym) if self.bring?(:acronym)
         EXTENSIONS[self.acronym.downcase.to_sym]
+      end
+
+      def master_file_extensions
+        return [".xlsx", ".xls", ".csv"] if xlsx?
+        [file_extension]
       end
 
       def tree_property

@@ -106,11 +106,12 @@ hasOntologyLanguage:
     "OMV: The ontology language.",
     "SCHEMA : Media type, typically MIME format (see IANA site) of the content." ]
   extractedMetadata: false
-  enforcedValues: [ 
+  enforcedValues: [
     "OBO",
     "OWL",
     "SKOS",
-    "UMLS" ]
+    "UMLS",
+    "XLSX" ]
   metadataMappings: [ "mod:hasRepresentationLanguage", "omv:hasOntologyLanguage", "schema:fileFormat" ]
  
 #Formality level

@@ -381,8 +381,8 @@ module LinkedData
         elsif zip and files.length == 1
           self.masterFileName = files.first
           return true
-        elsif zip && self.masterFileName.nil? && LinkedData::Utils::FileHelpers.automaster?(self.uploadFilePath, self.hasOntologyLanguage.file_extension)
-          self.masterFileName = LinkedData::Utils::FileHelpers.automaster(self.uploadFilePath, self.hasOntologyLanguage.file_extension)
+        elsif zip && self.masterFileName.nil? && LinkedData::Utils::FileHelpers.automaster?(self.uploadFilePath, self.hasOntologyLanguage.master_file_extensions)
+          self.masterFileName = LinkedData::Utils::FileHelpers.automaster(self.uploadFilePath, self.hasOntologyLanguage.master_file_extensions)
           return true
         elsif zip and self.masterFileName.nil?
           # zip and masterFileName not set. The user has to choose.
@@ -860,11 +860,58 @@ module LinkedData
 
       def owlapi_parser(logger: Logger.new($stdout))
         unzip_submission(logger)
-        LinkedData::Parser::OWLAPICommand.new(
-          owlapi_parser_input,
-          File.expand_path(self.data_folder.to_s),
-          master_file: self.masterFileName,
-          logger: logger)
+        self.bring(:hasOntologyLanguage) if self.bring?(:hasOntologyLanguage)
+
+        if hasOntologyLanguage&.xlsx?
+          LinkedData::Parser::OWLAPICommand.new(
+            File.expand_path(ensure_xlsx_converted(logger)),
+            File.expand_path(self.data_folder.to_s),
+            logger: logger)
+        else
+          LinkedData::Parser::OWLAPICommand.new(
+            owlapi_parser_input,
+            File.expand_path(self.data_folder.to_s),
+            master_file: self.masterFileName,
+            logger: logger)
+        end
+      end
+
+      def xlsx_converted_owl_path
+        File.join(File.expand_path(self.data_folder.to_s), "converted_from_xlsx.owl")
+      end
+
+      def ensure_xlsx_converted(logger = Logger.new($stdout))
+        converted = xlsx_converted_owl_path
+        return converted if File.exist?(converted)
+
+        require "ontologies_linked_data/parser/xlsx_converter"
+        self.bring(:URI) if self.bring?(:URI)
+        self.ontology.bring(:acronym) if self.ontology.bring?(:acronym)
+
+        logger.info("XLSX format detected; converting to OWL via XlsxConverter")
+        logger.info("XLSX path: #{master_file_path}")
+        owl_xml = LinkedData::Parser::XlsxConverter.convert(master_file_path, self.ontology.acronym, self.URI.to_s)
+        File.write(converted, owl_xml)
+        logger.info("XLSX converted to OWL (#{owl_xml.length} bytes) -> #{converted}")
+        logger.flush
+        converted
+      end
+
+      def diff_file_path(logger = Logger.new($stdout))
+        self.bring(:hasOntologyLanguage) if self.bring?(:hasOntologyLanguage)
+        if hasOntologyLanguage&.xlsx?
+          converted = xlsx_converted_owl_path
+          unless File.exist?(converted)
+            self.bring(:uploadFilePath) if self.bring?(:uploadFilePath)
+            self.bring(:masterFileName) if self.bring?(:masterFileName)
+            unzip_submission(logger)
+            ensure_xlsx_converted(logger)
+          end
+          File.expand_path(converted)
+        else
+          self.bring(:uploadFilePath) if self.bring?(:uploadFilePath)
+          File.expand_path(self.uploadFilePath)
+        end
       end
 
       private
