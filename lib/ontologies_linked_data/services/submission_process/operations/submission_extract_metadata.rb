@@ -26,7 +26,7 @@ module LinkedData
           end
         end
 
-        populate_default_value(:includedInDataCatalog, LinkedData.settings.rest_url_prefix.to_s, logger)
+        populate_default_value(:includedInDataCatalog, ui_url, logger)
         populate_default_value(:endpoint, LinkedData.settings.sparql_endpoint_url.to_s, logger)
 
         if @submission.valid?
@@ -312,6 +312,11 @@ eos
         before_last_sub.public_send(attr.to_s)
       end
 
+
+      def ui_url
+        host = LinkedData.settings.ui_host.to_s
+        host.empty? ? '' : "https://#{host}"
+      end
 
       def populate_default_value(attr, url, logger)
         return if url.empty?
